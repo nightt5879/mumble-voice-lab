@@ -1,11 +1,22 @@
 {
   "name": "mumble-voice-lab",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Browser-based character mumble and gibberish voice generator for games.",
+  "author": "nightt5879",
+  "license": "Apache-2.0",
+  "homepage": "https://nightt5879.github.io/mumble-voice-lab/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nightt5879/mumble-voice-lab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nightt5879/mumble-voice-lab/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "samples": "node scripts/generate-readme-samples.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

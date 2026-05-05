@@ -1,4 +1,7 @@
 import type { MumbleParameters } from "../presets/types";
+import { defaultExpressionSettings } from "../expression/defaultExpressions";
+import { resolveExpression } from "../expression/resolveExpression";
+import type { ExpressionSettings } from "../expression/types";
 import { createSeededRandom, type SeededRandom } from "../random/seededRandom";
 import { analyzeText } from "../utils/textAnalysis";
 import type {
@@ -161,6 +164,7 @@ function getEventKind(
   phraseProgress: number,
   punctuationAfter: PauseKind | undefined,
   rng: SeededRandom,
+  emphasisChanceBonus: number,
 ): EventKind {
   if (
     punctuationAfter === "sentence" ||
@@ -184,7 +188,11 @@ function getEventKind(
 
   const longEnglishStart = unit.language === "en" && unit.eventCount >= 3 && unit.eventOrdinal === 0;
   const phraseHighPoint = phraseProgress > 0.32 && phraseProgress < 0.72;
-  const languageChance = unit.language === "zh" ? 0.08 : 0.15;
+  const languageChance = clamp(
+    (unit.language === "zh" ? 0.08 : 0.15) + emphasisChanceBonus,
+    0,
+    0.45,
+  );
   if (longEnglishStart || (phraseHighPoint && rng.next() < languageChance)) {
     return "emphasis";
   }
@@ -271,12 +279,21 @@ function getNextSyllableUnit(units: TextUnit[], index: number) {
 
 export function buildSchedule(
   text: string,
-  params: MumbleParameters,
+  baseParams: MumbleParameters,
   presetId: string,
   languageTools: LanguageTools = fallbackLanguageTools,
+  expressionSettings: ExpressionSettings = defaultExpressionSettings,
 ): MumbleSchedule {
+  const resolvedExpression = resolveExpression(baseParams, expressionSettings);
+  const params = resolvedExpression.params;
   const analysis = analyzeText(text, params.wordCountMultiplier, languageTools);
-  const seedKey = `${presetId}:${params.seed}:${analysis.languageToolStatus}:${analysis.normalizedText}`;
+  const expressionSeed = [
+    resolvedExpression.version,
+    resolvedExpression.settings.emotion,
+    resolvedExpression.settings.style,
+    resolvedExpression.settings.intensity,
+  ].join(":");
+  const seedKey = `${presetId}:${params.seed}:${expressionSeed}:${analysis.languageToolStatus}:${analysis.normalizedText}`;
   const rng = createSeededRandom(seedKey);
   const syllableUnits = analysis.units.filter((unit) => unit.kind === "syllable");
   const eventCount = Math.max(1, syllableUnits.length);
@@ -301,7 +318,7 @@ export function buildSchedule(
           phraseIndex: unit.phraseIndex,
         });
       }
-      cursor += (unit.pauseMs ?? 120) / 1000;
+      cursor += ((unit.pauseMs ?? 120) / 1000) * resolvedExpression.modifiers.pauseScale;
       return;
     }
 
@@ -312,7 +329,13 @@ export function buildSchedule(
     const punctuationAfter = nextPauseKind(analysis.units, unitIndex);
     const nextSyllableUnit = getNextSyllableUnit(analysis.units, unitIndex);
     const phrase = analysis.phrases[unit.phraseIndex];
-    const eventKind = getEventKind(unit, phraseProgress, punctuationAfter, rng);
+    const eventKind = getEventKind(
+      unit,
+      phraseProgress,
+      punctuationAfter,
+      rng,
+      resolvedExpression.modifiers.emphasisChanceBonus,
+    );
     const formants = pickFormantPair(rng, unit.language, lastVowel);
     const lengthRandomness =
       unit.language === "zh"
@@ -350,6 +373,11 @@ export function buildSchedule(
     const endingPitch = params.pitchFallAtEnd
       ? punctuationPitchOffset(phraseEnding, phraseProgress)
       : 0;
+    const expressionEndingPitch =
+      phraseProgress > 0.45
+        ? resolvedExpression.modifiers.endingPitchSemitone *
+          ((phraseProgress - 0.45) / 0.55)
+        : 0;
     const pitchContour =
       unit.language === "zh"
         ? getToneContour(unit.tone, unit.particleKind)
@@ -362,7 +390,15 @@ export function buildSchedule(
           : 0;
     const freq = clamp(
       params.basicFreq *
-        semitoneToRatio(pitchJitter + phraseReset + stressPitch + endingPitch + formantPitch + pitchContour.start * 0.35),
+        semitoneToRatio(
+          pitchJitter +
+            phraseReset +
+            stressPitch +
+            endingPitch +
+            expressionEndingPitch +
+            formantPitch +
+            pitchContour.start * 0.35,
+        ),
       35,
       2600,
     );
@@ -475,8 +511,12 @@ export function buildSchedule(
     presetId,
     seedKey,
     duration: Number(duration.toFixed(3)),
+    expressionVersion: resolvedExpression.version,
+    expression: resolvedExpression.settings,
+    resolvedExpression,
     analysis,
-    params: { ...params },
+    params: { ...baseParams },
+    resolvedParams: { ...params },
     events,
     revealEvents,
   };

@@ -2,8 +2,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildSchedule } from "./audio/scheduler";
 import { playMumbleEvents, stopMumblePlayback } from "./audio/synth";
 import { downloadBlob, renderEventsToWav } from "./audio/wav";
+import {
+  defaultExpressionSettings,
+  emotionDefinitions,
+  neutralExpressionSettings,
+  speakingStyleDefinitions,
+} from "./expression/defaultExpressions";
+import type { EmotionId, ExpressionSettings, SpeakingStyleId } from "./expression/types";
 import { defaultPresets } from "./presets/defaultPresets";
 import type { MumbleParameters } from "./presets/types";
+import { uiCopy, type UiCopy, type UiLanguage } from "./i18n";
 import {
   initLanguageTools,
   loadingLanguageTools,
@@ -17,7 +25,6 @@ type NumericParameter = Exclude<
 
 interface SliderDefinition {
   key: NumericParameter;
-  label: string;
   min: number;
   max: number;
   step: number;
@@ -25,22 +32,22 @@ interface SliderDefinition {
 }
 
 const sliderDefinitions: SliderDefinition[] = [
-  { key: "basicFreq", label: "Basic Freq", min: 45, max: 900, step: 1, unit: "Hz" },
-  { key: "wordCountMultiplier", label: "Word Count Mult", min: 0.35, max: 2.2, step: 0.01 },
-  { key: "syllableLengthMs", label: "Syllable Length", min: 35, max: 240, step: 1, unit: "ms" },
-  { key: "syllableLengthRandomness", label: "Length Random", min: 0, max: 0.85, step: 0.01 },
-  { key: "pitchRandomSemitone", label: "Pitch Random", min: 0, max: 14, step: 0.1, unit: "st" },
-  { key: "speedCurve", label: "Speed Curve", min: -1, max: 1, step: 0.01 },
-  { key: "timingJitterMs", label: "Timing Jitter", min: 0, max: 90, step: 1, unit: "ms" },
-  { key: "ringModFreq", label: "Ring Mod Freq", min: 0, max: 180, step: 1, unit: "Hz" },
-  { key: "ringModDepth", label: "Ring Mod Depth", min: 0, max: 1, step: 0.01 },
-  { key: "noiseAmount", label: "Noise Amount", min: 0, max: 0.7, step: 0.01 },
-  { key: "filterFreq", label: "Filter Freq", min: 180, max: 5200, step: 1, unit: "Hz" },
-  { key: "filterQ", label: "Filter Q", min: 0.4, max: 18, step: 0.1 },
-  { key: "attackMs", label: "Attack", min: 1, max: 80, step: 1, unit: "ms" },
-  { key: "releaseMs", label: "Release", min: 5, max: 190, step: 1, unit: "ms" },
-  { key: "volumeDb", label: "Volume", min: -24, max: 12, step: 0.5, unit: "dB" },
-  { key: "seed", label: "Seed", min: 1, max: 99999, step: 1 },
+  { key: "basicFreq", min: 45, max: 900, step: 1, unit: "Hz" },
+  { key: "wordCountMultiplier", min: 0.35, max: 2.2, step: 0.01 },
+  { key: "syllableLengthMs", min: 35, max: 240, step: 1, unit: "ms" },
+  { key: "syllableLengthRandomness", min: 0, max: 0.85, step: 0.01 },
+  { key: "pitchRandomSemitone", min: 0, max: 14, step: 0.1, unit: "st" },
+  { key: "speedCurve", min: -1, max: 1, step: 0.01 },
+  { key: "timingJitterMs", min: 0, max: 90, step: 1, unit: "ms" },
+  { key: "ringModFreq", min: 0, max: 180, step: 1, unit: "Hz" },
+  { key: "ringModDepth", min: 0, max: 1, step: 0.01 },
+  { key: "noiseAmount", min: 0, max: 0.7, step: 0.01 },
+  { key: "filterFreq", min: 180, max: 5200, step: 1, unit: "Hz" },
+  { key: "filterQ", min: 0.4, max: 18, step: 0.1 },
+  { key: "attackMs", min: 1, max: 80, step: 1, unit: "ms" },
+  { key: "releaseMs", min: 5, max: 190, step: 1, unit: "ms" },
+  { key: "volumeDb", min: -24, max: 12, step: 0.5, unit: "dB" },
+  { key: "seed", min: 1, max: 99999, step: 1 },
 ];
 
 function isEditableTarget(target: EventTarget | null) {
@@ -72,17 +79,139 @@ function makeJsonFileName(presetId: string, seed: number) {
   return `mumble-${presetId}-${seed}-${stamp}.json`;
 }
 
-function getLanguageToolLabel(languageTools: LanguageTools) {
+type AppStatus =
+  | { type: "ready" }
+  | { type: "toolsReady" }
+  | { type: "toolsFallback" }
+  | { type: "presetLoaded"; presetId: string }
+  | { type: "played"; emotion: EmotionId; style: SpeakingStyleId }
+  | { type: "audioFailed" }
+  | { type: "abA" }
+  | { type: "abB"; emotion: EmotionId; style: SpeakingStyleId }
+  | { type: "renderingWav" }
+  | { type: "exported"; count: number }
+  | { type: "wavFailed" }
+  | { type: "jsonExported"; count: number };
+
+type PlaybackLabel =
+  | { mode: "current" }
+  | { mode: "ab-original" }
+  | { mode: "ab-modified" };
+
+function getPresetDisplayName(presetId: string, ui: UiCopy) {
+  return ui.presetNames[presetId] ?? presetId;
+}
+
+function getEmotionDisplayName(emotion: EmotionId, ui: UiCopy) {
+  return ui.emotionNames[emotion] ?? emotion;
+}
+
+function getStyleDisplayName(style: SpeakingStyleId, ui: UiCopy) {
+  return ui.styleNames[style] ?? style;
+}
+
+function formatStatus(status: AppStatus, ui: UiCopy) {
+  if (status.type === "ready") {
+    return ui.status.ready;
+  }
+  if (status.type === "toolsReady") {
+    return ui.status.toolsReady;
+  }
+  if (status.type === "toolsFallback") {
+    return ui.status.toolsFallback;
+  }
+  if (status.type === "presetLoaded") {
+    return ui.status.presetLoaded(getPresetDisplayName(status.presetId, ui));
+  }
+  if (status.type === "played") {
+    return ui.status.played(
+      getEmotionDisplayName(status.emotion, ui),
+      getStyleDisplayName(status.style, ui),
+    );
+  }
+  if (status.type === "audioFailed") {
+    return ui.status.audioFailed;
+  }
+  if (status.type === "abA") {
+    return ui.status.abA;
+  }
+  if (status.type === "abB") {
+    return ui.status.abB(
+      getEmotionDisplayName(status.emotion, ui),
+      getStyleDisplayName(status.style, ui),
+    );
+  }
+  if (status.type === "renderingWav") {
+    return ui.status.renderingWav;
+  }
+  if (status.type === "exported") {
+    return ui.status.exported(status.count);
+  }
+  if (status.type === "wavFailed") {
+    return ui.status.wavFailed;
+  }
+  return ui.status.jsonExported(status.count);
+}
+
+function getLanguageToolLabel(languageTools: LanguageTools, ui: UiCopy) {
   if (languageTools.status === "ready") {
-    return "Language Tools: Ready";
+    return ui.languageTools.ready;
   }
   if (languageTools.status === "loading") {
-    return "Language Tools: Loading";
+    return ui.languageTools.loading;
   }
-  return "Language Tools: Fallback";
+  return ui.languageTools.fallback;
+}
+
+function getLanguageToolTitle(languageTools: LanguageTools, ui: UiCopy) {
+  if (languageTools.status !== "fallback") {
+    return getLanguageToolLabel(languageTools, ui);
+  }
+  return languageTools.error
+    ? `${ui.languageTools.fallbackDescription}: ${languageTools.error}`
+    : ui.languageTools.fallbackDescription;
+}
+
+function formatPlaybackLabel(
+  label: PlaybackLabel,
+  expression: ExpressionSettings,
+  ui: UiCopy,
+) {
+  if (label.mode === "ab-original") {
+    return {
+      title: ui.compare.original,
+      detail: ui.compare.originalDetail,
+    };
+  }
+
+  const detail = ui.compare.modifiedDetail(
+    getEmotionDisplayName(expression.emotion, ui),
+    getStyleDisplayName(expression.style, ui),
+    expression.intensity,
+  );
+
+  if (label.mode === "ab-modified") {
+    return {
+      title: ui.compare.modified,
+      detail,
+    };
+  }
+
+  return {
+    title: ui.compare.current,
+    detail,
+  };
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 }
 
 export default function App() {
+  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("zh");
+  const ui = uiCopy[uiLanguage];
   const [text, setText] = useState(
     "Good morning, traveler! Ready for a tiny adventure?",
   );
@@ -90,14 +219,21 @@ export default function App() {
   const [params, setParams] = useState<MumbleParameters>(
     defaultPresets[0].params,
   );
-  const [status, setStatus] = useState("Ready");
+  const [status, setStatus] = useState<AppStatus>({ type: "ready" });
   const [isExporting, setIsExporting] = useState(false);
   const [visibleText, setVisibleText] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeEventIndex, setActiveEventIndex] = useState<number | null>(null);
+  const [playbackLabel, setPlaybackLabel] = useState<PlaybackLabel>({
+    mode: "current",
+  });
   const [languageTools, setLanguageTools] =
     useState<LanguageTools>(loadingLanguageTools);
+  const [expression, setExpression] = useState<ExpressionSettings>(
+    defaultExpressionSettings,
+  );
   const playbackTimers = useRef<number[]>([]);
+  const playbackSequence = useRef(0);
 
   const selectedPreset = useMemo(
     () =>
@@ -107,7 +243,19 @@ export default function App() {
   );
 
   const schedule = useMemo(
-    () => buildSchedule(text, params, selectedPresetId, languageTools),
+    () => buildSchedule(text, params, selectedPresetId, languageTools, expression),
+    [expression, languageTools, params, selectedPresetId, text],
+  );
+
+  const neutralSchedule = useMemo(
+    () =>
+      buildSchedule(
+        text,
+        params,
+        selectedPresetId,
+        languageTools,
+        neutralExpressionSettings,
+      ),
     [languageTools, params, selectedPresetId, text],
   );
 
@@ -116,20 +264,25 @@ export default function App() {
     playbackTimers.current = [];
   }, []);
 
-  const stopPlayback = useCallback(() => {
+  const clearActivePlayback = useCallback(() => {
     clearPlaybackTimers();
     stopMumblePlayback();
     setIsPlaying(false);
     setActiveEventIndex(null);
   }, [clearPlaybackTimers]);
 
-  const startTypewriter = useCallback(() => {
+  const stopPlayback = useCallback(() => {
+    playbackSequence.current += 1;
+    clearActivePlayback();
+  }, [clearActivePlayback]);
+
+  const startTypewriter = useCallback((targetSchedule = schedule) => {
     let accumulatedText = "";
     setVisibleText("");
     setIsPlaying(true);
     setActiveEventIndex(null);
 
-    schedule.revealEvents.forEach((event) => {
+    targetSchedule.revealEvents.forEach((event) => {
       const timer = window.setTimeout(() => {
         accumulatedText += event.text;
         setVisibleText(accumulatedText);
@@ -137,7 +290,7 @@ export default function App() {
       playbackTimers.current.push(timer);
     });
 
-    schedule.events.forEach((event) => {
+    targetSchedule.events.forEach((event) => {
       const startTimer = window.setTimeout(() => {
         setActiveEventIndex(event.index);
       }, Math.max(0, event.time * 1000));
@@ -148,16 +301,26 @@ export default function App() {
     });
 
     const doneTimer = window.setTimeout(() => {
-      setVisibleText(schedule.analysis.normalizedText);
+      setVisibleText(targetSchedule.analysis.normalizedText);
       setIsPlaying(false);
       setActiveEventIndex(null);
-    }, Math.max(0, schedule.duration * 1000 + 80));
+    }, Math.max(0, targetSchedule.duration * 1000 + 80));
     playbackTimers.current.push(doneTimer);
   }, [schedule]);
 
   const setParameter = useCallback(
     (key: keyof MumbleParameters, value: number | boolean) => {
       setParams((current) => ({
+        ...current,
+        [key]: value,
+      }));
+    },
+    [],
+  );
+
+  const setExpressionField = useCallback(
+    <K extends keyof ExpressionSettings>(key: K, value: ExpressionSettings[K]) => {
+      setExpression((current) => ({
         ...current,
         [key]: value,
       }));
@@ -172,31 +335,71 @@ export default function App() {
     }
     setSelectedPresetId(preset.id);
     setParams({ ...preset.params });
-    setStatus(`${preset.name} loaded`);
+    setStatus({ type: "presetLoaded", presetId: preset.id });
   };
 
   const triggerPlayback = useCallback(async () => {
     try {
       stopPlayback();
-      await playMumbleEvents(schedule.events, params);
-      startTypewriter();
-      setStatus(`Played ${schedule.events.length} events`);
+      setPlaybackLabel({ mode: "current" });
+      await playMumbleEvents(schedule.events, schedule.resolvedParams);
+      startTypewriter(schedule);
+      setStatus({
+        type: "played",
+        emotion: schedule.expression.emotion,
+        style: schedule.expression.style,
+      });
     } catch (error) {
       console.error(error);
-      setStatus("Audio playback failed");
+      setStatus({ type: "audioFailed" });
     }
-  }, [params, schedule.events, startTypewriter, stopPlayback]);
+  }, [schedule, startTypewriter, stopPlayback]);
+
+  const triggerABPlayback = useCallback(async () => {
+    playbackSequence.current += 1;
+    const runId = playbackSequence.current;
+    clearActivePlayback();
+
+    try {
+      setPlaybackLabel({ mode: "ab-original" });
+      setStatus({ type: "abA" });
+      await playMumbleEvents(neutralSchedule.events, neutralSchedule.resolvedParams);
+      startTypewriter(neutralSchedule);
+      await wait(neutralSchedule.duration * 1000 + 320);
+
+      if (playbackSequence.current !== runId) {
+        return;
+      }
+
+      clearActivePlayback();
+      setPlaybackLabel({ mode: "ab-modified" });
+      setStatus({
+        type: "abB",
+        emotion: schedule.expression.emotion,
+        style: schedule.expression.style,
+      });
+      await playMumbleEvents(schedule.events, schedule.resolvedParams);
+      startTypewriter(schedule);
+    } catch (error) {
+      console.error(error);
+      setStatus({ type: "audioFailed" });
+    }
+  }, [clearActivePlayback, neutralSchedule, schedule, startTypewriter]);
 
   const exportWav = async () => {
     setIsExporting(true);
-    setStatus("Rendering WAV");
+    setStatus({ type: "renderingWav" });
     try {
-      const blob = await renderEventsToWav(schedule.events, params, schedule.duration);
+      const blob = await renderEventsToWav(
+        schedule.events,
+        schedule.resolvedParams,
+        schedule.duration,
+      );
       downloadBlob(blob, makeFileName(selectedPresetId, params.seed));
-      setStatus(`Exported ${schedule.events.length} events`);
+      setStatus({ type: "exported", count: schedule.events.length });
     } catch (error) {
       console.error(error);
-      setStatus("WAV export failed");
+      setStatus({ type: "wavFailed" });
     } finally {
       setIsExporting(false);
     }
@@ -204,10 +407,13 @@ export default function App() {
 
   const exportJson = () => {
     const payload = {
-      version: "0.2.0",
+      version: "0.3.0",
       text,
       preset: selectedPreset,
       params,
+      expression: schedule.expression,
+      resolvedExpression: schedule.resolvedExpression,
+      resolvedParams: schedule.resolvedParams,
       analysis: schedule.analysis,
       events: schedule.events,
       revealEvents: schedule.revealEvents,
@@ -216,7 +422,7 @@ export default function App() {
       type: "application/json",
     });
     downloadBlob(blob, makeJsonFileName(selectedPresetId, params.seed));
-    setStatus(`Exported JSON with ${schedule.events.length} events`);
+    setStatus({ type: "jsonExported", count: schedule.events.length });
   };
 
   useEffect(() => {
@@ -227,11 +433,7 @@ export default function App() {
         return;
       }
       setLanguageTools(tools);
-      setStatus(
-        tools.status === "ready"
-          ? "Language tools ready"
-          : "Language tools fallback mode",
-      );
+      setStatus({ type: tools.status === "ready" ? "toolsReady" : "toolsFallback" });
     });
 
     return () => {
@@ -266,6 +468,12 @@ export default function App() {
       presetId: schedule.presetId,
       seed: params.seed,
       duration: schedule.duration,
+      expression: {
+        version: schedule.expressionVersion,
+        selected: schedule.expression,
+        summary: schedule.resolvedExpression.summary,
+        modifiers: schedule.resolvedExpression.modifiers,
+      },
       text: {
         chars: schedule.analysis.charCount,
         words: schedule.analysis.wordCount,
@@ -300,29 +508,42 @@ export default function App() {
     }),
     [params.seed, schedule],
   );
+  const playbackLabelText = formatPlaybackLabel(playbackLabel, expression, ui);
 
   return (
     <main className="app-shell">
       <header className="app-header">
         <div>
-          <p className="eyebrow">Prototype audio tool</p>
+          <p className="eyebrow">{ui.appEyebrow}</p>
           <h1>Mumble Voice Lab</h1>
         </div>
         <div className="header-status" aria-live="polite">
-          <div className="status-pill">{status}</div>
+          <div className="language-toggle" aria-label={ui.uiLanguage}>
+            {(["zh", "en"] as const).map((language) => (
+              <button
+                className={language === uiLanguage ? "is-active" : ""}
+                key={language}
+                onClick={() => setUiLanguage(language)}
+                type="button"
+              >
+                {ui.languageNames[language]}
+              </button>
+            ))}
+          </div>
+          <div className="status-pill">{formatStatus(status, ui)}</div>
           <div
             className={`status-pill language-status is-${languageTools.status}`}
-            title={languageTools.error}
+            title={getLanguageToolTitle(languageTools, ui)}
           >
-            {getLanguageToolLabel(languageTools)}
+            {getLanguageToolLabel(languageTools, ui)}
           </div>
         </div>
       </header>
 
       <section className="workspace">
-        <aside className="panel preset-panel" aria-label="Character presets">
+        <aside className="panel preset-panel" aria-label={ui.aria.characterPresets}>
           <div className="panel-heading">
-            <h2>Characters</h2>
+            <h2>{ui.panels.characters}</h2>
           </div>
           <div className="preset-list">
             {defaultPresets.map((preset) => (
@@ -339,33 +560,89 @@ export default function App() {
                   style={{ backgroundColor: preset.swatch }}
                   aria-hidden="true"
                 />
-                <span>{preset.name}</span>
+                <span>{getPresetDisplayName(preset.id, ui)}</span>
               </button>
             ))}
           </div>
 
           <div className="preset-json">
-            <h3>Preset JSON</h3>
+            <h3>{ui.panels.presetJson}</h3>
             <pre>{JSON.stringify(selectedPreset, null, 2)}</pre>
           </div>
         </aside>
 
-        <section className="panel composer-panel" aria-label="Dialogue composer">
+        <section className="panel composer-panel" aria-label={ui.aria.dialogueComposer}>
           <div className="panel-heading">
-            <h2>Statement</h2>
-            <span>{schedule.events.length} blips</span>
+            <h2>{ui.panels.statement}</h2>
+            <span>
+              {schedule.events.length} {ui.analysis.blips}
+            </span>
           </div>
 
           <textarea
-            aria-label="Dialogue text"
+            aria-label={ui.aria.dialogueText}
             value={text}
             onChange={(event) => setText(event.target.value)}
             spellCheck={false}
           />
 
+          <div className="expression-controls" aria-label={ui.aria.expressionControls}>
+            <label className="select-row">
+              <span>{ui.fields.emotion}</span>
+              <select
+                value={expression.emotion}
+                onChange={(event) =>
+                  setExpressionField("emotion", event.target.value as EmotionId)
+                }
+              >
+                {emotionDefinitions.map((definition) => (
+                  <option key={definition.id} value={definition.id}>
+                    {getEmotionDisplayName(definition.id, ui)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="select-row">
+              <span>{ui.fields.style}</span>
+              <select
+                value={expression.style}
+                onChange={(event) =>
+                  setExpressionField("style", event.target.value as SpeakingStyleId)
+                }
+              >
+                {speakingStyleDefinitions.map((definition) => (
+                  <option key={definition.id} value={definition.id}>
+                    {getStyleDisplayName(definition.id, ui)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="expression-intensity">
+              <span>
+                <span>{ui.fields.intensity}</span>
+                <output>{expression.intensity}%</output>
+              </span>
+              <input
+                max={100}
+                min={0}
+                onChange={(event) =>
+                  setExpressionField("intensity", Number(event.target.value))
+                }
+                step={1}
+                type="range"
+                value={expression.intensity}
+              />
+            </label>
+          </div>
+
           <div className="button-row">
             <button className="primary-button" onClick={triggerPlayback} type="button">
-              Trigger Statement
+              {ui.buttons.trigger}
+            </button>
+            <button className="secondary-button" onClick={triggerABPlayback} type="button">
+              {ui.buttons.abCompare}
             </button>
             <button
               className="secondary-button"
@@ -373,7 +650,7 @@ export default function App() {
               onClick={stopPlayback}
               type="button"
             >
-              Stop
+              {ui.buttons.stop}
             </button>
             <button
               className="secondary-button"
@@ -381,19 +658,23 @@ export default function App() {
               onClick={exportWav}
               type="button"
             >
-              {isExporting ? "Rendering..." : "Export WAV"}
+              {isExporting ? ui.buttons.rendering : ui.buttons.exportWav}
             </button>
             <button className="secondary-button" onClick={exportJson} type="button">
-              Export JSON
+              {ui.buttons.exportJson}
             </button>
           </div>
 
           <div className="dialogue-preview" aria-live="polite">
+            <div className={`playback-label is-${playbackLabel.mode}`}>
+              <strong>{playbackLabelText.title}</strong>
+              <span>{playbackLabelText.detail}</span>
+            </div>
             <span>{visibleText || " "}</span>
             <i className={`talk-caret ${isPlaying ? "is-active" : ""}`} aria-hidden="true" />
           </div>
 
-          <div className="event-strip" aria-label="Generated event strip">
+          <div className="event-strip" aria-label={ui.aria.generatedEventStrip}>
             {schedule.events.map((event) => (
               <span
                 className={`event-blip ${
@@ -412,36 +693,40 @@ export default function App() {
 
           <div className="analysis-grid">
             <div>
-              <span>Chars</span>
+              <span>{ui.analysis.chars}</span>
               <strong>{schedule.analysis.charCount}</strong>
             </div>
             <div>
-              <span>Words</span>
+              <span>{ui.analysis.words}</span>
               <strong>{schedule.analysis.wordCount}</strong>
             </div>
             <div>
-              <span>Syllables</span>
+              <span>{ui.analysis.syllables}</span>
               <strong>{schedule.analysis.estimatedSyllables}</strong>
             </div>
             <div>
-              <span>Duration</span>
+              <span>{ui.analysis.duration}</span>
               <strong>{schedule.duration.toFixed(2)}s</strong>
             </div>
             <div>
-              <span>Tools</span>
-              <strong>{schedule.analysis.languageToolStatus}</strong>
+              <span>{ui.analysis.tools}</span>
+              <strong>{ui.languageTools.short[schedule.analysis.languageToolStatus]}</strong>
+            </div>
+            <div>
+              <span>{ui.analysis.expression}</span>
+              <strong>{getEmotionDisplayName(schedule.expression.emotion, ui)}</strong>
             </div>
           </div>
 
           <div className="preview-block">
-            <h3>Event Preview</h3>
+            <h3>{ui.panels.eventPreview}</h3>
             <pre>{JSON.stringify(preview, null, 2)}</pre>
           </div>
         </section>
 
-        <aside className="panel parameter-panel" aria-label="Parameters">
+        <aside className="panel parameter-panel" aria-label={ui.aria.parameters}>
           <div className="panel-heading">
-            <h2>Parameters</h2>
+            <h2>{ui.panels.parameters}</h2>
           </div>
 
           <label className="toggle-row">
@@ -452,14 +737,14 @@ export default function App() {
               }
               type="checkbox"
             />
-            <span>Pitch Fall At End</span>
+            <span>{ui.fields.pitchFallAtEnd}</span>
           </label>
 
           <div className="slider-list">
             {sliderDefinitions.map((definition) => (
               <label className="slider-row" key={definition.key}>
                 <span>
-                  <span>{definition.label}</span>
+                  <span>{ui.parameterLabels[definition.key]}</span>
                   <output>
                     {formatValue(
                       Number(params[definition.key]),

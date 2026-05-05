@@ -1,4 +1,5 @@
 import initJieba, { cut as jiebaCut } from "jieba-wasm";
+import jiebaWasmUrl from "../../node_modules/jieba-wasm/pkg/web/jieba_rs_wasm_bg.wasm?url";
 import { pinyin } from "pinyin-pro";
 import { syllable } from "syllable";
 import type { LanguageToolStatus } from "../audio/types";
@@ -58,7 +59,7 @@ export const loadingLanguageTools: LanguageTools = {
 
 export async function initLanguageTools(): Promise<LanguageTools> {
   try {
-    await initJieba();
+    await initJieba({ module_or_path: jiebaWasmUrl });
 
     return {
       status: "ready",

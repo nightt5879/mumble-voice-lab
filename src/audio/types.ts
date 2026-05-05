@@ -1,4 +1,5 @@
 import type { MumbleParameters } from "../presets/types";
+import type { ExpressionSettings, ResolvedExpression } from "../expression/types";
 
 export type PauseKind = "comma" | "sentence" | "question" | "exclaim" | "ellipsis";
 export type TextLanguage = "zh" | "en" | "punct";
@@ -146,8 +147,12 @@ export interface MumbleSchedule {
   presetId: string;
   seedKey: string;
   duration: number;
+  expressionVersion: string;
+  expression: ExpressionSettings;
+  resolvedExpression: ResolvedExpression;
   analysis: TextAnalysis;
   params: MumbleParameters;
+  resolvedParams: MumbleParameters;
   events: SyllableEvent[];
   revealEvents: TextRevealEvent[];
 }
