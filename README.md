@@ -1,22 +1,24 @@
 # Mumble Voice Lab
 
-**中文** | [English](#english)
+**中文** | [English](README.en.md)
 
 面向游戏项目的浏览器角色碎碎念 / gibberish 语音生成器。输入一句台词，选择角色、情绪和说话风格，即可实时试听，并导出 deterministic WAV + JSON schedule。
 
-**在线 Demo:** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/)
+**在线体验：** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/)
 
-Mumble Voice Lab **不是 TTS**，不会真正朗读文字内容。它只借用文字长度、标点、中英文节奏、短语结构和句尾语调，生成短促的类音节 blip，让角色听起来像正在用自己的语言说话。适合 cozy RPG、独立游戏、视觉小说、怪物/生物游戏和对话系统原型。
+**GitHub 仓库：** [github.com/nightt5879/mumble-voice-lab](https://github.com/nightt5879/mumble-voice-lab)
 
-## 直接试听
+Mumble Voice Lab **不是 TTS**，不会真正朗读文字内容。它只借用文字长度、标点、中英文节奏、短语结构和句尾语调，生成短促的类音节 blip，让角色听起来像正在用自己的语言说话。
 
-GitHub 仓库 README 会过滤内嵌音频播放器标签，所以这里提供可以直接打开播放的 WAV 链接；浏览器打开后会显示音频播放控件。想看更完整的 12 条角色、情绪、中英混合 showcase，可以打开 [在线试听页](https://nightt5879.github.io/mumble-voice-lab/listen.html)。
+适合 cozy RPG、独立游戏、视觉小说、怪物 / 生物游戏、NPC 对话系统原型，以及任何需要“角色在说话，但不是现实语言朗读”的项目。
 
-| 角色 / 表达 | 台词 | 试听 |
-| --- | --- | --- |
-| Cute NPC / Happy | `早上好，旅行者！准备出发了吗？` | [播放 WAV](https://nightt5879.github.io/mumble-voice-lab/samples/cute-npc-happy-zh.wav) |
-| Robot Guard / Formal | `Good morning, traveler! Ready?` | [播放 WAV](https://nightt5879.github.io/mumble-voice-lab/samples/robot-guard-formal-en.wav) |
-| Monster / Scared | `你听到了吗？刚才那边好像有什么声音。` | [播放 WAV](https://nightt5879.github.io/mumble-voice-lab/samples/monster-scared-zh.wav) |
+## 在线试听
+
+想快速感受不同角色、情绪、说话风格、中文、英文和中英混合效果，可以直接打开在线试听页：
+
+**[打开 12 条样例试听页](https://nightt5879.github.io/mumble-voice-lab/listen.html)**
+
+试听页里包含 Cute NPC、Robot Guard、Tiny Creature、Tired Villager、Monster 等角色，以及 Happy、Whisper、Shout、Chant、Nervous、Sleepy、Sad、Scared、Angry 等不同表达方向。
 
 ## 功能亮点
 
@@ -45,7 +47,7 @@ Good morning, traveler! Ready?
 ```
 
 ```text
-你好 adventurer，ready?
+你好 adventurer，今天的 quest 准备好了吗？
 ```
 
 ## 本地开发
@@ -61,7 +63,7 @@ npm run dev
 npm run build
 ```
 
-重新生成 README 试听样例：
+重新生成在线试听页样例：
 
 ```bash
 npm run samples
@@ -74,80 +76,3 @@ Copyright 2026 nightt5879.
 代码使用 [Apache License 2.0](LICENSE) 开源。
 
 使用 Mumble Voice Lab 生成的音频、JSON schedule 和其他输出内容，可以自由用于个人、商业和开源游戏项目。
-
----
-
-## English
-
-**Mumble Voice Lab** is a browser-based character mumble / gibberish voice generator for games. Type a line, choose a character, tune emotion and speaking style, preview instantly, then export deterministic WAV + JSON schedules.
-
-**Live Demo:** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/)
-
-Mumble Voice Lab is **not TTS**. It does not pronounce real words. Instead, it borrows text length, punctuation, Chinese/English rhythm, phrase shape, and sentence endings to create short syllable-like blips that feel like a character is speaking in their own language.
-
-## Listen
-
-GitHub repository READMEs strip embedded audio player tags, so these links open playable WAV files directly in the browser. For the full 12-clip showcase with character presets, emotions, Chinese, English, and mixed-language examples, open the [online listen page](https://nightt5879.github.io/mumble-voice-lab/listen.html).
-
-| Character / expression | Line | Listen |
-| --- | --- | --- |
-| Cute NPC / Happy | `早上好，旅行者！准备出发了吗？` | [Play WAV](https://nightt5879.github.io/mumble-voice-lab/samples/cute-npc-happy-zh.wav) |
-| Robot Guard / Formal | `Good morning, traveler! Ready?` | [Play WAV](https://nightt5879.github.io/mumble-voice-lab/samples/robot-guard-formal-en.wav) |
-| Monster / Scared | `你听到了吗？刚才那边好像有什么声音。` | [Play WAV](https://nightt5879.github.io/mumble-voice-lab/samples/monster-scared-zh.wav) |
-
-## Features
-
-- Runs entirely in the browser, with no backend.
-- Generates game-like mumble voices with the Web Audio API.
-- Supports Chinese, English, and mixed lines such as `你好 adventurer，ready?`.
-- Chinese rhythm uses segmentation, subtle tone shaping, particles, and punctuation pauses.
-- English uses syllable counting to estimate pseudo-syllable events.
-- Character presets can be layered with emotion, speaking style, and intensity.
-- Deterministic output: same text + preset + seed + expression gives the same schedule.
-- Exports playable WAV files and reusable JSON schedules.
-- Bilingual UI: 中文 / English.
-
-## Try These Lines
-
-```text
-早上好，旅行者！准备出发了吗？
-```
-
-```text
-等一下啊，我们真的要进去吗？
-```
-
-```text
-Good morning, traveler! Ready?
-```
-
-```text
-你好 adventurer，ready?
-```
-
-## Local Development
-
-```bash
-npm install
-npm run dev
-```
-
-Build:
-
-```bash
-npm run build
-```
-
-Regenerate README audio samples:
-
-```bash
-npm run samples
-```
-
-## License
-
-Copyright 2026 nightt5879.
-
-Code is released under the [Apache License 2.0](LICENSE).
-
-Audio files, JSON schedules, and other outputs generated with Mumble Voice Lab may be used freely in personal, commercial, and open-source game projects.
