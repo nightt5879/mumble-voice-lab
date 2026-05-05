@@ -257,6 +257,48 @@ button:focus-visible {
   background: #ffe8b6;
 }
 
+.dialogue-preview {
+  display: flex;
+  align-items: center;
+  min-height: 78px;
+  margin: 0 16px 16px;
+  border: 1px solid #cbd9d0;
+  border-radius: 8px;
+  padding: 16px;
+  color: #17231d;
+  background: #fbfdfa;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.talk-caret {
+  display: inline-block;
+  width: 9px;
+  height: 1.35em;
+  margin-left: 3px;
+  border-radius: 999px;
+  background: #1f766c;
+  opacity: 0;
+}
+
+.talk-caret.is-active {
+  animation: caretPulse 580ms steps(1) infinite;
+}
+
+@keyframes caretPulse {
+  0%,
+  42% {
+    opacity: 1;
+  }
+
+  43%,
+  100% {
+    opacity: 0;
+  }
+}
+
 .event-strip {
   position: relative;
   height: 96px;
@@ -276,6 +318,11 @@ button:focus-visible {
   border-radius: 999px 999px 4px 4px;
   background: linear-gradient(180deg, #2dd4bf, #1f766c 62%, #f59e0b);
   box-shadow: 0 5px 16px rgba(31, 118, 108, 0.18);
+}
+
+.event-blip.is-current {
+  background: linear-gradient(180deg, #fef08a, #f59e0b 58%, #ef4444);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
 }
 
 .analysis-grid {

@@ -3,6 +3,12 @@ import { createSeededRandom } from "../random/seededRandom";
 import type { SyllableEvent } from "./types";
 
 let sharedContext: AudioContext | undefined;
+let activePlayback: MumblePlaybackHandle | undefined;
+
+export interface MumblePlaybackHandle {
+  startedAt: number;
+  stop: () => void;
+}
 
 function dbToGain(db: number) {
   return 10 ** (db / 20);
@@ -82,27 +88,50 @@ function scheduleEvent(
   const peakGain = clamp(event.gain * 0.95, 0.02, 1.18);
   const oscillator = context.createOscillator();
   const eventGain = context.createGain();
+  const formantOne = context.createBiquadFilter();
+  const formantTwo = context.createBiquadFilter();
   const vowelFilter = context.createBiquadFilter();
   const panner = context.createStereoPanner();
 
-  oscillator.type = event.ringModDepth > 0.35 ? "triangle" : "sine";
+  oscillator.type =
+    event.eventKind === "emphasis" || event.ringModDepth > 0.35
+      ? "triangle"
+      : "sine";
   oscillator.frequency.setValueAtTime(event.frequency, start);
   oscillator.frequency.exponentialRampToValueAtTime(
     Math.max(24, event.frequency * (event.sentenceEnd ? 0.92 : 1.015)),
     start + event.duration,
   );
 
-  // A bandpass-only voice can erase the audible fundamental. Lowpass keeps the
-  // blip loud while Q and cutoff movement still imply simple vowel coloration.
+  // Two moving peaking filters create a compact "mouth shape" gesture without
+  // attempting real phoneme pronunciation.
+  formantOne.type = "peaking";
+  formantOne.frequency.setValueAtTime(event.formantStart.f1, start);
+  formantOne.frequency.exponentialRampToValueAtTime(event.formantEnd.f1, start + event.duration);
+  formantOne.Q.setValueAtTime(4.8, start);
+  formantOne.gain.setValueAtTime(9, start);
+
+  formantTwo.type = "peaking";
+  formantTwo.frequency.setValueAtTime(event.formantStart.f2, start);
+  formantTwo.frequency.exponentialRampToValueAtTime(event.formantEnd.f2, start + event.duration);
+  formantTwo.Q.setValueAtTime(5.8, start);
+  formantTwo.gain.setValueAtTime(event.language === "zh" ? 5.5 : 7.5, start);
+
   vowelFilter.type = "lowpass";
-  vowelFilter.frequency.setValueAtTime(event.filterFreq, start);
-  vowelFilter.Q.setValueAtTime(event.filterQ, start);
+  vowelFilter.frequency.setValueAtTime(Math.max(event.filterFreq, event.formantStart.f3), start);
+  vowelFilter.frequency.exponentialRampToValueAtTime(
+    Math.max(event.filterFreq, event.formantEnd.f3),
+    start + event.duration,
+  );
+  vowelFilter.Q.setValueAtTime(Math.max(0.7, event.filterQ * 0.35), start);
   panner.pan.setValueAtTime(event.pan, start);
 
   eventGain.gain.setValueAtTime(0.0001, start);
   scheduleEnvelope(eventGain.gain, start, event.duration, event.attack, event.release, peakGain);
 
-  oscillator.connect(vowelFilter);
+  oscillator.connect(formantOne);
+  formantOne.connect(formantTwo);
+  formantTwo.connect(vowelFilter);
   vowelFilter.connect(eventGain);
   eventGain.connect(panner);
   panner.connect(destination);
@@ -125,7 +154,11 @@ function scheduleEvent(
     const noiseFilter = context.createBiquadFilter();
     noiseSource.buffer = makeNoiseBuffer(context, event.duration + event.release + 0.04, event.noiseSeed);
     noiseFilter.type = "bandpass";
-    noiseFilter.frequency.setValueAtTime(event.filterFreq * 1.18, start);
+    noiseFilter.frequency.setValueAtTime(event.formantStart.f2 * 1.08, start);
+    noiseFilter.frequency.exponentialRampToValueAtTime(
+      event.formantEnd.f2 * 1.08,
+      start + event.duration,
+    );
     noiseFilter.Q.setValueAtTime(Math.max(0.8, params.filterQ * 0.65), start);
     noiseGain.gain.setValueAtTime(0.0001, start);
     scheduleEnvelope(
@@ -153,7 +186,7 @@ export function scheduleMumbleEvents(
   events: SyllableEvent[],
   params: MumbleParameters,
   startAt = context.currentTime,
-) {
+): MumblePlaybackHandle {
   const master = context.createGain();
   const limiter = createLimiter(context);
   const makeup = context.createGain();
@@ -167,12 +200,30 @@ export function scheduleMumbleEvents(
   clipper.connect(destination);
 
   events.forEach((event) => scheduleEvent(context, master, event, params, startAt));
+
+  return {
+    startedAt: startAt,
+    stop: () => {
+      const now = context.currentTime;
+      master.gain.cancelScheduledValues(now);
+      master.gain.setTargetAtTime(0.0001, now, 0.012);
+
+      if (context instanceof AudioContext) {
+        window.setTimeout(() => {
+          master.disconnect();
+          limiter.disconnect();
+          makeup.disconnect();
+          clipper.disconnect();
+        }, 90);
+      }
+    },
+  };
 }
 
 export async function playMumbleEvents(
   events: SyllableEvent[],
   params: MumbleParameters,
-) {
+): Promise<MumblePlaybackHandle> {
   if (!sharedContext) {
     sharedContext = new AudioContext();
   }
@@ -181,5 +232,18 @@ export async function playMumbleEvents(
     await sharedContext.resume();
   }
 
-  scheduleMumbleEvents(sharedContext, sharedContext.destination, events, params, sharedContext.currentTime + 0.02);
+  activePlayback?.stop();
+  activePlayback = scheduleMumbleEvents(
+    sharedContext,
+    sharedContext.destination,
+    events,
+    params,
+    sharedContext.currentTime + 0.02,
+  );
+  return activePlayback;
+}
+
+export function stopMumblePlayback() {
+  activePlayback?.stop();
+  activePlayback = undefined;
 }

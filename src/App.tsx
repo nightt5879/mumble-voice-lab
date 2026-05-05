@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildSchedule } from "./audio/scheduler";
-import { playMumbleEvents } from "./audio/synth";
+import { playMumbleEvents, stopMumblePlayback } from "./audio/synth";
 import { downloadBlob, renderEventsToWav } from "./audio/wav";
 import { defaultPresets } from "./presets/defaultPresets";
 import type { MumbleParameters } from "./presets/types";
@@ -72,6 +72,10 @@ export default function App() {
   );
   const [status, setStatus] = useState("Ready");
   const [isExporting, setIsExporting] = useState(false);
+  const [visibleText, setVisibleText] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [activeEventIndex, setActiveEventIndex] = useState<number | null>(null);
+  const playbackTimers = useRef<number[]>([]);
 
   const selectedPreset = useMemo(
     () =>
@@ -84,6 +88,50 @@ export default function App() {
     () => buildSchedule(text, params, selectedPresetId),
     [params, selectedPresetId, text],
   );
+
+  const clearPlaybackTimers = useCallback(() => {
+    playbackTimers.current.forEach((timer) => window.clearTimeout(timer));
+    playbackTimers.current = [];
+  }, []);
+
+  const stopPlayback = useCallback(() => {
+    clearPlaybackTimers();
+    stopMumblePlayback();
+    setIsPlaying(false);
+    setActiveEventIndex(null);
+  }, [clearPlaybackTimers]);
+
+  const startTypewriter = useCallback(() => {
+    let accumulatedText = "";
+    setVisibleText("");
+    setIsPlaying(true);
+    setActiveEventIndex(null);
+
+    schedule.revealEvents.forEach((event) => {
+      const timer = window.setTimeout(() => {
+        accumulatedText += event.text;
+        setVisibleText(accumulatedText);
+      }, Math.max(0, event.time * 1000));
+      playbackTimers.current.push(timer);
+    });
+
+    schedule.events.forEach((event) => {
+      const startTimer = window.setTimeout(() => {
+        setActiveEventIndex(event.index);
+      }, Math.max(0, event.time * 1000));
+      const endTimer = window.setTimeout(() => {
+        setActiveEventIndex((current) => (current === event.index ? null : current));
+      }, Math.max(0, (event.time + event.duration) * 1000));
+      playbackTimers.current.push(startTimer, endTimer);
+    });
+
+    const doneTimer = window.setTimeout(() => {
+      setVisibleText(schedule.analysis.normalizedText);
+      setIsPlaying(false);
+      setActiveEventIndex(null);
+    }, Math.max(0, schedule.duration * 1000 + 80));
+    playbackTimers.current.push(doneTimer);
+  }, [schedule]);
 
   const setParameter = useCallback(
     (key: keyof MumbleParameters, value: number | boolean) => {
@@ -107,13 +155,15 @@ export default function App() {
 
   const triggerPlayback = useCallback(async () => {
     try {
+      stopPlayback();
       await playMumbleEvents(schedule.events, params);
+      startTypewriter();
       setStatus(`Played ${schedule.events.length} events`);
     } catch (error) {
       console.error(error);
       setStatus("Audio playback failed");
     }
-  }, [params, schedule.events]);
+  }, [params, schedule.events, startTypewriter, stopPlayback]);
 
   const exportWav = async () => {
     setIsExporting(true);
@@ -143,6 +193,15 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [triggerPlayback]);
 
+  useEffect(() => {
+    if (!isPlaying) {
+      setVisibleText("");
+      setActiveEventIndex(null);
+    }
+  }, [isPlaying, schedule.seedKey]);
+
+  useEffect(() => () => stopPlayback(), [stopPlayback]);
+
   const preview = useMemo(
     () => ({
       presetId: schedule.presetId,
@@ -153,11 +212,18 @@ export default function App() {
         words: schedule.analysis.wordCount,
         syllables: schedule.analysis.estimatedSyllables,
         ending: schedule.analysis.ending,
+        dominantLanguage: schedule.analysis.dominantLanguage,
+        languageCounts: schedule.analysis.languageCounts,
+        phrases: schedule.analysis.phrases.length,
       },
       events: schedule.events.slice(0, 20).map((event) => ({
         t: event.time,
         dur: event.duration,
         hz: event.frequency,
+        unitId: event.unitId,
+        lang: event.language,
+        kind: event.eventKind,
+        phrase: event.phraseIndex,
         vowel: event.vowel,
         pauseAfter: event.punctuationAfter ?? null,
       })),
@@ -227,6 +293,14 @@ export default function App() {
             </button>
             <button
               className="secondary-button"
+              disabled={!isPlaying}
+              onClick={stopPlayback}
+              type="button"
+            >
+              Stop
+            </button>
+            <button
+              className="secondary-button"
               disabled={isExporting}
               onClick={exportWav}
               type="button"
@@ -235,10 +309,17 @@ export default function App() {
             </button>
           </div>
 
+          <div className="dialogue-preview" aria-live="polite">
+            <span>{visibleText || " "}</span>
+            <i className={`talk-caret ${isPlaying ? "is-active" : ""}`} aria-hidden="true" />
+          </div>
+
           <div className="event-strip" aria-label="Generated event strip">
             {schedule.events.map((event) => (
               <span
-                className="event-blip"
+                className={`event-blip ${
+                  event.index === activeEventIndex ? "is-current" : ""
+                }`}
                 key={event.index}
                 style={{
                   left: `${(event.time / schedule.duration) * 100}%`,
