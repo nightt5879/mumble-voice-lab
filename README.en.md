@@ -16,7 +16,7 @@ It is designed for cozy RPGs, indie games, visual novels, creature games, NPC di
 
 To quickly hear the range of character presets, emotions, speaking styles, Chinese, English, and mixed-language lines, open the online listening page:
 
-**[Open the 12-clip listening showcase](https://nightt5879.github.io/mumble-voice-lab/listen.html)**
+**[Open the 12-clip listening showcase](https://nightt5879.github.io/mumble-voice-lab/showcase.html)**
 
 The showcase includes Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster presets, plus expression directions such as Happy, Whisper, Shout, Chant, Nervous, Sleepy, Sad, Scared, and Angry.
 
