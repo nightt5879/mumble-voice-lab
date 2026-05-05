@@ -88,6 +88,12 @@ h3 {
   font-size: 0.84rem;
 }
 
+.header-status {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
 .status-pill {
   min-width: 140px;
   border: 1px solid #cbd9d0;
@@ -97,6 +103,29 @@ h3 {
   background: rgba(255, 255, 255, 0.8);
   font-size: 0.88rem;
   text-align: center;
+}
+
+.language-status {
+  min-width: 190px;
+  font-size: 0.78rem;
+}
+
+.language-status.is-ready {
+  border-color: #8fc6b8;
+  color: #185f57;
+  background: #e9f7f1;
+}
+
+.language-status.is-loading {
+  border-color: #d8c282;
+  color: #5d4614;
+  background: #fff7df;
+}
+
+.language-status.is-fallback {
+  border-color: #dc9d92;
+  color: #7f2f22;
+  background: #fff0ed;
 }
 
 .workspace {
@@ -327,7 +356,7 @@ button:focus-visible {
 
 .analysis-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   border-top: 1px solid #dce5df;
   border-bottom: 1px solid #dce5df;
 }
@@ -429,6 +458,11 @@ input[type="range"] {
   .app-header {
     align-items: start;
     flex-direction: column;
+  }
+
+  .header-status {
+    justify-items: stretch;
+    width: 100%;
   }
 
   .workspace,

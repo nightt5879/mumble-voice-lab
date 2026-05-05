@@ -4,6 +4,11 @@ import { playMumbleEvents, stopMumblePlayback } from "./audio/synth";
 import { downloadBlob, renderEventsToWav } from "./audio/wav";
 import { defaultPresets } from "./presets/defaultPresets";
 import type { MumbleParameters } from "./presets/types";
+import {
+  initLanguageTools,
+  loadingLanguageTools,
+  type LanguageTools,
+} from "./utils/languageTools";
 
 type NumericParameter = Exclude<
   keyof MumbleParameters,
@@ -62,6 +67,21 @@ function makeFileName(presetId: string, seed: number) {
   return `mumble-${presetId}-${seed}-${stamp}.wav`;
 }
 
+function makeJsonFileName(presetId: string, seed: number) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  return `mumble-${presetId}-${seed}-${stamp}.json`;
+}
+
+function getLanguageToolLabel(languageTools: LanguageTools) {
+  if (languageTools.status === "ready") {
+    return "Language Tools: Ready";
+  }
+  if (languageTools.status === "loading") {
+    return "Language Tools: Loading";
+  }
+  return "Language Tools: Fallback";
+}
+
 export default function App() {
   const [text, setText] = useState(
     "Good morning, traveler! Ready for a tiny adventure?",
@@ -75,6 +95,8 @@ export default function App() {
   const [visibleText, setVisibleText] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeEventIndex, setActiveEventIndex] = useState<number | null>(null);
+  const [languageTools, setLanguageTools] =
+    useState<LanguageTools>(loadingLanguageTools);
   const playbackTimers = useRef<number[]>([]);
 
   const selectedPreset = useMemo(
@@ -85,8 +107,8 @@ export default function App() {
   );
 
   const schedule = useMemo(
-    () => buildSchedule(text, params, selectedPresetId),
-    [params, selectedPresetId, text],
+    () => buildSchedule(text, params, selectedPresetId, languageTools),
+    [languageTools, params, selectedPresetId, text],
   );
 
   const clearPlaybackTimers = useCallback(() => {
@@ -180,6 +202,43 @@ export default function App() {
     }
   };
 
+  const exportJson = () => {
+    const payload = {
+      version: "0.2.0",
+      text,
+      preset: selectedPreset,
+      params,
+      analysis: schedule.analysis,
+      events: schedule.events,
+      revealEvents: schedule.revealEvents,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    downloadBlob(blob, makeJsonFileName(selectedPresetId, params.seed));
+    setStatus(`Exported JSON with ${schedule.events.length} events`);
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    initLanguageTools().then((tools) => {
+      if (!isMounted) {
+        return;
+      }
+      setLanguageTools(tools);
+      setStatus(
+        tools.status === "ready"
+          ? "Language tools ready"
+          : "Language tools fallback mode",
+      );
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code !== "Space" || isEditableTarget(event.target)) {
@@ -214,7 +273,10 @@ export default function App() {
         ending: schedule.analysis.ending,
         dominantLanguage: schedule.analysis.dominantLanguage,
         languageCounts: schedule.analysis.languageCounts,
+        languageToolStatus: schedule.analysis.languageToolStatus,
         phrases: schedule.analysis.phrases.length,
+        segments: schedule.analysis.segments.length,
+        particles: schedule.analysis.particles.length,
       },
       events: schedule.events.slice(0, 20).map((event) => ({
         t: event.time,
@@ -224,6 +286,14 @@ export default function App() {
         lang: event.language,
         kind: event.eventKind,
         phrase: event.phraseIndex,
+        wordId: event.wordId,
+        boundary: event.phraseBoundaryStrength,
+        tone: event.tone ?? null,
+        pitchContour: event.pitchContour,
+        particle:
+          schedule.analysis.particles.find(
+            (particle) => particle.unitId === event.unitId,
+          )?.kind ?? null,
         vowel: event.vowel,
         pauseAfter: event.punctuationAfter ?? null,
       })),
@@ -238,8 +308,14 @@ export default function App() {
           <p className="eyebrow">Prototype audio tool</p>
           <h1>Mumble Voice Lab</h1>
         </div>
-        <div className="status-pill" aria-live="polite">
-          {status}
+        <div className="header-status" aria-live="polite">
+          <div className="status-pill">{status}</div>
+          <div
+            className={`status-pill language-status is-${languageTools.status}`}
+            title={languageTools.error}
+          >
+            {getLanguageToolLabel(languageTools)}
+          </div>
         </div>
       </header>
 
@@ -307,6 +383,9 @@ export default function App() {
             >
               {isExporting ? "Rendering..." : "Export WAV"}
             </button>
+            <button className="secondary-button" onClick={exportJson} type="button">
+              Export JSON
+            </button>
           </div>
 
           <div className="dialogue-preview" aria-live="polite">
@@ -347,6 +426,10 @@ export default function App() {
             <div>
               <span>Duration</span>
               <strong>{schedule.duration.toFixed(2)}s</strong>
+            </div>
+            <div>
+              <span>Tools</span>
+              <strong>{schedule.analysis.languageToolStatus}</strong>
             </div>
           </div>
 

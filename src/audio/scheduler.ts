@@ -5,12 +5,15 @@ import type {
   EventKind,
   FormantPoint,
   MumbleSchedule,
+  ParticleKind,
   PauseKind,
+  PitchContour,
   SyllableEvent,
   TextLanguage,
   TextRevealEvent,
   TextUnit,
 } from "./types";
+import { fallbackLanguageTools, type LanguageTools } from "../utils/languageTools";
 
 const FORMANTS: Record<string, FormantPoint> = {
   ah: { vowel: "ah", f1: 760, f2: 1220, f3: 2550 },
@@ -59,6 +62,58 @@ function punctuationPitchOffset(kind: PauseKind | "none" | undefined, phraseProg
     return -4.8 * tail;
   }
   return 0;
+}
+
+function getToneContour(tone: TextUnit["tone"], particleKind?: ParticleKind): PitchContour {
+  let contour: PitchContour;
+
+  if (tone === 1) {
+    contour = { start: 0.04, mid: 0.08, end: 0.03 };
+  } else if (tone === 2) {
+    contour = { start: -0.22, mid: 0.08, end: 0.38 };
+  } else if (tone === 3) {
+    contour = { start: 0.04, mid: -0.42, end: 0.08 };
+  } else if (tone === 4) {
+    contour = { start: 0.42, mid: 0.02, end: -0.42 };
+  } else if (tone === 0) {
+    contour = { start: 0, mid: -0.04, end: -0.12 };
+  } else {
+    contour = { start: 0, mid: 0, end: 0 };
+  }
+
+  if (particleKind === "question") {
+    return {
+      start: contour.start,
+      mid: contour.mid + 0.12,
+      end: contour.end + 0.42,
+    };
+  }
+
+  if (particleKind === "soft") {
+    return {
+      start: contour.start * 0.55,
+      mid: contour.mid * 0.55,
+      end: contour.end * 0.55 - 0.08,
+    };
+  }
+
+  if (particleKind === "continuing") {
+    return {
+      start: contour.start,
+      mid: contour.mid + 0.06,
+      end: contour.end + 0.2,
+    };
+  }
+
+  if (particleKind === "final") {
+    return {
+      start: contour.start,
+      mid: contour.mid - 0.04,
+      end: contour.end - 0.2,
+    };
+  }
+
+  return contour;
 }
 
 function getPhraseSyllableCounts(units: TextUnit[]) {
@@ -119,6 +174,14 @@ function getEventKind(
     return "emphasis";
   }
 
+  if (unit.particleKind === "question" || unit.particleKind === "final") {
+    return "ending";
+  }
+
+  if (unit.particleKind === "exclaim") {
+    return "emphasis";
+  }
+
   const longEnglishStart = unit.language === "en" && unit.eventCount >= 3 && unit.eventOrdinal === 0;
   const phraseHighPoint = phraseProgress > 0.32 && phraseProgress < 0.72;
   const languageChance = unit.language === "zh" ? 0.08 : 0.15;
@@ -152,13 +215,68 @@ function getEndingGain(punctuationAfter: PauseKind | undefined, eventKind: Event
   return 1;
 }
 
+function getParticleDurationFactor(kind: ParticleKind | undefined) {
+  if (kind === "soft" || kind === "continuing") {
+    return 1.12;
+  }
+  if (kind === "question" || kind === "final") {
+    return 1.18;
+  }
+  if (kind === "exclaim") {
+    return 0.88;
+  }
+  return 1;
+}
+
+function getParticleGainFactor(kind: ParticleKind | undefined) {
+  if (kind === "soft" || kind === "continuing") {
+    return 0.86;
+  }
+  if (kind === "question") {
+    return 0.92;
+  }
+  if (kind === "exclaim") {
+    return 1.14;
+  }
+  return 1;
+}
+
+function getPhraseBoundaryStrength(
+  unit: TextUnit,
+  phrasePosition: number,
+  phraseCount: number,
+  isWordEnd: boolean,
+) {
+  if (phrasePosition === 0 || phrasePosition === phraseCount - 1) {
+    return 1;
+  }
+  if (unit.wordPosition === 0 || isWordEnd) {
+    return 0.55;
+  }
+  return 0.15;
+}
+
+function getNextSyllableUnit(units: TextUnit[], index: number) {
+  for (let nextIndex = index + 1; nextIndex < units.length; nextIndex += 1) {
+    const unit = units[nextIndex];
+    if (unit.kind === "syllable") {
+      return unit;
+    }
+    if (unit.kind === "pause") {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
 export function buildSchedule(
   text: string,
   params: MumbleParameters,
   presetId: string,
+  languageTools: LanguageTools = fallbackLanguageTools,
 ): MumbleSchedule {
-  const analysis = analyzeText(text, params.wordCountMultiplier);
-  const seedKey = `${presetId}:${params.seed}:${analysis.normalizedText}`;
+  const analysis = analyzeText(text, params.wordCountMultiplier, languageTools);
+  const seedKey = `${presetId}:${params.seed}:${analysis.languageToolStatus}:${analysis.normalizedText}`;
   const rng = createSeededRandom(seedKey);
   const syllableUnits = analysis.units.filter((unit) => unit.kind === "syllable");
   const eventCount = Math.max(1, syllableUnits.length);
@@ -192,6 +310,7 @@ export function buildSchedule(
     const phraseProgress = phraseCount <= 1 ? 1 : phrasePosition / (phraseCount - 1);
     const globalProgress = eventCount <= 1 ? 0 : syllableIndex / (eventCount - 1);
     const punctuationAfter = nextPauseKind(analysis.units, unitIndex);
+    const nextSyllableUnit = getNextSyllableUnit(analysis.units, unitIndex);
     const phrase = analysis.phrases[unit.phraseIndex];
     const eventKind = getEventKind(unit, phraseProgress, punctuationAfter, rng);
     const formants = pickFormantPair(rng, unit.language, lastVowel);
@@ -202,13 +321,16 @@ export function buildSchedule(
     const curveFactor = clamp(1 - params.speedCurve * (globalProgress - 0.5) * 0.65, 0.55, 1.65);
     const phraseFinalLengthening = phraseProgress > 0.72 ? 1 + (phraseProgress - 0.72) * 0.8 : 1;
     const ellipsisSlowdown = punctuationAfter === "ellipsis" ? 1.35 : 1;
+    const particleDuration = getParticleDurationFactor(unit.particleKind);
     const duration = clamp(
       (params.syllableLengthMs / 1000) *
         (1 + lengthRandomness) *
         curveFactor *
         getLanguageTimingFactor(unit.language, eventKind) *
         phraseFinalLengthening *
-        ellipsisSlowdown,
+        ellipsisSlowdown *
+        particleDuration *
+        (unit.tone === 0 ? 0.88 : 1),
       0.028,
       0.52,
     );
@@ -217,12 +339,21 @@ export function buildSchedule(
         ? params.pitchRandomSemitone * 0.58
         : params.pitchRandomSemitone;
     const pitchJitter = rng.range(-languagePitchJitter, languagePitchJitter);
-    const phraseReset = phrasePosition === 0 ? rng.range(1.1, 2.2) : 0;
+    const phraseReset =
+      phrasePosition === 0
+        ? rng.range(1.1, 2.2)
+        : unit.wordPosition === 0
+          ? rng.range(0.2, 0.7)
+          : 0;
     const stressPitch = eventKind === "emphasis" ? rng.range(0.8, 2.0) : 0;
     const phraseEnding = punctuationAfter ?? phrase?.ending ?? analysis.ending;
     const endingPitch = params.pitchFallAtEnd
       ? punctuationPitchOffset(phraseEnding, phraseProgress)
       : 0;
+    const pitchContour =
+      unit.language === "zh"
+        ? getToneContour(unit.tone, unit.particleKind)
+        : { start: 0, mid: 0, end: 0 };
     const formantPitch =
       formants.start.vowel === "ee" || formants.start.vowel === "ih"
         ? 1.2
@@ -231,24 +362,27 @@ export function buildSchedule(
           : 0;
     const freq = clamp(
       params.basicFreq *
-        semitoneToRatio(pitchJitter + phraseReset + stressPitch + endingPitch + formantPitch),
+        semitoneToRatio(pitchJitter + phraseReset + stressPitch + endingPitch + formantPitch + pitchContour.start * 0.35),
       35,
       2600,
     );
     const timingRange =
-      unit.language === "zh" ? params.timingJitterMs * 0.4 : params.timingJitterMs;
+      unit.language === "zh" ? params.timingJitterMs * 0.22 : params.timingJitterMs;
     const timingJitter = rng.range(-timingRange, timingRange) / 1000;
     const startTime = Math.max(0.01, cursor + timingJitter);
     const gain =
       rng.range(0.82, 1.03) *
       unit.weight *
       getEndingGain(punctuationAfter, eventKind) *
+      getParticleGainFactor(unit.particleKind) *
+      (unit.tone === 0 ? 0.82 : 1) *
       (phrasePosition === 0 ? 1.08 : 1);
     const sentenceEnd =
       punctuationAfter === "sentence" ||
       punctuationAfter === "question" ||
       punctuationAfter === "ellipsis";
     const eventIndex = events.length;
+    const isWordEnd = nextSyllableUnit?.wordId !== unit.wordId;
 
     if (unit.revealText) {
       revealEvents.push({
@@ -267,6 +401,15 @@ export function buildSchedule(
       unitId: unit.id,
       language: unit.language,
       eventKind,
+      tone: unit.tone,
+      pitchContour,
+      wordId: unit.wordId,
+      phraseBoundaryStrength: getPhraseBoundaryStrength(
+        unit,
+        phrasePosition,
+        phraseCount,
+        isWordEnd,
+      ),
       time: Number(startTime.toFixed(4)),
       duration: Number(duration.toFixed(4)),
       frequency: Number(freq.toFixed(2)),
@@ -309,7 +452,14 @@ export function buildSchedule(
 
     lastVowel = formants.start.vowel;
     phrasePositions.set(unit.phraseIndex, phrasePosition + 1);
-    cursor += duration + rng.range(unit.language === "zh" ? 0.018 : 0.012, unit.language === "zh" ? 0.036 : 0.048);
+    const sameChineseWord =
+      unit.language === "zh" &&
+      nextSyllableUnit?.language === "zh" &&
+      nextSyllableUnit.wordId === unit.wordId;
+    const zhGap = sameChineseWord
+      ? rng.range(0.006, 0.016)
+      : rng.range(0.024, 0.052);
+    cursor += duration + (unit.language === "zh" ? zhGap : rng.range(0.012, 0.048));
     syllableIndex += 1;
   });
 

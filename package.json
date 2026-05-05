@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "jieba-wasm": "^2.4.0",
+    "pinyin-pro": "^3.28.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "syllable": "^5.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

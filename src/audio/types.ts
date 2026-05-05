@@ -3,6 +3,14 @@ import type { MumbleParameters } from "../presets/types";
 export type PauseKind = "comma" | "sentence" | "question" | "exclaim" | "ellipsis";
 export type TextLanguage = "zh" | "en" | "punct";
 export type EventKind = "quick" | "emphasis" | "ending";
+export type LanguageToolStatus = "loading" | "ready" | "fallback";
+export type ParticleKind = "question" | "soft" | "continuing" | "exclaim" | "final";
+
+export interface PitchContour {
+  start: number;
+  mid: number;
+  end: number;
+}
 
 export interface FormantPoint {
   vowel: string;
@@ -11,14 +19,33 @@ export interface FormantPoint {
   f3: number;
 }
 
+export interface TextSegment {
+  id: string;
+  text: string;
+  language: TextLanguage;
+  tokenIds: string[];
+  startTokenIndex: number;
+  endTokenIndex: number;
+}
+
+export interface TextParticle {
+  unitId: string;
+  text: string;
+  kind: ParticleKind;
+  phraseIndex: number;
+}
+
 export interface TextToken {
   id: string;
+  wordId: string;
   language: TextLanguage;
   text: string;
   displayText: string;
   phraseIndex: number;
   estimatedEvents: number;
   eventUnitIds: string[];
+  tone?: 0 | 1 | 2 | 3 | 4;
+  particleKind?: ParticleKind;
   pauseKind?: PauseKind;
   pauseMs?: number;
 }
@@ -37,6 +64,8 @@ export interface TextUnit {
   kind: "syllable" | "pause";
   id: string;
   tokenId: string;
+  wordId: string;
+  wordPosition: number;
   language: TextLanguage;
   source: string;
   displayText: string;
@@ -46,6 +75,8 @@ export interface TextUnit {
   estimatedEvents: number;
   eventOrdinal: number;
   eventCount: number;
+  tone?: 0 | 1 | 2 | 3 | 4;
+  particleKind?: ParticleKind;
   pauseMs?: number;
   pauseKind?: PauseKind;
 }
@@ -59,6 +90,9 @@ export interface TextAnalysis {
   punctuationCount: number;
   estimatedSyllables: number;
   ending: PauseKind | "none";
+  languageToolStatus: LanguageToolStatus;
+  segments: TextSegment[];
+  particles: TextParticle[];
   tokens: TextToken[];
   phrases: TextPhrase[];
   dominantLanguage: TextLanguage;
@@ -71,6 +105,10 @@ export interface SyllableEvent {
   unitId: string;
   language: TextLanguage;
   eventKind: EventKind;
+  tone?: 0 | 1 | 2 | 3 | 4;
+  pitchContour: PitchContour;
+  wordId: string;
+  phraseBoundaryStrength: number;
   time: number;
   duration: number;
   frequency: number;

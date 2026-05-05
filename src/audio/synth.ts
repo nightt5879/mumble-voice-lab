@@ -18,6 +18,10 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function semitoneToRatio(semitone: number) {
+  return 2 ** (semitone / 12);
+}
+
 function makeNoiseBuffer(context: BaseAudioContext, duration: number, seed: number) {
   const sampleCount = Math.max(1, Math.ceil(context.sampleRate * duration));
   const buffer = context.createBuffer(1, sampleCount, context.sampleRate);
@@ -92,15 +96,26 @@ function scheduleEvent(
   const formantTwo = context.createBiquadFilter();
   const vowelFilter = context.createBiquadFilter();
   const panner = context.createStereoPanner();
+  const contourStart = semitoneToRatio(event.pitchContour.start);
+  const contourMid = semitoneToRatio(event.pitchContour.mid);
+  const contourEnd = semitoneToRatio(
+    event.pitchContour.end + (event.sentenceEnd ? -0.25 : 0),
+  );
+  const contourMidTime = start + event.duration * 0.52;
+  const contourEndTime = start + event.duration;
 
   oscillator.type =
     event.eventKind === "emphasis" || event.ringModDepth > 0.35
       ? "triangle"
       : "sine";
-  oscillator.frequency.setValueAtTime(event.frequency, start);
+  oscillator.frequency.setValueAtTime(Math.max(24, event.frequency * contourStart), start);
   oscillator.frequency.exponentialRampToValueAtTime(
-    Math.max(24, event.frequency * (event.sentenceEnd ? 0.92 : 1.015)),
-    start + event.duration,
+    Math.max(24, event.frequency * contourMid),
+    contourMidTime,
+  );
+  oscillator.frequency.exponentialRampToValueAtTime(
+    Math.max(24, event.frequency * contourEnd),
+    contourEndTime,
   );
 
   // Two moving peaking filters create a compact "mouth shape" gesture without
