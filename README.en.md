@@ -8,6 +8,8 @@ Mumble Voice Lab is a browser-based character mumble / gibberish voice generator
 
 **GitHub Repository:** [github.com/nightt5879/mumble-voice-lab](https://github.com/nightt5879/mumble-voice-lab)
 
+**Current version:** V1.0.1 UI polish release, focused on the live demo, listening showcase, light/dark themes, and faster first-screen usability.
+
 Mumble Voice Lab is **not TTS**. It does not pronounce real words. Instead, it borrows text length, punctuation, Chinese/English rhythm, phrase shape, and sentence endings to create short syllable-like blips that feel like a character is speaking in their own language.
 
 It is designed for cozy RPGs, indie games, visual novels, creature games, NPC dialogue prototypes, and any project that needs expressive character dialogue sounds without real speech synthesis.

@@ -51,6 +51,35 @@ const sliderDefinitions: SliderDefinition[] = [
 ];
 
 const githubRepositoryUrl = "https://github.com/nightt5879/mumble-voice-lab";
+const themeStorageKey = "mumble-voice-lab-theme";
+
+type ThemeChoice = "system" | "light" | "dark";
+type ResolvedTheme = "light" | "dark";
+
+function getSystemTheme(): ResolvedTheme {
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    return "dark";
+  }
+  return "light";
+}
+
+function getStoredThemeChoice(): ThemeChoice {
+  if (typeof window === "undefined") {
+    return "system";
+  }
+
+  const stored = window.localStorage.getItem(themeStorageKey);
+  return stored === "light" || stored === "dark" || stored === "system"
+    ? stored
+    : "system";
+}
+
+function resolveThemeChoice(choice: ThemeChoice): ResolvedTheme {
+  return choice === "system" ? getSystemTheme() : choice;
+}
 
 function GitHubIcon() {
   return (
@@ -231,6 +260,10 @@ function wait(ms: number) {
 export default function App() {
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>("zh");
   const ui = uiCopy[uiLanguage];
+  const [themeChoice, setThemeChoice] = useState<ThemeChoice>(getStoredThemeChoice);
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
+    resolveThemeChoice(getStoredThemeChoice()),
+  );
   const [text, setText] = useState(
     "Good morning, traveler! Ready for a tiny adventure?",
   );
@@ -461,6 +494,23 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    window.localStorage.setItem(themeStorageKey, themeChoice);
+
+    const applyTheme = () => {
+      const nextTheme = resolveThemeChoice(themeChoice);
+      setResolvedTheme(nextTheme);
+      document.documentElement.dataset.theme = nextTheme;
+      document.documentElement.dataset.themeChoice = themeChoice;
+    };
+
+    applyTheme();
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", applyTheme);
+    return () => mediaQuery.removeEventListener("change", applyTheme);
+  }, [themeChoice]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code !== "Space" || isEditableTarget(event.target)) {
         return;
@@ -528,16 +578,55 @@ export default function App() {
     [params.seed, schedule],
   );
   const playbackLabelText = formatPlaybackLabel(playbackLabel, expression, ui);
+  const themeLabels =
+    uiLanguage === "zh"
+      ? {
+          system: "系统",
+          light: "浅色",
+          dark: "深色",
+          aria: "主题切换",
+          resolved: resolvedTheme === "dark" ? "深色" : "浅色",
+        }
+      : {
+          system: "Auto",
+          light: "Light",
+          dark: "Dark",
+          aria: "Theme switcher",
+          resolved: resolvedTheme === "dark" ? "Dark" : "Light",
+        };
+  const themeChoices: ThemeChoice[] = ["system", "light", "dark"];
 
   return (
     <main className="app-shell">
       <header className="app-header">
-        <div>
+        <div className="brand-block">
           <p className="eyebrow">{ui.appEyebrow}</p>
           <h1>Mumble Voice Lab</h1>
+          <p className="hero-copy">
+            {uiLanguage === "zh"
+              ? "为游戏角色生成可爱的 mumble / gibberish 台词声音。输入一句话，选角色、调情绪，然后直接试听或导出。"
+              : "Design cute mumble and gibberish dialogue voices for game characters. Type a line, choose a character, shape the expression, then preview or export."}
+          </p>
         </div>
         <div className="header-status" aria-live="polite">
           <div className="header-actions">
+            <div className="theme-toggle" aria-label={themeLabels.aria}>
+              {themeChoices.map((choice) => (
+                <button
+                  className={choice === themeChoice ? "is-active" : ""}
+                  key={choice}
+                  onClick={() => setThemeChoice(choice)}
+                  type="button"
+                  title={
+                    choice === "system"
+                      ? `${themeLabels.system} (${themeLabels.resolved})`
+                      : themeLabels[choice]
+                  }
+                >
+                  {themeLabels[choice]}
+                </button>
+              ))}
+            </div>
             <div className="language-toggle" aria-label={ui.uiLanguage}>
               {(["zh", "en"] as const).map((language) => (
                 <button
@@ -565,20 +654,190 @@ export default function App() {
               <GitHubIcon />
             </a>
           </div>
-          <div className="status-pill">{formatStatus(status, ui)}</div>
-          <div
-            className={`status-pill language-status is-${languageTools.status}`}
-            title={getLanguageToolTitle(languageTools, ui)}
-          >
-            {getLanguageToolLabel(languageTools, ui)}
+          <div className="status-row">
+            <div className="status-pill">{formatStatus(status, ui)}</div>
+            <div
+              className={`status-pill language-status is-${languageTools.status}`}
+              title={getLanguageToolTitle(languageTools, ui)}
+            >
+              {getLanguageToolLabel(languageTools, ui)}
+            </div>
           </div>
         </div>
       </header>
 
-      <section className="workspace">
-        <aside className="panel preset-panel" aria-label={ui.aria.characterPresets}>
+      <section className="studio-shell">
+        <section className="hero-grid">
+          <section className="panel composer-panel" aria-label={ui.aria.dialogueComposer}>
+            <div className="panel-heading">
+              <div>
+                <h2>{ui.panels.statement}</h2>
+                <span>
+                  {schedule.events.length} {ui.analysis.blips} ·{" "}
+                  {schedule.duration.toFixed(2)}s
+                </span>
+              </div>
+            </div>
+
+            <textarea
+              aria-label={ui.aria.dialogueText}
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              spellCheck={false}
+            />
+
+            <div className="expression-controls" aria-label={ui.aria.expressionControls}>
+              <label className="select-row">
+                <span>{ui.fields.emotion}</span>
+                <select
+                  value={expression.emotion}
+                  onChange={(event) =>
+                    setExpressionField("emotion", event.target.value as EmotionId)
+                  }
+                >
+                  {emotionDefinitions.map((definition) => (
+                    <option key={definition.id} value={definition.id}>
+                      {getEmotionDisplayName(definition.id, ui)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="select-row">
+                <span>{ui.fields.style}</span>
+                <select
+                  value={expression.style}
+                  onChange={(event) =>
+                    setExpressionField("style", event.target.value as SpeakingStyleId)
+                  }
+                >
+                  {speakingStyleDefinitions.map((definition) => (
+                    <option key={definition.id} value={definition.id}>
+                      {getStyleDisplayName(definition.id, ui)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="expression-intensity">
+                <span>
+                  <span>{ui.fields.intensity}</span>
+                  <output>{expression.intensity}%</output>
+                </span>
+                <input
+                  max={100}
+                  min={0}
+                  onChange={(event) =>
+                    setExpressionField("intensity", Number(event.target.value))
+                  }
+                  step={1}
+                  type="range"
+                  value={expression.intensity}
+                />
+              </label>
+            </div>
+
+            <div className="button-row">
+              <button className="primary-button" onClick={triggerPlayback} type="button">
+                {ui.buttons.trigger}
+              </button>
+              <button className="secondary-button" onClick={triggerABPlayback} type="button">
+                {ui.buttons.abCompare}
+              </button>
+              <button
+                className="secondary-button"
+                disabled={!isPlaying}
+                onClick={stopPlayback}
+                type="button"
+              >
+                {ui.buttons.stop}
+              </button>
+              <button
+                className="secondary-button"
+                disabled={isExporting}
+                onClick={exportWav}
+                type="button"
+              >
+                {isExporting ? ui.buttons.rendering : ui.buttons.exportWav}
+              </button>
+              <button className="secondary-button" onClick={exportJson} type="button">
+                {ui.buttons.exportJson}
+              </button>
+            </div>
+          </section>
+
+          <section className="panel performance-panel">
+            <div className="panel-heading">
+              <div>
+                <h2>{uiLanguage === "zh" ? "实时预览" : "Live Preview"}</h2>
+                <span>{playbackLabelText.detail}</span>
+              </div>
+            </div>
+
+            <div className="dialogue-preview" aria-live="polite">
+              <div className={`playback-label is-${playbackLabel.mode}`}>
+                <strong>{playbackLabelText.title}</strong>
+              </div>
+              <span>{visibleText || schedule.analysis.normalizedText || " "}</span>
+              <i className={`talk-caret ${isPlaying ? "is-active" : ""}`} aria-hidden="true" />
+            </div>
+
+            <div className="event-strip" aria-label={ui.aria.generatedEventStrip}>
+              {schedule.events.map((event) => (
+                <span
+                  className={`event-blip ${
+                    event.index === activeEventIndex ? "is-current" : ""
+                  }`}
+                  key={event.index}
+                  style={{
+                    left: `${(event.time / schedule.duration) * 100}%`,
+                    width: `${Math.max(1.4, (event.duration / schedule.duration) * 100)}%`,
+                    height: `${28 + event.gain * 36}px`,
+                  }}
+                  title={`${event.vowel} ${event.frequency.toFixed(1)} Hz`}
+                />
+              ))}
+            </div>
+
+            <div className="analysis-grid">
+              <div>
+                <span>{ui.analysis.chars}</span>
+                <strong>{schedule.analysis.charCount}</strong>
+              </div>
+              <div>
+                <span>{ui.analysis.words}</span>
+                <strong>{schedule.analysis.wordCount}</strong>
+              </div>
+              <div>
+                <span>{ui.analysis.syllables}</span>
+                <strong>{schedule.analysis.estimatedSyllables}</strong>
+              </div>
+              <div>
+                <span>{ui.analysis.duration}</span>
+                <strong>{schedule.duration.toFixed(2)}s</strong>
+              </div>
+              <div>
+                <span>{ui.analysis.tools}</span>
+                <strong>{ui.languageTools.short[schedule.analysis.languageToolStatus]}</strong>
+              </div>
+              <div>
+                <span>{ui.analysis.expression}</span>
+                <strong>{getEmotionDisplayName(schedule.expression.emotion, ui)}</strong>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section className="panel preset-panel" aria-label={ui.aria.characterPresets}>
           <div className="panel-heading">
-            <h2>{ui.panels.characters}</h2>
+            <div>
+              <h2>{ui.panels.characters}</h2>
+              <span>
+                {uiLanguage === "zh"
+                  ? "选择角色底色，再叠加情绪和说话方式"
+                  : "Choose a character voice base, then layer emotion and style"}
+              </span>
+            </div>
           </div>
           <div className="preset-list">
             {defaultPresets.map((preset) => (
@@ -595,213 +854,83 @@ export default function App() {
                   style={{ backgroundColor: preset.swatch }}
                   aria-hidden="true"
                 />
-                <span>{getPresetDisplayName(preset.id, ui)}</span>
+                <span>
+                  <strong>{getPresetDisplayName(preset.id, ui)}</strong>
+                  <small>
+                    {preset.params.basicFreq} Hz · seed {preset.params.seed}
+                  </small>
+                </span>
               </button>
             ))}
           </div>
-
-          <div className="preset-json">
-            <h3>{ui.panels.presetJson}</h3>
-            <pre>{JSON.stringify(selectedPreset, null, 2)}</pre>
-          </div>
-        </aside>
-
-        <section className="panel composer-panel" aria-label={ui.aria.dialogueComposer}>
-          <div className="panel-heading">
-            <h2>{ui.panels.statement}</h2>
-            <span>
-              {schedule.events.length} {ui.analysis.blips}
-            </span>
-          </div>
-
-          <textarea
-            aria-label={ui.aria.dialogueText}
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            spellCheck={false}
-          />
-
-          <div className="expression-controls" aria-label={ui.aria.expressionControls}>
-            <label className="select-row">
-              <span>{ui.fields.emotion}</span>
-              <select
-                value={expression.emotion}
-                onChange={(event) =>
-                  setExpressionField("emotion", event.target.value as EmotionId)
-                }
-              >
-                {emotionDefinitions.map((definition) => (
-                  <option key={definition.id} value={definition.id}>
-                    {getEmotionDisplayName(definition.id, ui)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="select-row">
-              <span>{ui.fields.style}</span>
-              <select
-                value={expression.style}
-                onChange={(event) =>
-                  setExpressionField("style", event.target.value as SpeakingStyleId)
-                }
-              >
-                {speakingStyleDefinitions.map((definition) => (
-                  <option key={definition.id} value={definition.id}>
-                    {getStyleDisplayName(definition.id, ui)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="expression-intensity">
-              <span>
-                <span>{ui.fields.intensity}</span>
-                <output>{expression.intensity}%</output>
-              </span>
-              <input
-                max={100}
-                min={0}
-                onChange={(event) =>
-                  setExpressionField("intensity", Number(event.target.value))
-                }
-                step={1}
-                type="range"
-                value={expression.intensity}
-              />
-            </label>
-          </div>
-
-          <div className="button-row">
-            <button className="primary-button" onClick={triggerPlayback} type="button">
-              {ui.buttons.trigger}
-            </button>
-            <button className="secondary-button" onClick={triggerABPlayback} type="button">
-              {ui.buttons.abCompare}
-            </button>
-            <button
-              className="secondary-button"
-              disabled={!isPlaying}
-              onClick={stopPlayback}
-              type="button"
-            >
-              {ui.buttons.stop}
-            </button>
-            <button
-              className="secondary-button"
-              disabled={isExporting}
-              onClick={exportWav}
-              type="button"
-            >
-              {isExporting ? ui.buttons.rendering : ui.buttons.exportWav}
-            </button>
-            <button className="secondary-button" onClick={exportJson} type="button">
-              {ui.buttons.exportJson}
-            </button>
-          </div>
-
-          <div className="dialogue-preview" aria-live="polite">
-            <div className={`playback-label is-${playbackLabel.mode}`}>
-              <strong>{playbackLabelText.title}</strong>
-              <span>{playbackLabelText.detail}</span>
-            </div>
-            <span>{visibleText || " "}</span>
-            <i className={`talk-caret ${isPlaying ? "is-active" : ""}`} aria-hidden="true" />
-          </div>
-
-          <div className="event-strip" aria-label={ui.aria.generatedEventStrip}>
-            {schedule.events.map((event) => (
-              <span
-                className={`event-blip ${
-                  event.index === activeEventIndex ? "is-current" : ""
-                }`}
-                key={event.index}
-                style={{
-                  left: `${(event.time / schedule.duration) * 100}%`,
-                  width: `${Math.max(1.4, (event.duration / schedule.duration) * 100)}%`,
-                  height: `${28 + event.gain * 36}px`,
-                }}
-                title={`${event.vowel} ${event.frequency.toFixed(1)} Hz`}
-              />
-            ))}
-          </div>
-
-          <div className="analysis-grid">
-            <div>
-              <span>{ui.analysis.chars}</span>
-              <strong>{schedule.analysis.charCount}</strong>
-            </div>
-            <div>
-              <span>{ui.analysis.words}</span>
-              <strong>{schedule.analysis.wordCount}</strong>
-            </div>
-            <div>
-              <span>{ui.analysis.syllables}</span>
-              <strong>{schedule.analysis.estimatedSyllables}</strong>
-            </div>
-            <div>
-              <span>{ui.analysis.duration}</span>
-              <strong>{schedule.duration.toFixed(2)}s</strong>
-            </div>
-            <div>
-              <span>{ui.analysis.tools}</span>
-              <strong>{ui.languageTools.short[schedule.analysis.languageToolStatus]}</strong>
-            </div>
-            <div>
-              <span>{ui.analysis.expression}</span>
-              <strong>{getEmotionDisplayName(schedule.expression.emotion, ui)}</strong>
-            </div>
-          </div>
-
-          <div className="preview-block">
-            <h3>{ui.panels.eventPreview}</h3>
-            <pre>{JSON.stringify(preview, null, 2)}</pre>
-          </div>
         </section>
 
-        <aside className="panel parameter-panel" aria-label={ui.aria.parameters}>
-          <div className="panel-heading">
-            <h2>{ui.panels.parameters}</h2>
-          </div>
+        <details className="panel advanced-panel">
+          <summary>
+            <span>{uiLanguage === "zh" ? "高级 / Sound Lab" : "Advanced / Sound Lab"}</span>
+            <small>
+              {uiLanguage === "zh"
+                ? "参数、Preset JSON 与事件预览"
+                : "Parameters, preset JSON, and event preview"}
+            </small>
+          </summary>
 
-          <label className="toggle-row">
-            <input
-              checked={params.pitchFallAtEnd}
-              onChange={(event) =>
-                setParameter("pitchFallAtEnd", event.target.checked)
-              }
-              type="checkbox"
-            />
-            <span>{ui.fields.pitchFallAtEnd}</span>
-          </label>
+          <div className="advanced-content">
+            <section className="parameter-panel" aria-label={ui.aria.parameters}>
+              <div className="panel-heading compact-heading">
+                <h2>{ui.panels.parameters}</h2>
+              </div>
 
-          <div className="slider-list">
-            {sliderDefinitions.map((definition) => (
-              <label className="slider-row" key={definition.key}>
-                <span>
-                  <span>{ui.parameterLabels[definition.key]}</span>
-                  <output>
-                    {formatValue(
-                      Number(params[definition.key]),
-                      definition.step,
-                      definition.unit,
-                    )}
-                  </output>
-                </span>
+              <label className="toggle-row">
                 <input
-                  max={definition.max}
-                  min={definition.min}
+                  checked={params.pitchFallAtEnd}
                   onChange={(event) =>
-                    setParameter(definition.key, Number(event.target.value))
+                    setParameter("pitchFallAtEnd", event.target.checked)
                   }
-                  step={definition.step}
-                  type="range"
-                  value={Number(params[definition.key])}
+                  type="checkbox"
                 />
+                <span>{ui.fields.pitchFallAtEnd}</span>
               </label>
-            ))}
+
+              <div className="slider-list">
+                {sliderDefinitions.map((definition) => (
+                  <label className="slider-row" key={definition.key}>
+                    <span>
+                      <span>{ui.parameterLabels[definition.key]}</span>
+                      <output>
+                        {formatValue(
+                          Number(params[definition.key]),
+                          definition.step,
+                          definition.unit,
+                        )}
+                      </output>
+                    </span>
+                    <input
+                      max={definition.max}
+                      min={definition.min}
+                      onChange={(event) =>
+                        setParameter(definition.key, Number(event.target.value))
+                      }
+                      step={definition.step}
+                      type="range"
+                      value={Number(params[definition.key])}
+                    />
+                  </label>
+                ))}
+              </div>
+            </section>
+
+            <section className="preview-block">
+              <h3>{ui.panels.eventPreview}</h3>
+              <pre>{JSON.stringify(preview, null, 2)}</pre>
+            </section>
+
+            <section className="preset-json">
+              <h3>{ui.panels.presetJson}</h3>
+              <pre>{JSON.stringify(selectedPreset, null, 2)}</pre>
+            </section>
           </div>
-        </aside>
+        </details>
       </section>
     </main>
   );
