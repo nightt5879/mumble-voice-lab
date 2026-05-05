@@ -52,6 +52,20 @@ Good morning, traveler! Ready?
 你好 adventurer，今天的 quest 准备好了吗？
 ```
 
+## Roadmap
+
+### 1. Improve playback continuity
+
+Current mumble voices can sometimes feel slightly choppy between characters or syllable blips. Future work will focus on smoother transitions, envelopes, fades, and overall continuity so character dialogue feels more natural and expressive.
+
+### 2. Add more voice colors
+
+The project currently includes basic presets such as Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster. Future versions will add more voice directions, including softer characters, more mechanical voices, deeper monsters, stranger tiny creatures, and presets for different game styles.
+
+### 3. Improve game development integration
+
+Future work will strengthen the workflow from browser tool to game project. The goal is to make generated parameters, JSON schedules, WAV files, and character presets easier to reuse in RPGs, visual novels, dialogue systems, Unity, Godot, and web game prototypes.
+
 ## Local Development
 
 ```bash
