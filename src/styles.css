@@ -95,6 +95,13 @@ h3 {
   justify-items: end;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .language-toggle {
   display: inline-grid;
   grid-template-columns: 1fr 1fr;
@@ -118,6 +125,30 @@ h3 {
 .language-toggle button.is-active {
   color: #f8fffc;
   background: #1f766c;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 1px solid #cbd9d0;
+  border-radius: 50%;
+  color: #1f3029;
+  background: rgba(255, 255, 255, 0.86);
+  text-decoration: none;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.github-link:hover {
+  transform: translateY(-1px);
+  border-color: #1f766c;
+  color: #1f766c;
 }
 
 .status-pill {
@@ -551,6 +582,15 @@ input[type="range"] {
   .header-status {
     justify-items: stretch;
     width: 100%;
+  }
+
+  .header-actions {
+    justify-content: space-between;
+  }
+
+  .language-toggle {
+    flex: 1;
+    min-width: 0;
   }
 
   .workspace,
