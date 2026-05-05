@@ -7,23 +7,23 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #f5f5f7;
-        --bg-soft: #fbfbfd;
-        --surface: rgba(255, 255, 255, 0.82);
+        --bg: #ffffff;
+        --bg-soft: #ffffff;
+        --surface: rgba(255, 255, 255, 0.9);
         --surface-solid: #ffffff;
-        --surface-subtle: rgba(255, 255, 255, 0.58);
+        --surface-subtle: #f5f5f7;
         --text: #1d1d1f;
         --text-soft: #56565c;
         --text-muted: #7b7b84;
-        --line: rgba(28, 28, 32, 0.12);
+        --line: rgba(28, 28, 32, 0.14);
         --accent: #0a84ff;
         --accent-strong: #0067d8;
         --accent-soft: rgba(10, 132, 255, 0.13);
         --warm: #ff7a45;
         --pink: #ff6b9a;
         --mint: #34c759;
-        --shadow: 0 18px 48px rgba(18, 18, 24, 0.1);
-        --shadow-soft: 0 10px 26px rgba(18, 18, 24, 0.08);
+        --shadow: 0 18px 48px rgba(18, 18, 24, 0.09);
+        --shadow-soft: 0 10px 26px rgba(18, 18, 24, 0.07);
         --radius: 8px;
         font-family:
           -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
@@ -34,15 +34,15 @@
 
       :root[data-theme="dark"] {
         color-scheme: dark;
-        --bg: #111215;
-        --bg-soft: #17181c;
-        --surface: rgba(31, 32, 38, 0.78);
-        --surface-solid: #1d1e24;
-        --surface-subtle: rgba(255, 255, 255, 0.06);
+        --bg: #000000;
+        --bg-soft: #000000;
+        --surface: rgba(16, 16, 18, 0.88);
+        --surface-solid: #0b0b0d;
+        --surface-subtle: #151519;
         --text: #f5f5f7;
         --text-soft: #c7c7cf;
         --text-muted: #90909a;
-        --line: rgba(255, 255, 255, 0.12);
+        --line: rgba(255, 255, 255, 0.16);
         --accent: #64b5ff;
         --accent-strong: #8ec8ff;
         --accent-soft: rgba(100, 181, 255, 0.16);
@@ -61,9 +61,7 @@
         margin: 0;
         min-width: 320px;
         min-height: 100vh;
-        background:
-          linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 44%, var(--bg) 100%),
-          var(--bg);
+        background: var(--bg);
       }
 
       main {
@@ -460,7 +458,7 @@
             Not TTS, just charming game-style mumble voices.
           </p>
           <div class="actions">
-            <a class="button" href="./">打开在线 Demo / Open Demo</a>
+            <a class="button" href="./?v=1.0.2-theme-cache">打开在线 Demo / Open Demo</a>
             <a class="button" href="https://github.com/nightt5879/mumble-voice-lab">GitHub 仓库 / Repository</a>
           </div>
         </div>

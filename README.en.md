@@ -4,11 +4,11 @@
 
 Mumble Voice Lab is a browser-based character mumble / gibberish voice generator for games. Type a line, choose a character, tune emotion and speaking style, preview instantly, then export deterministic WAV + JSON schedules.
 
-**Live Demo:** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/)
+**Live Demo:** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/?v=1.0.2-theme-cache)
 
 **GitHub Repository:** [github.com/nightt5879/mumble-voice-lab](https://github.com/nightt5879/mumble-voice-lab)
 
-**Current version:** V1.0.1 UI polish release, focused on the live demo, listening showcase, light/dark themes, and faster first-screen usability.
+**Current version:** V1.0.2 theme/cache patch, fixing stronger light/dark contrast and cache-busted GitHub Pages links.
 
 Mumble Voice Lab is **not TTS**. It does not pronounce real words. Instead, it borrows text length, punctuation, Chinese/English rhythm, phrase shape, and sentence endings to create short syllable-like blips that feel like a character is speaking in their own language.
 
@@ -18,7 +18,7 @@ It is designed for cozy RPGs, indie games, visual novels, creature games, NPC di
 
 To quickly hear the range of character presets, emotions, speaking styles, Chinese, English, and mixed-language lines, open the online listening page:
 
-**[Open the 12-clip listening showcase](https://nightt5879.github.io/mumble-voice-lab/showcase.html)**
+**[Open the 12-clip listening showcase](https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.0.2-theme-cache)**
 
 The showcase includes Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster presets, plus expression directions such as Happy, Whisper, Shout, Chant, Nervous, Sleepy, Sad, Scared, and Angry.
 
