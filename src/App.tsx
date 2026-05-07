@@ -10,6 +10,7 @@ import {
 } from "./expression/defaultExpressions";
 import type { EmotionId, ExpressionSettings, SpeakingStyleId } from "./expression/types";
 import { defaultPresets } from "./presets/defaultPresets";
+import { PresetFace, newPresetIds } from "./presets/PresetFace";
 import type { MumbleParameters } from "./presets/types";
 import { uiCopy, type UiCopy, type UiLanguage } from "./i18n";
 import {
@@ -840,18 +841,18 @@ export default function App() {
           <div className="preset-list">
             {defaultPresets.map((preset) => (
               <button
-                className={`preset-button ${
-                  preset.id === selectedPresetId ? "is-active" : ""
-                }`}
+                className={[
+                  "preset-button",
+                  preset.id === selectedPresetId ? "is-active" : "",
+                  newPresetIds.has(preset.id) ? "is-new" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 key={preset.id}
                 onClick={() => selectPreset(preset.id)}
                 type="button"
               >
-                <span
-                  className="preset-swatch"
-                  style={{ backgroundColor: preset.swatch }}
-                  aria-hidden="true"
-                />
+                <PresetFace presetId={preset.id} className="preset-face" />
                 <span>
                   <strong>{getPresetDisplayName(preset.id, ui)}</strong>
                   <small>
