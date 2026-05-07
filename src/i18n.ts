@@ -122,7 +122,7 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       presetJson: "Preset JSON",
       eventPreview: "事件预览",
       chatter: "多人同时讲话",
-      chatterHint: "勾选多个角色，让他们同时说话，听起来人声鼎沸",
+      chatterHint: "勾选角色，每行一句话，多句会依次播放，所有人一起开口",
     },
     buttons: {
       trigger: "播放台词",
@@ -138,7 +138,7 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       style: "风格",
       intensity: "强度",
       pitchFallAtEnd: "句尾音高下降",
-      chatterLine: "想说的话",
+      chatterLine: "想说的话（每行一句）",
     },
     compare: {
       current: "当前表达",
@@ -273,7 +273,7 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       presetJson: "Preset JSON",
       eventPreview: "Event Preview",
       chatter: "Crowd Chatter",
-      chatterHint: "Pick a few characters and play them all at once for a crowd-room feel",
+      chatterHint: "Pick characters, type lines one per row, and play them all together for a crowd-room feel",
     },
     buttons: {
       trigger: "Trigger Statement",
@@ -289,7 +289,7 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       style: "Style",
       intensity: "Intensity",
       pitchFallAtEnd: "Pitch Fall At End",
-      chatterLine: "Their line",
+      chatterLine: "Their lines (one per row)",
     },
     compare: {
       current: "Current expression",

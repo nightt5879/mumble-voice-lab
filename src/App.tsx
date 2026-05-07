@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildSchedule } from "./audio/scheduler";
+import type { SyllableEvent } from "./audio/types";
 import { playChatter, playMumbleEvents, stopMumblePlayback } from "./audio/synth";
 import { downloadBlob, renderEventsToWav } from "./audio/wav";
 import {
@@ -61,16 +62,28 @@ interface ChatterRow {
 }
 
 const defaultChatterTexts: Record<string, string> = {
-  "cute-npc": "你好呀！",
-  "robot-guard": "Roger that.",
-  "soft-mascot": "好哒！",
-  "talkative-merchant": "新货到了！",
-  "tiny-creature": "Hi hi!",
-  "forest-spirit": "嗯…",
-  "tired-villager": "唉，又一天。",
-  monster: "Grrr…",
-  "deep-boss": "汝来何为？",
+  "cute-npc": "你好呀！\n旅行者你来啦。\n请进请进，今天天气真好。",
+  "robot-guard": "Standing by.\nRoger that.\nAccess granted, please proceed.",
+  "soft-mascot": "好哒！\n嘿嘿，超棒！\n你也很可爱呀。",
+  "talkative-merchant": "新货到了！\n来看看？保证最低价。\n这个怎么样，要不要试试？",
+  "tiny-creature": "Hi hi!\nLook look!\nOver here, over here!",
+  "forest-spirit": "嘘…\n林中有声。\n勿要惊扰。",
+  "tired-villager": "唉。\n又一天过去了。\n好累哦，先回家了。",
+  monster: "Grrr…\nGet out of my cave!\nLeave now or else.",
+  "deep-boss": "汝来何为？\n速速退去。\n勿扰寡人清修。",
 };
+
+const CHATTER_LINE_GAP_SEC = 0.34;
+const CHATTER_STAGGER_MAX_SEC = 0.18;
+
+function staggerForPresetId(id: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < id.length; index += 1) {
+    hash ^= id.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return ((hash >>> 0) % 1000) / 1000 * CHATTER_STAGGER_MAX_SEC;
+}
 
 function makeInitialChatterRows(): ChatterRow[] {
   return defaultPresets.map((preset, index) => ({
@@ -491,29 +504,51 @@ export default function App() {
   }, []);
 
   const triggerChatter = useCallback(async () => {
-    const eligible = chatterRows.filter(
-      (row) => row.selected && row.text.trim().length > 0,
-    );
+    const eligible = chatterRows
+      .map((row) => ({
+        row,
+        lines: row.text
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0),
+      }))
+      .filter((entry) => entry.row.selected && entry.lines.length > 0);
+
     if (eligible.length === 0) {
       return;
     }
 
-    const speakers = eligible.map((row) => {
+    const speakers = eligible.map(({ row, lines }) => {
       const preset = defaultPresets.find((item) => item.id === row.presetId);
       if (!preset) {
         throw new Error(`Unknown preset id: ${row.presetId}`);
       }
-      const sched = buildSchedule(
-        row.text,
-        preset.params,
-        preset.id,
-        languageTools,
-        neutralExpressionSettings,
-      );
+
+      const stagger = staggerForPresetId(row.presetId);
+      const events: SyllableEvent[] = [];
+      let cursor = stagger;
+      let lastResolvedParams = preset.params;
+
+      lines.forEach((line) => {
+        const sched = buildSchedule(
+          line,
+          preset.params,
+          preset.id,
+          languageTools,
+          neutralExpressionSettings,
+        );
+        const offset = cursor;
+        sched.events.forEach((event) => {
+          events.push({ ...event, time: event.time + offset });
+        });
+        cursor += sched.duration + CHATTER_LINE_GAP_SEC;
+        lastResolvedParams = sched.resolvedParams;
+      });
+
       return {
-        events: sched.events,
-        params: sched.resolvedParams,
-        duration: sched.duration,
+        events,
+        params: lastResolvedParams,
+        duration: cursor - CHATTER_LINE_GAP_SEC,
       };
     });
 
@@ -531,7 +566,7 @@ export default function App() {
       chatterTimer.current = window.setTimeout(() => {
         setIsChatterPlaying(false);
         chatterTimer.current = null;
-      }, maxDuration * 1000 + 240);
+      }, maxDuration * 1000 + 280);
     } catch (error) {
       console.error(error);
       setIsChatterPlaying(false);
@@ -1001,15 +1036,17 @@ export default function App() {
                     />
                     <strong>{getPresetDisplayName(row.presetId, ui)}</strong>
                   </span>
-                  <input
+                  <textarea
+                    className="chatter-textarea"
                     aria-label={ui.fields.chatterLine}
-                    type="text"
                     value={row.text}
                     onChange={(event) =>
                       updateChatterRow(row.presetId, { text: event.target.value })
                     }
                     placeholder={ui.fields.chatterLine}
                     disabled={!row.selected}
+                    rows={3}
+                    spellCheck={false}
                   />
                 </label>
               ))}
