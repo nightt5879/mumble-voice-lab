@@ -456,6 +456,10 @@ select {
   gap: 8px;
   padding: 10px;
 }
+.preset-cell {
+  position: relative;
+  min-width: 0;
+}
 .preset-button {
   position: relative;
   display: flex;
@@ -475,6 +479,8 @@ select {
     box-shadow var(--t-fast),
     background var(--t-fast);
 }
+.preset-button.is-custom { background: var(--paper-warm); }
+.preset-button.is-custom.is-active { background: var(--paper-deep); }
 .preset-button:hover {
   transform: translate(-1px, -1px);
   box-shadow: 3px 3px 0 var(--ink);
@@ -520,6 +526,100 @@ select {
   height: 38px;
   flex: 0 0 38px;
   display: block;
+}
+
+/* Custom preset badge + hover overlay */
+.preset-cell.is-custom::before {
+  content: "★";
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  z-index: 2;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  background: var(--cute);
+  color: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 900;
+  pointer-events: none;
+}
+.preset-cell-actions {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--t-fast);
+  pointer-events: none;
+  z-index: 2;
+}
+.preset-cell:hover .preset-cell-actions,
+.preset-cell:focus-within .preset-cell-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+.preset-cell-action {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: var(--paper-card);
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+  transition:
+    transform var(--t-fast) var(--ease-pop),
+    box-shadow var(--t-fast);
+}
+.preset-cell-action:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 2.5px 2.5px 0 var(--ink);
+}
+.preset-cell-action-danger {
+  background: #fecaca;
+}
+
+/* Preset toolbar in panel heading */
+.preset-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.preset-action-button {
+  min-height: 28px;
+  padding: 0 12px;
+  background: var(--paper-card);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition:
+    transform var(--t-fast) var(--ease-pop),
+    box-shadow var(--t-fast);
+}
+.preset-action-button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.preset-action-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--ink);
 }
 
 /* ---------- Advanced drawer ---------- */

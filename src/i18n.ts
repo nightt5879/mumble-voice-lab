@@ -23,6 +23,11 @@ export interface UiCopy {
     exported: (count: number) => string;
     wavFailed: string;
     jsonExported: (count: number) => string;
+    presetSaved: (name: string) => string;
+    presetImported: (name: string) => string;
+    presetImportFailed: (reason: string) => string;
+    presetDeleted: (name: string) => string;
+    configExported: (name: string) => string;
   };
   panels: {
     characters: string;
@@ -41,6 +46,11 @@ export interface UiCopy {
     rendering: string;
     exportJson: string;
     playChatter: string;
+    savePreset: string;
+    importConfig: string;
+    exportConfig: string;
+    deletePreset: string;
+    exportPresetItem: string;
   };
   fields: {
     emotion: string;
@@ -48,6 +58,14 @@ export interface UiCopy {
     intensity: string;
     pitchFallAtEnd: string;
     chatterLine: string;
+    presetNamePrompt: string;
+    presetNameDefault: (basedOnName: string) => string;
+    deletePresetConfirm: (name: string) => string;
+  };
+  presetMeta: {
+    customBadge: string;
+    savedFromBuiltin: (basedOnName: string) => string;
+    importedTag: string;
   };
   compare: {
     current: string;
@@ -114,6 +132,11 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       exported: (count) => `已导出 ${count} 个事件`,
       wavFailed: "WAV 导出失败",
       jsonExported: (count) => `已导出包含 ${count} 个事件的 JSON`,
+      presetSaved: (name) => `已保存角色 ${name}`,
+      presetImported: (name) => `已导入角色 ${name}`,
+      presetImportFailed: (reason) => `导入失败：${reason}`,
+      presetDeleted: (name) => `已删除 ${name}`,
+      configExported: (name) => `已导出 ${name} 配置`,
     },
     panels: {
       characters: "角色",
@@ -132,6 +155,11 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       rendering: "渲染中...",
       exportJson: "导出 JSON",
       playChatter: "一起播放",
+      savePreset: "保存为角色",
+      importConfig: "导入配置",
+      exportConfig: "导出当前",
+      deletePreset: "删除",
+      exportPresetItem: "导出此角色",
     },
     fields: {
       emotion: "情绪",
@@ -139,6 +167,14 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       intensity: "强度",
       pitchFallAtEnd: "句尾音高下降",
       chatterLine: "想说的话（每行一句）",
+      presetNamePrompt: "起个名字",
+      presetNameDefault: (basedOnName) => `我的 ${basedOnName}`,
+      deletePresetConfirm: (name) => `确定删除 ${name} 吗？`,
+    },
+    presetMeta: {
+      customBadge: "我的",
+      savedFromBuiltin: (basedOnName) => `基于 ${basedOnName}`,
+      importedTag: "已导入",
     },
     compare: {
       current: "当前表达",
@@ -265,6 +301,11 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       exported: (count) => `Exported ${count} events`,
       wavFailed: "WAV export failed",
       jsonExported: (count) => `Exported JSON with ${count} events`,
+      presetSaved: (name) => `Saved ${name}`,
+      presetImported: (name) => `Imported ${name}`,
+      presetImportFailed: (reason) => `Import failed: ${reason}`,
+      presetDeleted: (name) => `Deleted ${name}`,
+      configExported: (name) => `Exported ${name} config`,
     },
     panels: {
       characters: "Characters",
@@ -283,6 +324,11 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       rendering: "Rendering...",
       exportJson: "Export JSON",
       playChatter: "Play Together",
+      savePreset: "Save as Preset",
+      importConfig: "Import Config",
+      exportConfig: "Export Current",
+      deletePreset: "Delete",
+      exportPresetItem: "Export this preset",
     },
     fields: {
       emotion: "Emotion",
@@ -290,6 +336,14 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       intensity: "Intensity",
       pitchFallAtEnd: "Pitch Fall At End",
       chatterLine: "Their lines (one per row)",
+      presetNamePrompt: "Name this preset",
+      presetNameDefault: (basedOnName) => `My ${basedOnName}`,
+      deletePresetConfirm: (name) => `Delete ${name}?`,
+    },
+    presetMeta: {
+      customBadge: "Mine",
+      savedFromBuiltin: (basedOnName) => `Based on ${basedOnName}`,
+      importedTag: "Imported",
     },
     compare: {
       current: "Current expression",

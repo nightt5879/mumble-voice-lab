@@ -13,6 +13,15 @@ import type { EmotionId, ExpressionSettings, SpeakingStyleId } from "./expressio
 import { defaultPresets } from "./presets/defaultPresets";
 import { PresetFace, newPresetIds } from "./presets/PresetFace";
 import type { MumbleParameters } from "./presets/types";
+import {
+  createCustomPreset,
+  loadCustomPresets,
+  parsePresetConfig,
+  presetFilenameSlug,
+  saveCustomPresets,
+  serializePreset,
+  type CustomPreset,
+} from "./presets/customPresets";
 import { uiCopy, type UiCopy, type UiLanguage } from "./i18n";
 import {
   initLanguageTools,
@@ -179,15 +188,27 @@ type AppStatus =
   | { type: "renderingWav" }
   | { type: "exported"; count: number }
   | { type: "wavFailed" }
-  | { type: "jsonExported"; count: number };
+  | { type: "jsonExported"; count: number }
+  | { type: "presetSaved"; name: string }
+  | { type: "presetImported"; name: string }
+  | { type: "presetImportFailed"; reason: string }
+  | { type: "presetDeleted"; name: string }
+  | { type: "configExported"; name: string };
 
 type PlaybackLabel =
   | { mode: "current" }
   | { mode: "ab-original" }
   | { mode: "ab-modified" };
 
-function getPresetDisplayName(presetId: string, ui: UiCopy) {
-  return ui.presetNames[presetId] ?? presetId;
+function getPresetDisplayName(
+  presetId: string,
+  ui: UiCopy,
+  customPresets: CustomPreset[] = [],
+) {
+  if (ui.presetNames[presetId]) return ui.presetNames[presetId];
+  const custom = customPresets.find((preset) => preset.id === presetId);
+  if (custom) return custom.name;
+  return presetId;
 }
 
 function getEmotionDisplayName(emotion: EmotionId, ui: UiCopy) {
@@ -198,7 +219,11 @@ function getStyleDisplayName(style: SpeakingStyleId, ui: UiCopy) {
   return ui.styleNames[style] ?? style;
 }
 
-function formatStatus(status: AppStatus, ui: UiCopy) {
+function formatStatus(
+  status: AppStatus,
+  ui: UiCopy,
+  customPresets: CustomPreset[],
+) {
   if (status.type === "ready") {
     return ui.status.ready;
   }
@@ -209,7 +234,9 @@ function formatStatus(status: AppStatus, ui: UiCopy) {
     return ui.status.toolsFallback;
   }
   if (status.type === "presetLoaded") {
-    return ui.status.presetLoaded(getPresetDisplayName(status.presetId, ui));
+    return ui.status.presetLoaded(
+      getPresetDisplayName(status.presetId, ui, customPresets),
+    );
   }
   if (status.type === "played") {
     return ui.status.played(
@@ -238,7 +265,22 @@ function formatStatus(status: AppStatus, ui: UiCopy) {
   if (status.type === "wavFailed") {
     return ui.status.wavFailed;
   }
-  return ui.status.jsonExported(status.count);
+  if (status.type === "jsonExported") {
+    return ui.status.jsonExported(status.count);
+  }
+  if (status.type === "presetSaved") {
+    return ui.status.presetSaved(status.name);
+  }
+  if (status.type === "presetImported") {
+    return ui.status.presetImported(status.name);
+  }
+  if (status.type === "presetImportFailed") {
+    return ui.status.presetImportFailed(status.reason);
+  }
+  if (status.type === "presetDeleted") {
+    return ui.status.presetDeleted(status.name);
+  }
+  return ui.status.configExported(status.name);
 }
 
 function getLanguageToolLabel(languageTools: LanguageTools, ui: UiCopy) {
@@ -328,16 +370,35 @@ export default function App() {
     makeInitialChatterRows,
   );
   const [isChatterPlaying, setIsChatterPlaying] = useState(false);
+  const [customPresets, setCustomPresets] = useState<CustomPreset[]>(() =>
+    loadCustomPresets(),
+  );
   const playbackTimers = useRef<number[]>([]);
   const chatterTimer = useRef<number | null>(null);
   const playbackSequence = useRef(0);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const allPresets = useMemo(
+    () => [...defaultPresets, ...customPresets],
+    [customPresets],
+  );
 
   const selectedPreset = useMemo(
     () =>
-      defaultPresets.find((preset) => preset.id === selectedPresetId) ??
+      allPresets.find((preset) => preset.id === selectedPresetId) ??
       defaultPresets[0],
-    [selectedPresetId],
+    [allPresets, selectedPresetId],
   );
+
+  const selectedPresetIsCustom = useMemo(
+    () => customPresets.some((preset) => preset.id === selectedPresetId),
+    [customPresets, selectedPresetId],
+  );
+
+  const selectedPresetBasedOn = useMemo(() => {
+    const custom = customPresets.find((p) => p.id === selectedPresetId);
+    return custom?.basedOn;
+  }, [customPresets, selectedPresetId]);
 
   const schedule = useMemo(
     () => buildSchedule(text, params, selectedPresetId, languageTools, expression),
@@ -426,7 +487,7 @@ export default function App() {
   );
 
   const selectPreset = (presetId: string) => {
-    const preset = defaultPresets.find((item) => item.id === presetId);
+    const preset = allPresets.find((item) => item.id === presetId);
     if (!preset) {
       return;
     }
@@ -574,6 +635,125 @@ export default function App() {
     }
   }, [chatterRows, languageTools, stopPlayback]);
 
+  const savePresetHandler = useCallback(() => {
+    const baseName = getPresetDisplayName(selectedPresetId, ui, customPresets);
+    const suggested = ui.fields.presetNameDefault(baseName);
+    const input = window.prompt(ui.fields.presetNamePrompt, suggested);
+    if (input === null) return;
+    const name = input.trim();
+    if (!name) return;
+
+    const fallbackBasedOn =
+      defaultPresets.some((p) => p.id === selectedPresetId)
+        ? selectedPresetId
+        : selectedPresetBasedOn;
+    const created = createCustomPreset({
+      name,
+      swatch: selectedPreset.swatch,
+      basedOn: fallbackBasedOn,
+      params,
+    });
+    setCustomPresets((current) => [...current, created]);
+    setSelectedPresetId(created.id);
+    setStatus({ type: "presetSaved", name });
+  }, [
+    customPresets,
+    params,
+    selectedPreset.swatch,
+    selectedPresetBasedOn,
+    selectedPresetId,
+    ui,
+  ]);
+
+  const exportPresetItem = useCallback(
+    (preset: { id: string; name: string; swatch: string; params: MumbleParameters; basedOn?: string; savedAt?: string }) => {
+      const basedOn = preset.basedOn ?? (defaultPresets.some((p) => p.id === preset.id) ? preset.id : undefined);
+      const config = serializePreset({
+        name: preset.name,
+        swatch: preset.swatch,
+        basedOn,
+        savedAt: preset.savedAt,
+        params: preset.params,
+      });
+      const blob = new Blob([JSON.stringify(config, null, 2)], {
+        type: "application/json",
+      });
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const fileName = `mumble-preset-${presetFilenameSlug(preset.name)}-${stamp}.json`;
+      downloadBlob(blob, fileName);
+      setStatus({ type: "configExported", name: preset.name });
+    },
+    [],
+  );
+
+  const exportCurrentConfig = useCallback(() => {
+    const displayName = getPresetDisplayName(selectedPresetId, ui, customPresets);
+    const isCustom = customPresets.some((p) => p.id === selectedPresetId);
+    const basedOn = isCustom ? selectedPresetBasedOn : selectedPresetId;
+    exportPresetItem({
+      id: selectedPresetId,
+      name: displayName,
+      swatch: selectedPreset.swatch,
+      basedOn,
+      params,
+      savedAt: new Date().toISOString(),
+    });
+  }, [
+    customPresets,
+    exportPresetItem,
+    params,
+    selectedPreset.swatch,
+    selectedPresetBasedOn,
+    selectedPresetId,
+    ui,
+  ]);
+
+  const triggerImportConfig = useCallback(() => {
+    importInputRef.current?.click();
+  }, []);
+
+  const handleImportFile = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const result = parsePresetConfig(text);
+        if (!result.ok) {
+          setStatus({ type: "presetImportFailed", reason: result.reason });
+          return;
+        }
+        setCustomPresets((current) => [...current, result.preset]);
+        setSelectedPresetId(result.preset.id);
+        setParams({ ...result.preset.params });
+        setStatus({ type: "presetImported", name: result.preset.name });
+      } catch (error) {
+        console.error(error);
+        setStatus({
+          type: "presetImportFailed",
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+    [],
+  );
+
+  const deleteCustomPreset = useCallback(
+    (preset: CustomPreset) => {
+      const ok = window.confirm(ui.fields.deletePresetConfirm(preset.name));
+      if (!ok) return;
+      setCustomPresets((current) => current.filter((p) => p.id !== preset.id));
+      if (selectedPresetId === preset.id) {
+        const fallback = defaultPresets[0];
+        setSelectedPresetId(fallback.id);
+        setParams({ ...fallback.params });
+      }
+      setStatus({ type: "presetDeleted", name: preset.name });
+    },
+    [selectedPresetId, ui],
+  );
+
   const exportWav = async () => {
     setIsExporting(true);
     setStatus({ type: "renderingWav" });
@@ -665,6 +845,10 @@ export default function App() {
       setActiveEventIndex(null);
     }
   }, [isPlaying, schedule.seedKey]);
+
+  useEffect(() => {
+    saveCustomPresets(customPresets);
+  }, [customPresets]);
 
   useEffect(
     () => () => {
@@ -798,7 +982,7 @@ export default function App() {
             </a>
           </div>
           <div className="status-row">
-            <div className="status-pill">{formatStatus(status, ui)}</div>
+            <div className="status-pill">{formatStatus(status, ui, customPresets)}</div>
             <div
               className={`status-pill language-status is-${languageTools.status}`}
               title={getLanguageToolTitle(languageTools, ui)}
@@ -981,29 +1165,107 @@ export default function App() {
                   : "Choose a character voice base, then layer emotion and style"}
               </span>
             </div>
+            <div className="preset-actions">
+              <button
+                className="preset-action-button"
+                onClick={savePresetHandler}
+                type="button"
+              >
+                {ui.buttons.savePreset}
+              </button>
+              <button
+                className="preset-action-button"
+                onClick={triggerImportConfig}
+                type="button"
+              >
+                {ui.buttons.importConfig}
+              </button>
+              <button
+                className="preset-action-button"
+                onClick={exportCurrentConfig}
+                type="button"
+              >
+                {ui.buttons.exportConfig}
+              </button>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".json,application/json"
+                onChange={handleImportFile}
+                style={{ display: "none" }}
+                aria-hidden="true"
+              />
+            </div>
           </div>
           <div className="preset-list">
             {defaultPresets.map((preset) => (
-              <button
-                className={[
-                  "preset-button",
-                  preset.id === selectedPresetId ? "is-active" : "",
-                  newPresetIds.has(preset.id) ? "is-new" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                key={preset.id}
-                onClick={() => selectPreset(preset.id)}
-                type="button"
-              >
-                <PresetFace presetId={preset.id} className="preset-face" />
-                <span>
-                  <strong>{getPresetDisplayName(preset.id, ui)}</strong>
-                  <small>
-                    {preset.params.basicFreq} Hz · seed {preset.params.seed}
-                  </small>
-                </span>
-              </button>
+              <div className="preset-cell" key={preset.id}>
+                <button
+                  className={[
+                    "preset-button",
+                    preset.id === selectedPresetId ? "is-active" : "",
+                    newPresetIds.has(preset.id) ? "is-new" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onClick={() => selectPreset(preset.id)}
+                  type="button"
+                >
+                  <PresetFace presetId={preset.id} className="preset-face" />
+                  <span>
+                    <strong>{getPresetDisplayName(preset.id, ui)}</strong>
+                    <small>
+                      {preset.params.basicFreq} Hz · seed {preset.params.seed}
+                    </small>
+                  </span>
+                </button>
+              </div>
+            ))}
+            {customPresets.map((preset) => (
+              <div className="preset-cell is-custom" key={preset.id}>
+                <button
+                  className={[
+                    "preset-button",
+                    "is-custom",
+                    preset.id === selectedPresetId ? "is-active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onClick={() => selectPreset(preset.id)}
+                  type="button"
+                >
+                  <PresetFace
+                    presetId={preset.basedOn ?? preset.id}
+                    className="preset-face"
+                  />
+                  <span>
+                    <strong>{preset.name}</strong>
+                    <small>
+                      {preset.params.basicFreq} Hz · seed {preset.params.seed}
+                    </small>
+                  </span>
+                </button>
+                <div className="preset-cell-actions">
+                  <button
+                    type="button"
+                    className="preset-cell-action"
+                    aria-label={ui.buttons.exportPresetItem}
+                    title={ui.buttons.exportPresetItem}
+                    onClick={() => exportPresetItem(preset)}
+                  >
+                    ⤓
+                  </button>
+                  <button
+                    type="button"
+                    className="preset-cell-action preset-cell-action-danger"
+                    aria-label={ui.buttons.deletePreset}
+                    title={ui.buttons.deletePreset}
+                    onClick={() => deleteCustomPreset(preset)}
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -1034,7 +1296,7 @@ export default function App() {
                       presetId={row.presetId}
                       className="chatter-face"
                     />
-                    <strong>{getPresetDisplayName(row.presetId, ui)}</strong>
+                    <strong>{getPresetDisplayName(row.presetId, ui, customPresets)}</strong>
                   </span>
                   <textarea
                     className="chatter-textarea"
