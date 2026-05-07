@@ -305,7 +305,7 @@ export default function App() {
     resolveThemeChoice(getStoredThemeChoice()),
   );
   const [text, setText] = useState(
-    "Good morning, traveler! Ready for a tiny adventure?",
+    "你好呀！这里是 super Mumble Voice Lab 的 demo 界面，欢迎大家多多支持与使用哦！",
   );
   const [selectedPresetId, setSelectedPresetId] = useState(defaultPresets[0].id);
   const [params, setParams] = useState<MumbleParameters>(
