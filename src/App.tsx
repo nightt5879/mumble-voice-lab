@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildSchedule } from "./audio/scheduler";
-import { playMumbleEvents, stopMumblePlayback } from "./audio/synth";
+import { playChatter, playMumbleEvents, stopMumblePlayback } from "./audio/synth";
 import { downloadBlob, renderEventsToWav } from "./audio/wav";
 import {
   defaultExpressionSettings,
@@ -53,6 +53,32 @@ const sliderDefinitions: SliderDefinition[] = [
 
 const githubRepositoryUrl = "https://github.com/nightt5879/mumble-voice-lab";
 const themeStorageKey = "mumble-voice-lab-theme";
+
+interface ChatterRow {
+  presetId: string;
+  text: string;
+  selected: boolean;
+}
+
+const defaultChatterTexts: Record<string, string> = {
+  "cute-npc": "你好呀！",
+  "robot-guard": "Roger that.",
+  "soft-mascot": "好哒！",
+  "talkative-merchant": "新货到了！",
+  "tiny-creature": "Hi hi!",
+  "forest-spirit": "嗯…",
+  "tired-villager": "唉，又一天。",
+  monster: "Grrr…",
+  "deep-boss": "汝来何为？",
+};
+
+function makeInitialChatterRows(): ChatterRow[] {
+  return defaultPresets.map((preset, index) => ({
+    presetId: preset.id,
+    text: defaultChatterTexts[preset.id] ?? "...",
+    selected: index < 3,
+  }));
+}
 
 type ThemeChoice = "system" | "light" | "dark";
 type ResolvedTheme = "light" | "dark";
@@ -285,7 +311,12 @@ export default function App() {
   const [expression, setExpression] = useState<ExpressionSettings>(
     defaultExpressionSettings,
   );
+  const [chatterRows, setChatterRows] = useState<ChatterRow[]>(
+    makeInitialChatterRows,
+  );
+  const [isChatterPlaying, setIsChatterPlaying] = useState(false);
   const playbackTimers = useRef<number[]>([]);
+  const chatterTimer = useRef<number | null>(null);
   const playbackSequence = useRef(0);
 
   const selectedPreset = useMemo(
@@ -439,6 +470,75 @@ export default function App() {
     }
   }, [clearActivePlayback, neutralSchedule, schedule, startTypewriter]);
 
+  const updateChatterRow = useCallback(
+    (presetId: string, patch: Partial<ChatterRow>) => {
+      setChatterRows((current) =>
+        current.map((row) =>
+          row.presetId === presetId ? { ...row, ...patch } : row,
+        ),
+      );
+    },
+    [],
+  );
+
+  const stopChatter = useCallback(() => {
+    if (chatterTimer.current !== null) {
+      window.clearTimeout(chatterTimer.current);
+      chatterTimer.current = null;
+    }
+    stopMumblePlayback();
+    setIsChatterPlaying(false);
+  }, []);
+
+  const triggerChatter = useCallback(async () => {
+    const eligible = chatterRows.filter(
+      (row) => row.selected && row.text.trim().length > 0,
+    );
+    if (eligible.length === 0) {
+      return;
+    }
+
+    const speakers = eligible.map((row) => {
+      const preset = defaultPresets.find((item) => item.id === row.presetId);
+      if (!preset) {
+        throw new Error(`Unknown preset id: ${row.presetId}`);
+      }
+      const sched = buildSchedule(
+        row.text,
+        preset.params,
+        preset.id,
+        languageTools,
+        neutralExpressionSettings,
+      );
+      return {
+        events: sched.events,
+        params: sched.resolvedParams,
+        duration: sched.duration,
+      };
+    });
+
+    const maxDuration = Math.max(...speakers.map((s) => s.duration));
+
+    try {
+      stopPlayback();
+      if (chatterTimer.current !== null) {
+        window.clearTimeout(chatterTimer.current);
+      }
+      setIsChatterPlaying(true);
+      await playChatter(
+        speakers.map(({ events, params }) => ({ events, params })),
+      );
+      chatterTimer.current = window.setTimeout(() => {
+        setIsChatterPlaying(false);
+        chatterTimer.current = null;
+      }, maxDuration * 1000 + 240);
+    } catch (error) {
+      console.error(error);
+      setIsChatterPlaying(false);
+      setStatus({ type: "audioFailed" });
+    }
+  }, [chatterRows, languageTools, stopPlayback]);
+
   const exportWav = async () => {
     setIsExporting(true);
     setStatus({ type: "renderingWav" });
@@ -531,7 +631,16 @@ export default function App() {
     }
   }, [isPlaying, schedule.seedKey]);
 
-  useEffect(() => () => stopPlayback(), [stopPlayback]);
+  useEffect(
+    () => () => {
+      stopPlayback();
+      if (chatterTimer.current !== null) {
+        window.clearTimeout(chatterTimer.current);
+        chatterTimer.current = null;
+      }
+    },
+    [stopPlayback],
+  );
 
   const preview = useMemo(
     () => ({
@@ -863,6 +972,72 @@ export default function App() {
             ))}
           </div>
         </section>
+
+        <details className="panel chatter-panel">
+          <summary>
+            <span>{ui.panels.chatter}</span>
+            <small>{ui.panels.chatterHint}</small>
+          </summary>
+          <div className="chatter-content">
+            <div className="chatter-list">
+              {chatterRows.map((row) => (
+                <label
+                  className={`chatter-row ${row.selected ? "is-on" : ""}`}
+                  key={row.presetId}
+                >
+                  <span className="chatter-toggle">
+                    <input
+                      type="checkbox"
+                      checked={row.selected}
+                      onChange={(event) =>
+                        updateChatterRow(row.presetId, {
+                          selected: event.target.checked,
+                        })
+                      }
+                    />
+                    <PresetFace
+                      presetId={row.presetId}
+                      className="chatter-face"
+                    />
+                    <strong>{getPresetDisplayName(row.presetId, ui)}</strong>
+                  </span>
+                  <input
+                    aria-label={ui.fields.chatterLine}
+                    type="text"
+                    value={row.text}
+                    onChange={(event) =>
+                      updateChatterRow(row.presetId, { text: event.target.value })
+                    }
+                    placeholder={ui.fields.chatterLine}
+                    disabled={!row.selected}
+                  />
+                </label>
+              ))}
+            </div>
+            <div className="chatter-actions">
+              <button
+                className="primary-button"
+                disabled={
+                  !chatterRows.some(
+                    (row) => row.selected && row.text.trim().length > 0,
+                  )
+                }
+                onClick={triggerChatter}
+                type="button"
+              >
+                {ui.buttons.playChatter}
+              </button>
+              <button
+                className="secondary-button"
+                disabled={!isChatterPlaying}
+                onClick={stopChatter}
+                type="button"
+              >
+                {ui.buttons.stop}
+              </button>
+            </div>
+          </div>
+        </details>
 
         <details className="panel advanced-panel">
           <summary>

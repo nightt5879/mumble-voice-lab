@@ -4,6 +4,7 @@ import type { SyllableEvent } from "./types";
 
 let sharedContext: AudioContext | undefined;
 let activePlayback: MumblePlaybackHandle | undefined;
+let activeChatterHandles: MumblePlaybackHandle[] = [];
 const silenceGain = 0.0001;
 
 export interface MumblePlaybackHandle {
@@ -353,6 +354,8 @@ export async function playMumbleEvents(
   }
 
   activePlayback?.stop();
+  activeChatterHandles.forEach((handle) => handle.stop());
+  activeChatterHandles = [];
   activePlayback = scheduleMumbleEvents(
     sharedContext,
     sharedContext.destination,
@@ -363,7 +366,63 @@ export async function playMumbleEvents(
   return activePlayback;
 }
 
+export interface ChatterSpeaker {
+  events: SyllableEvent[];
+  params: MumbleParameters;
+}
+
+export async function playChatter(
+  speakers: ChatterSpeaker[],
+): Promise<MumblePlaybackHandle> {
+  if (speakers.length === 0) {
+    throw new Error("playChatter requires at least one speaker");
+  }
+
+  if (!sharedContext) {
+    sharedContext = new AudioContext();
+  }
+
+  if (sharedContext.state === "suspended") {
+    await sharedContext.resume();
+  }
+
+  activePlayback?.stop();
+  activePlayback = undefined;
+  activeChatterHandles.forEach((handle) => handle.stop());
+  activeChatterHandles = [];
+
+  const startAt = sharedContext.currentTime + 0.04;
+  // Pull each voice down a touch so N stacked masters don't clip the mix.
+  // -3 dB per doubling matches equal-power mixing for incoherent sources.
+  const headroomDb = -10 * Math.log10(speakers.length);
+
+  activeChatterHandles = speakers.map(({ events, params }) => {
+    const adjustedParams: MumbleParameters = {
+      ...params,
+      volumeDb: params.volumeDb + headroomDb,
+    };
+    return scheduleMumbleEvents(
+      sharedContext!,
+      sharedContext!.destination,
+      events,
+      adjustedParams,
+      startAt,
+    );
+  });
+
+  const combinedHandle: MumblePlaybackHandle = {
+    startedAt: startAt,
+    stop: () => {
+      activeChatterHandles.forEach((handle) => handle.stop());
+      activeChatterHandles = [];
+    },
+  };
+  return combinedHandle;
+}
+
 export function stopMumblePlayback() {
   activePlayback?.stop();
   activePlayback = undefined;
+  activeChatterHandles.forEach((handle) => handle.stop());
+  activeChatterHandles = [];
 }

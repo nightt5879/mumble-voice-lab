@@ -30,6 +30,8 @@ export interface UiCopy {
     parameters: string;
     presetJson: string;
     eventPreview: string;
+    chatter: string;
+    chatterHint: string;
   };
   buttons: {
     trigger: string;
@@ -38,12 +40,14 @@ export interface UiCopy {
     exportWav: string;
     rendering: string;
     exportJson: string;
+    playChatter: string;
   };
   fields: {
     emotion: string;
     style: string;
     intensity: string;
     pitchFallAtEnd: string;
+    chatterLine: string;
   };
   compare: {
     current: string;
@@ -117,6 +121,8 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       parameters: "参数",
       presetJson: "Preset JSON",
       eventPreview: "事件预览",
+      chatter: "多人同时讲话",
+      chatterHint: "勾选多个角色，让他们同时说话，听起来人声鼎沸",
     },
     buttons: {
       trigger: "播放台词",
@@ -125,12 +131,14 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       exportWav: "导出 WAV",
       rendering: "渲染中...",
       exportJson: "导出 JSON",
+      playChatter: "一起播放",
     },
     fields: {
       emotion: "情绪",
       style: "风格",
       intensity: "强度",
       pitchFallAtEnd: "句尾音高下降",
+      chatterLine: "想说的话",
     },
     compare: {
       current: "当前表达",
@@ -264,6 +272,8 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       parameters: "Parameters",
       presetJson: "Preset JSON",
       eventPreview: "Event Preview",
+      chatter: "Crowd Chatter",
+      chatterHint: "Pick a few characters and play them all at once for a crowd-room feel",
     },
     buttons: {
       trigger: "Trigger Statement",
@@ -272,12 +282,14 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       exportWav: "Export WAV",
       rendering: "Rendering...",
       exportJson: "Export JSON",
+      playChatter: "Play Together",
     },
     fields: {
       emotion: "Emotion",
       style: "Style",
       intensity: "Intensity",
       pitchFallAtEnd: "Pitch Fall At End",
+      chatterLine: "Their line",
     },
     compare: {
       current: "Current expression",
