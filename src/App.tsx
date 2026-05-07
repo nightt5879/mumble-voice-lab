@@ -601,12 +601,10 @@ export default function App() {
       <header className="app-header">
         <div className="brand-block">
           <p className="eyebrow">{ui.appEyebrow}</p>
-          <h1>Mumble Voice Lab</h1>
-          <p className="hero-copy">
-            {uiLanguage === "zh"
-              ? "为游戏角色生成可爱的 mumble / gibberish 台词声音。输入一句话，选角色、调情绪，然后直接试听或导出。"
-              : "Design cute mumble and gibberish dialogue voices for game characters. Type a line, choose a character, shape the expression, then preview or export."}
-          </p>
+          <h1>
+            <span className="accent">Mumble</span> Voice Lab
+          </h1>
+          <p className="hero-copy">{ui.heroCopy}</p>
         </div>
         <div className="header-status" aria-live="polite">
           <div className="header-actions">

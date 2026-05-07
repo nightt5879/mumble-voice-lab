@@ -1,0 +1,172 @@
+/* ============================================================
+   Mumble Voice Lab — Cozy Design System
+   tokens.css
+
+   Two-layer system:
+   1. Base tokens (--ink, --paper, --cute, etc) — change these to retemper.
+   2. Semantic tokens (--text, --bg-card, h1, btn, etc) — UI consumes these.
+
+   Override base tokens at :root (or scope to a container) to retheme.
+   ============================================================ */
+
+/* ---------- Webfonts (self-hosted under /public/fonts/) ---------- */
+@font-face {
+  font-family: "Nunito";
+  font-weight: 500;
+  font-style: normal;
+  src: url("/fonts/nunito/Nunito-500.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nunito";
+  font-weight: 700;
+  font-style: normal;
+  src: url("/fonts/nunito/Nunito-700.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nunito";
+  font-weight: 900;
+  font-style: normal;
+  src: url("/fonts/nunito/Nunito-900.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 500;
+  font-style: normal;
+  src: url("/fonts/jetbrains-mono/JetBrainsMono-500.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 700;
+  font-style: normal;
+  src: url("/fonts/jetbrains-mono/JetBrainsMono-700.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  font-weight: 500;
+  font-style: normal;
+  src: url("/fonts/noto-sans-sc/NotoSansSC-500.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  font-weight: 700;
+  font-style: normal;
+  src: url("/fonts/noto-sans-sc/NotoSansSC-700.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  font-weight: 900;
+  font-style: normal;
+  src: url("/fonts/noto-sans-sc/NotoSansSC-900.woff2") format("woff2");
+  font-display: swap;
+}
+
+/* ============================================================
+   1. BASE TOKENS — paper, ink, character colors
+   ============================================================ */
+:root {
+  /* Paper system (warm) */
+  --paper:        #fdf6ec;   /* main body bg */
+  --paper-warm:   #fbeed3;   /* secondary surface */
+  --paper-card:   #fff8e7;   /* card surface */
+  --paper-deep:   #fde68a;   /* selected / highlight */
+
+  /* Ink system */
+  --ink:          #2a1f17;   /* primary text + outlines */
+  --ink-soft:     #6b5849;   /* secondary text */
+  --ink-mute:     #a08c79;   /* tertiary text, axis labels */
+  --ink-line:     #e6d3b3;   /* hairlines, dividers */
+
+  /* Character cast — 9 presets (= identity colors) */
+  --cute:         #f472b6;   /* Cute NPC */
+  --robot:        #22c55e;   /* Robot Guard */
+  --soft:         #fb7185;   /* Soft Mascot */
+  --merchant:     #eab308;   /* Talkative Merchant */
+  --tiny:         #38bdf8;   /* Tiny Creature */
+  --spirit:       #14b8a6;   /* Forest Spirit */
+  --tired:        #f59e0b;   /* Tired Villager */
+  --monster:      #ef4444;   /* Monster */
+  --boss:         #7c3aed;   /* Deep Boss */
+
+  /* Semantic chip colors (for parameter groups) */
+  --grp-pitch:      #fbcfe8;
+  --grp-rhythm:     #bae6fd;
+  --grp-roughness:  #fef08a;
+  --grp-brightness: #fde68a;
+  --grp-continuity: #bbf7d0;
+  --grp-level:      #ddd6fe;
+
+  /* Status */
+  --ok:    #22c55e;
+  --warn:  #f59e0b;
+  --bad:   #ef4444;
+  --info:  #38bdf8;
+
+  /* Shape language — "handmade tool" feel */
+  --border-w:     2px;
+  --border:       2px solid var(--ink);
+  --radius-sm:    8px;
+  --radius:       14px;
+  --radius-lg:    22px;
+  --radius-pill:  999px;
+
+  /* Block-offset shadow (no blur, sticker-like) */
+  --shadow-soft:  2px 2px 0 var(--ink);
+  --shadow-block: 4px 4px 0 var(--ink);
+  --shadow-deep:  6px 6px 0 var(--ink);
+
+  /* Motion */
+  --ease-pop: cubic-bezier(.34, 1.56, .64, 1);   /* slight overshoot */
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --t-fast:   120ms;
+  --t-med:    220ms;
+
+  /* Type scale */
+  --font-ui:    "Nunito", "Noto Sans SC", -apple-system, "PingFang SC",
+                "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-cn:    "Noto Sans SC", "Nunito", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+
+  --fs-12: 12px;  --fs-13: 13px;  --fs-14: 14px;
+  --fs-16: 16px;  --fs-18: 18px;  --fs-22: 22px;
+  --fs-28: 28px;  --fs-40: 40px;  --fs-56: 56px;
+
+  --lh-tight: 1.1;
+  --lh-snug:  1.35;
+  --lh-body:  1.55;
+
+  /* Spacing scale */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;
+  --sp-4: 16px;  --sp-5: 24px;  --sp-6: 32px;
+  --sp-7: 48px;  --sp-8: 64px;
+}
+
+/* ============================================================
+   2. SEMANTIC TOKENS — what UI components consume
+   ============================================================ */
+:root {
+  --bg:          var(--paper);
+  --bg-elev:     var(--paper-card);
+  --bg-soft:     var(--paper-warm);
+  --bg-hot:      var(--paper-deep);
+
+  --text:        var(--ink);
+  --text-soft:   var(--ink-soft);
+  --text-mute:   var(--ink-mute);
+
+  --line:        var(--ink-line);
+  --outline:     var(--ink);
+
+  --accent:      var(--cute);   /* primary action color (default = Cute NPC pink) */
+  --accent-on:   var(--paper-card);
+}
+
+/* Defensive: App.tsx still writes data-theme="dark" until dark cozy tokens
+   ship. No overrides here keeps the page in light mode without crashing. */
+:root[data-theme="dark"] {}

@@ -7,6 +7,7 @@ type ParameterKey = Exclude<keyof MumbleParameters, "pitchFallAtEnd">;
 
 export interface UiCopy {
   appEyebrow: string;
+  heroCopy: string;
   uiLanguage: string;
   languageNames: Record<UiLanguage, string>;
   status: {
@@ -89,6 +90,8 @@ export interface UiCopy {
 export const uiCopy: Record<UiLanguage, UiCopy> = {
   zh: {
     appEyebrow: "原型音频工具",
+    heroCopy:
+      "为游戏角色生成可爱的 mumble / gibberish 台词声音。输入一句话，选角色、调情绪，然后直接试听或导出。",
     uiLanguage: "界面语言",
     languageNames: {
       zh: "中文",
@@ -234,6 +237,8 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
   },
   en: {
     appEyebrow: "Prototype audio tool",
+    heroCopy:
+      "Design cute mumble and gibberish dialogue voices for game characters. Type a line, choose a character, shape the expression, then preview or export.",
     uiLanguage: "UI language",
     languageNames: {
       zh: "中文",
