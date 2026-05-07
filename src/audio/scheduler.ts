@@ -277,6 +277,64 @@ function getNextSyllableUnit(units: TextUnit[], index: number) {
   return undefined;
 }
 
+function getTimingJitterRange(
+  params: MumbleParameters,
+  language: TextLanguage,
+  duration: number,
+  phraseBoundaryStrength: number,
+) {
+  const rawRange = language === "zh" ? params.timingJitterMs * 0.2 : params.timingJitterMs * 0.7;
+  const boundaryFactor = phraseBoundaryStrength >= 1 ? 0.82 : 1;
+  const durationCap = Math.max(3, duration * 1000 * 0.24);
+  return Math.min(rawRange * boundaryFactor, durationCap);
+}
+
+function getContinuityGap(
+  unit: TextUnit,
+  nextSyllableUnit: TextUnit | undefined,
+  duration: number,
+  rng: SeededRandom,
+) {
+  const sameWord = nextSyllableUnit?.wordId === unit.wordId;
+  const samePhrase = nextSyllableUnit?.phraseIndex === unit.phraseIndex;
+  let gap: number;
+
+  if (sameWord) {
+    gap = rng.range(unit.language === "zh" ? 0.005 : 0.004, unit.language === "zh" ? 0.014 : 0.016);
+  } else if (samePhrase) {
+    gap = rng.range(unit.language === "zh" ? 0.018 : 0.01, unit.language === "zh" ? 0.042 : 0.038);
+  } else {
+    gap = rng.range(unit.language === "zh" ? 0.024 : 0.014, unit.language === "zh" ? 0.052 : 0.048);
+  }
+
+  const overlap = sameWord
+    ? Math.min(duration * 0.2, 0.018)
+    : samePhrase
+      ? Math.min(duration * 0.08, 0.01)
+      : 0;
+  const minimumGap = sameWord ? -0.014 : samePhrase ? -0.004 : 0.006;
+  return Math.max(minimumGap, gap - overlap);
+}
+
+function getSafeEnvelopeTimes(params: MumbleParameters, duration: number, frequency: number) {
+  const lowFrequency = frequency < 120;
+  const highFrequency = frequency > 520;
+  const shortBlip = duration < 0.075;
+  const minAttack = lowFrequency ? 0.011 : highFrequency || shortBlip ? 0.0055 : 0.004;
+  const minRelease = lowFrequency ? 0.072 : highFrequency || shortBlip ? 0.038 : 0.028;
+
+  return {
+    attack: Math.max(params.attackMs / 1000, minAttack),
+    release: Math.max(params.releaseMs / 1000, minRelease),
+  };
+}
+
+function getSafeNoiseAmount(value: number, frequency: number, filterQ: number) {
+  const frequencyFactor = frequency > 520 ? 0.82 : frequency < 120 ? 0.9 : 1;
+  const resonanceFactor = 1 - clamp((filterQ - 5) / 16, 0, 0.26);
+  return clamp(value * frequencyFactor * resonanceFactor, 0, 0.62);
+}
+
 export function buildSchedule(
   text: string,
   baseParams: MumbleParameters,
@@ -402,8 +460,20 @@ export function buildSchedule(
       35,
       2600,
     );
-    const timingRange =
-      unit.language === "zh" ? params.timingJitterMs * 0.22 : params.timingJitterMs;
+    const isWordEnd = nextSyllableUnit?.wordId !== unit.wordId;
+    const phraseBoundaryStrength = getPhraseBoundaryStrength(
+      unit,
+      phrasePosition,
+      phraseCount,
+      isWordEnd,
+    );
+    const envelopeTimes = getSafeEnvelopeTimes(params, duration, freq);
+    const timingRange = getTimingJitterRange(
+      params,
+      unit.language,
+      duration,
+      phraseBoundaryStrength,
+    );
     const timingJitter = rng.range(-timingRange, timingRange) / 1000;
     const startTime = Math.max(0.01, cursor + timingJitter);
     const gain =
@@ -418,7 +488,6 @@ export function buildSchedule(
       punctuationAfter === "question" ||
       punctuationAfter === "ellipsis";
     const eventIndex = events.length;
-    const isWordEnd = nextSyllableUnit?.wordId !== unit.wordId;
 
     if (unit.revealText) {
       revealEvents.push({
@@ -432,6 +501,12 @@ export function buildSchedule(
       });
     }
 
+    const filterQ = clamp(params.filterQ * rng.range(0.82, 1.08), 0.1, 30);
+    const rawNoiseAmount =
+      params.noiseAmount *
+      rng.range(0.72, 1.22) *
+      (eventKind === "emphasis" ? 1.18 : 1);
+
     events.push({
       index: syllableIndex,
       unitId: unit.id,
@@ -440,12 +515,7 @@ export function buildSchedule(
       tone: unit.tone,
       pitchContour,
       wordId: unit.wordId,
-      phraseBoundaryStrength: getPhraseBoundaryStrength(
-        unit,
-        phrasePosition,
-        phraseCount,
-        isWordEnd,
-      ),
+      phraseBoundaryStrength,
       time: Number(startTime.toFixed(4)),
       duration: Number(duration.toFixed(4)),
       frequency: Number(freq.toFixed(2)),
@@ -461,18 +531,10 @@ export function buildSchedule(
           9500,
         ).toFixed(2),
       ),
-      filterQ: Number(clamp(params.filterQ * rng.range(0.82, 1.08), 0.1, 30).toFixed(2)),
-      attack: Number(Math.max(0.001, params.attackMs / 1000).toFixed(4)),
-      release: Number(Math.max(0.004, params.releaseMs / 1000).toFixed(4)),
-      noiseAmount: Number(
-        clamp(
-          params.noiseAmount *
-            rng.range(0.72, 1.22) *
-            (eventKind === "emphasis" ? 1.18 : 1),
-          0,
-          1,
-        ).toFixed(3),
-      ),
+      filterQ: Number(filterQ.toFixed(2)),
+      attack: Number(envelopeTimes.attack.toFixed(4)),
+      release: Number(envelopeTimes.release.toFixed(4)),
+      noiseAmount: Number(getSafeNoiseAmount(rawNoiseAmount, freq, filterQ).toFixed(3)),
       ringModFreq: Number(Math.max(0, params.ringModFreq * rng.range(0.96, 1.04)).toFixed(2)),
       ringModDepth: Number(clamp(params.ringModDepth, 0, 1).toFixed(3)),
       vowel: `${formants.start.vowel}-${formants.end.vowel}`,
@@ -488,14 +550,7 @@ export function buildSchedule(
 
     lastVowel = formants.start.vowel;
     phrasePositions.set(unit.phraseIndex, phrasePosition + 1);
-    const sameChineseWord =
-      unit.language === "zh" &&
-      nextSyllableUnit?.language === "zh" &&
-      nextSyllableUnit.wordId === unit.wordId;
-    const zhGap = sameChineseWord
-      ? rng.range(0.006, 0.016)
-      : rng.range(0.024, 0.052);
-    cursor += duration + (unit.language === "zh" ? zhGap : rng.range(0.012, 0.048));
+    cursor += duration + getContinuityGap(unit, nextSyllableUnit, duration, rng);
     syllableIndex += 1;
   });
 

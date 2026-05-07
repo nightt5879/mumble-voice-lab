@@ -681,6 +681,19 @@ select {
   font-weight: 680;
 }
 
+.toggle-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.toggle-copy small,
+.slider-row small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 520;
+  line-height: 1.35;
+}
+
 .toggle-row input {
   width: 18px;
   height: 18px;

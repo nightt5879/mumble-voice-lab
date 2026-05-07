@@ -889,7 +889,10 @@ export default function App() {
                   }
                   type="checkbox"
                 />
-                <span>{ui.fields.pitchFallAtEnd}</span>
+                <span className="toggle-copy">
+                  <span>{ui.fields.pitchFallAtEnd}</span>
+                  <small>{ui.parameterDescriptions.pitchFallAtEnd}</small>
+                </span>
               </label>
 
               <div className="slider-list">
@@ -905,6 +908,7 @@ export default function App() {
                         )}
                       </output>
                     </span>
+                    <small>{ui.parameterDescriptions[definition.key]}</small>
                     <input
                       max={definition.max}
                       min={definition.min}

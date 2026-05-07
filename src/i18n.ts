@@ -81,6 +81,7 @@ export interface UiCopy {
   };
   presetNames: Record<string, string>;
   parameterLabels: Record<ParameterKey, string>;
+  parameterDescriptions: Record<keyof MumbleParameters, string>;
   emotionNames: Record<EmotionId, string>;
   styleNames: Record<SpeakingStyleId, string>;
 }
@@ -167,9 +168,13 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
     presetNames: {
       "cute-npc": "可爱 NPC",
       "robot-guard": "机器人守卫",
+      "soft-mascot": "软萌吉祥物",
+      "talkative-merchant": "话多商人",
       "tiny-creature": "小生物",
+      "forest-spirit": "森林精灵",
       "tired-villager": "疲惫村民",
       monster: "怪物",
+      "deep-boss": "低沉 Boss",
     },
     parameterLabels: {
       basicFreq: "基础频率",
@@ -188,6 +193,25 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       releaseMs: "释音",
       volumeDb: "音量",
       seed: "种子",
+    },
+    parameterDescriptions: {
+      basicFreq: "决定整体音高底座；越高越尖，越低越沉。",
+      wordCountMultiplier: "影响文本会生成多少 blip，越高越密集。",
+      syllableLengthMs: "控制单个 blip 持续时间，越长越拖、越短越跳。",
+      syllableLengthRandomness: "增加长短变化；过高会让节奏更不稳定。",
+      pitchRandomSemitone: "增加音高跳动；过高时高频角色更容易刺耳。",
+      pitchFallAtEnd: "让句尾自然下坠，主要影响句号、问号和短语末尾。",
+      speedCurve: "控制前后速度变化，正值后段更快，负值后段更慢。",
+      timingJitterMs: "增加时间微抖；过高会产生卡顿感。",
+      ringModFreq: "设置机械/粗糙调制的速度，常用于机器人和怪物。",
+      ringModDepth: "控制调制强度；过高会更硬，也更容易产生爆音风险。",
+      noiseAmount: "增加气声和粗糙度，适合低语、怪物或神秘角色。",
+      filterFreq: "控制亮度和开口感；越高越亮，越低越闷。",
+      filterQ: "控制滤波峰值；越高越尖锐，也更容易刺耳。",
+      attackMs: "控制淡入速度；太短容易有点击声。",
+      releaseMs: "控制淡出尾巴；太短容易硬切，太长会拖尾。",
+      volumeDb: "最终输出音量；过高会压缩更明显。",
+      seed: "改变随机细节；同文本同参数同种子会得到同样结果。",
     },
     emotionNames: {
       neutral: "中性",
@@ -290,9 +314,13 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
     presetNames: {
       "cute-npc": "Cute NPC",
       "robot-guard": "Robot Guard",
+      "soft-mascot": "Soft Mascot",
+      "talkative-merchant": "Talkative Merchant",
       "tiny-creature": "Tiny Creature",
+      "forest-spirit": "Forest Spirit",
       "tired-villager": "Tired Villager",
       monster: "Monster",
+      "deep-boss": "Deep Boss",
     },
     parameterLabels: {
       basicFreq: "Basic Freq",
@@ -311,6 +339,25 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       releaseMs: "Release",
       volumeDb: "Volume",
       seed: "Seed",
+    },
+    parameterDescriptions: {
+      basicFreq: "Sets the overall pitch base: higher is brighter, lower is heavier.",
+      wordCountMultiplier: "Changes how many blips the text produces; higher is denser.",
+      syllableLengthMs: "Controls each blip length; longer drags, shorter hops.",
+      syllableLengthRandomness: "Adds length variation; high values make rhythm less stable.",
+      pitchRandomSemitone: "Adds pitch jumps; high values can make bright voices sharper.",
+      pitchFallAtEnd: "Adds a natural tail drop around phrase and sentence endings.",
+      speedCurve: "Shapes speed over the line; positive accelerates, negative slows down.",
+      timingJitterMs: "Adds timing wobble; high values can sound choppy.",
+      ringModFreq: "Sets the speed of mechanical or rough modulation.",
+      ringModDepth: "Controls modulation strength; high values sound harder and risk pops.",
+      noiseAmount: "Adds breath and roughness for whispers, monsters, or mysterious voices.",
+      filterFreq: "Controls brightness and mouth openness.",
+      filterQ: "Controls filter sharpness; high values can sound piercing.",
+      attackMs: "Controls fade-in speed; too short can click.",
+      releaseMs: "Controls fade-out tail; too short can hard-cut.",
+      volumeDb: "Final output level; high values push compression harder.",
+      seed: "Changes random detail; same text, parameters, and seed stay deterministic.",
     },
     emotionNames: {
       neutral: "Neutral",

@@ -57,7 +57,18 @@ function encodeWav(samples) {
   return buffer;
 }
 
-function renderMumble({ text, seed, baseFreq, blipMs, pitchRange, gain, noise, ring, emotion }) {
+function renderMumble({
+  text,
+  seed,
+  baseFreq,
+  blipMs,
+  pitchRange,
+  gain,
+  noise,
+  ring,
+  emotion,
+  softNoise = false,
+}) {
   const rng = createRng(`${seed}:${text}:${emotion}`);
   const units = Array.from(text).filter((char) => !/\s/.test(char));
   const eventCount = Math.max(8, Math.min(28, Math.round(units.length * 0.62)));
@@ -76,18 +87,27 @@ function renderMumble({ text, seed, baseFreq, blipMs, pitchRange, gain, noise, r
       baseFreq *
       semitoneToRatio((rng() * 2 - 1) * pitchRange + punctuationLift + sentenceFall);
     const ringFrequency = ring > 0 ? ring * (0.9 + rng() * 0.25) : 0;
+    let lowNoise = 0;
+    let midNoise = 0;
 
     for (let offset = 0; offset < length; offset += 1) {
       const t = offset / sampleRate;
       const local = offset / Math.max(1, length - 1);
-      const attack = Math.min(1, local / 0.18);
-      const release = Math.min(1, (1 - local) / 0.38);
+      const attack = Math.min(1, local / (softNoise ? 0.24 : 0.18));
+      const release = Math.min(1, (1 - local) / (softNoise ? 0.46 : 0.38));
       const envelope = Math.sin(Math.min(1, attack * release) * Math.PI * 0.5);
       const vowelSweep = 1 + Math.sin(local * Math.PI) * 0.018;
       const carrier = Math.sin(2 * Math.PI * frequency * vowelSweep * t);
-      const harmonic = Math.sin(2 * Math.PI * frequency * 2.01 * t) * 0.24;
-      const ringSignal = ringFrequency > 0 ? 1 + Math.sin(2 * Math.PI * ringFrequency * t) * 0.35 : 1;
-      const noiseSignal = (rng() * 2 - 1) * noise;
+      const harmonic =
+        Math.sin(2 * Math.PI * frequency * 2.01 * t) * (softNoise ? 0.16 : 0.24);
+      const ringSignal =
+        ringFrequency > 0
+          ? 1 + Math.sin(2 * Math.PI * ringFrequency * t) * (softNoise ? 0.22 : 0.35)
+          : 1;
+      const white = rng() * 2 - 1;
+      lowNoise = lowNoise * 0.88 + white * 0.12;
+      midNoise = midNoise * 0.56 + white * 0.44;
+      const noiseSignal = (softNoise ? lowNoise * 0.82 + midNoise * 0.18 : white) * noise;
       const sample = (carrier + harmonic + noiseSignal) * ringSignal * envelope * gain * emphasis;
       const index = start + offset;
       if (index < samples.length) {
@@ -185,24 +205,26 @@ const samples = [
     fileName: "tiny-creature-surprised-en.wav",
     text: "Oh! You found the shiny seed?",
     seed: "tiny-surprised",
-    baseFreq: 670,
-    blipMs: 48,
-    pitchRange: 9,
-    gain: 0.47,
-    noise: 0.035,
-    ring: 10,
+    baseFreq: 520,
+    blipMs: 62,
+    pitchRange: 5.8,
+    gain: 0.38,
+    noise: 0.018,
+    ring: 0,
+    softNoise: true,
     emotion: "surprised",
   },
   {
     fileName: "tiny-creature-nervous-zh.wav",
     text: "等一下等一下！那个东西是不是在动？",
     seed: "tiny-nervous",
-    baseFreq: 650,
-    blipMs: 44,
-    pitchRange: 10.5,
-    gain: 0.45,
-    noise: 0.045,
-    ring: 14,
+    baseFreq: 510,
+    blipMs: 64,
+    pitchRange: 5.6,
+    gain: 0.36,
+    noise: 0.018,
+    ring: 0,
+    softNoise: true,
     emotion: "nervous",
   },
   {

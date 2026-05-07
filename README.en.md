@@ -4,11 +4,11 @@
 
 Mumble Voice Lab is a browser-based character mumble / gibberish voice generator for games. Type a line, choose a character, tune emotion and speaking style, preview instantly, then export deterministic WAV + JSON schedules.
 
-**Live Demo:** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/?v=1.0.2-theme-cache)
+**Live Demo:** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/?v=1.1.0-continuity-presets)
 
 **GitHub Repository:** [github.com/nightt5879/mumble-voice-lab](https://github.com/nightt5879/mumble-voice-lab)
 
-**Current version:** V1.0.2 theme/cache patch, fixing stronger light/dark contrast and cache-busted GitHub Pages links.
+**Current version:** V1.1.0 continuity/preset update, improving connected playback, reducing pop risk, and adding more character voices.
 
 Mumble Voice Lab is **not TTS**. It does not pronounce real words. Instead, it borrows text length, punctuation, Chinese/English rhythm, phrase shape, and sentence endings to create short syllable-like blips that feel like a character is speaking in their own language.
 
@@ -18,9 +18,9 @@ It is designed for cozy RPGs, indie games, visual novels, creature games, NPC di
 
 To quickly hear the range of character presets, emotions, speaking styles, Chinese, English, and mixed-language lines, open the online listening page:
 
-**[Open the 12-clip listening showcase](https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.0.2-theme-cache)**
+**[Open the 12-clip listening showcase](https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.1.0-continuity-presets)**
 
-The showcase includes Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster presets, plus expression directions such as Happy, Whisper, Shout, Chant, Nervous, Sleepy, Sad, Scared, and Angry.
+The showcase includes Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster presets. The full tool also adds V1.1.0 voice directions such as Soft Mascot, Talkative Merchant, Forest Spirit, and Deep Boss.
 
 ## Features
 
@@ -30,6 +30,8 @@ The showcase includes Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and 
 - Chinese rhythm uses segmentation, subtle tone shaping, particles, and punctuation pauses.
 - English uses syllable counting to estimate pseudo-syllable events.
 - Character presets can be layered with emotion, speaking style, and intensity.
+- V1.1.0 smooths ring modulation, envelopes, and adjacent syllable timing to reduce pops and hard cuts in low/high presets.
+- Advanced parameters include short descriptions for pitch, rhythm, roughness, brightness, continuity, and level controls.
 - Deterministic output: same text + preset + seed + expression gives the same schedule.
 - Exports playable WAV files and reusable JSON schedules.
 - Bilingual UI: 中文 / English.
@@ -56,11 +58,11 @@ Good morning, traveler! Ready?
 
 ### 1. Improve playback continuity
 
-Current mumble voices can sometimes feel slightly choppy between characters or syllable blips. Future work will focus on smoother transitions, envelopes, fades, and overall continuity so character dialogue feels more natural and expressive.
+V1.1.0 improves transitions, envelopes, fades, and adjacent syllable timing. Low monster voices, high tiny voices, and modulated robot voices should produce fewer clicks, pops, and hard cuts during connected playback.
 
 ### 2. Add more voice colors
 
-The project currently includes basic presets such as Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster. Future versions will add more voice directions, including softer characters, more mechanical voices, deeper monsters, stranger tiny creatures, and presets for different game styles.
+The project includes basic presets such as Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster. V1.1.0 adds a smaller set of higher-quality presets: Soft Mascot, Talkative Merchant, Forest Spirit, and Deep Boss.
 
 ### 3. Improve game development integration
 

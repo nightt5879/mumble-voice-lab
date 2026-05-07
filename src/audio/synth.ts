@@ -4,6 +4,7 @@ import type { SyllableEvent } from "./types";
 
 let sharedContext: AudioContext | undefined;
 let activePlayback: MumblePlaybackHandle | undefined;
+const silenceGain = 0.0001;
 
 export interface MumblePlaybackHandle {
   startedAt: number;
@@ -22,14 +23,42 @@ function semitoneToRatio(semitone: number) {
   return 2 ** (semitone / 12);
 }
 
-function makeNoiseBuffer(context: BaseAudioContext, duration: number, seed: number) {
+function smoothStep(value: number) {
+  return value * value * (3 - 2 * value);
+}
+
+function resolveEnvelopeTimes(event: SyllableEvent) {
+  const lowFrequency = event.frequency < 120;
+  const highFrequency = event.frequency > 520;
+  const shortBlip = event.duration < 0.075;
+  const minAttack = lowFrequency ? 0.011 : highFrequency || shortBlip ? 0.0055 : 0.004;
+  const minRelease = lowFrequency ? 0.072 : highFrequency || shortBlip ? 0.038 : 0.028;
+
+  return {
+    attack: Math.max(event.attack, minAttack),
+    release: Math.max(event.release, minRelease),
+  };
+}
+
+function makeNoiseBuffer(
+  context: BaseAudioContext,
+  duration: number,
+  seed: number,
+  brightness: number,
+) {
   const sampleCount = Math.max(1, Math.ceil(context.sampleRate * duration));
   const buffer = context.createBuffer(1, sampleCount, context.sampleRate);
   const data = buffer.getChannelData(0);
   const rng = createSeededRandom(seed);
+  const brightBlend = clamp(brightness, 0.06, 0.24);
+  let lowNoise = 0;
+  let midNoise = 0;
 
   for (let index = 0; index < sampleCount; index += 1) {
-    data[index] = rng.range(-1, 1);
+    const white = rng.range(-1, 1);
+    lowNoise = lowNoise * 0.88 + white * 0.12;
+    midNoise = midNoise * 0.56 + white * 0.44;
+    data[index] = lowNoise * (1 - brightBlend) + midNoise * brightBlend;
   }
 
   return buffer;
@@ -43,15 +72,46 @@ function scheduleEnvelope(
   release: number,
   peak: number,
 ) {
-  const attackTime = clamp(attack, 0.001, duration * 0.5);
-  const releaseTime = clamp(release, 0.004, duration + release);
-  const sustainEnd = Math.max(start + attackTime, start + duration - releaseTime * 0.35);
+  const attackTime = clamp(attack, 0.0025, Math.max(0.003, duration * 0.55));
+  const releaseTime = clamp(release, 0.018, 0.28);
+  const totalTime = Math.max(duration + releaseTime, attackTime + releaseTime);
+  const sustainEnd = Math.max(attackTime + 0.004, duration - releaseTime * 0.32);
+  const curve = new Float32Array(96);
 
-  // A tiny non-zero starting gain prevents zipper noise while keeping the blip silent.
-  gain.setValueAtTime(0.0001, start);
-  gain.linearRampToValueAtTime(peak, start + attackTime);
-  gain.setTargetAtTime(peak * 0.72, start + attackTime, 0.018);
-  gain.linearRampToValueAtTime(0.0001, sustainEnd + releaseTime);
+  for (let index = 0; index < curve.length; index += 1) {
+    const time = (index / (curve.length - 1)) * totalTime;
+    let value = silenceGain;
+
+    if (time <= attackTime) {
+      const progress = clamp(time / attackTime, 0, 1);
+      value = silenceGain + (peak - silenceGain) * smoothStep(progress);
+    } else if (time <= sustainEnd) {
+      const progress = clamp(
+        (time - attackTime) / Math.max(0.001, sustainEnd - attackTime),
+        0,
+        1,
+      );
+      value = peak * (1 - progress * 0.18);
+    } else {
+      const progress = clamp(
+        (time - sustainEnd) / Math.max(0.001, totalTime - sustainEnd),
+        0,
+        1,
+      );
+      value = silenceGain + peak * 0.82 * (1 - smoothStep(progress));
+    }
+
+    curve[index] = Math.max(silenceGain, value);
+  }
+
+  gain.setValueAtTime(silenceGain, start);
+  gain.setValueCurveAtTime(curve, start, totalTime);
+
+  return {
+    attackTime,
+    releaseTime,
+    totalTime,
+  };
 }
 
 function createLimiter(context: BaseAudioContext) {
@@ -88,8 +148,9 @@ function scheduleEvent(
   startAt: number,
 ) {
   const start = startAt + event.time;
-  const stop = start + event.duration + event.release + 0.04;
-  const peakGain = clamp(event.gain * 0.95, 0.02, 1.18);
+  const envelopeTimes = resolveEnvelopeTimes(event);
+  const stop = start + event.duration + envelopeTimes.release + 0.06;
+  const peakGain = clamp(event.gain * 0.9, 0.02, 1.08);
   const oscillator = context.createOscillator();
   const eventGain = context.createGain();
   const formantOne = context.createBiquadFilter();
@@ -141,51 +202,95 @@ function scheduleEvent(
   vowelFilter.Q.setValueAtTime(Math.max(0.7, event.filterQ * 0.35), start);
   panner.pan.setValueAtTime(event.pan, start);
 
-  eventGain.gain.setValueAtTime(0.0001, start);
-  scheduleEnvelope(eventGain.gain, start, event.duration, event.attack, event.release, peakGain);
+  eventGain.gain.setValueAtTime(silenceGain, start);
+  scheduleEnvelope(
+    eventGain.gain,
+    start,
+    event.duration,
+    envelopeTimes.attack,
+    envelopeTimes.release,
+    peakGain,
+  );
 
   oscillator.connect(formantOne);
   formantOne.connect(formantTwo);
   formantTwo.connect(vowelFilter);
-  vowelFilter.connect(eventGain);
-  eventGain.connect(panner);
-  panner.connect(destination);
+  let carrierOutput: AudioNode = vowelFilter;
 
   if (event.ringModDepth > 0 && event.ringModFreq > 0) {
+    const ringModulator = context.createGain();
     const ringOscillator = context.createOscillator();
-    const ringGain = context.createGain();
+    const ringDepth = context.createGain();
+    const safeRingDepth = clamp(event.ringModDepth, 0, 0.52);
+    const modulationAmount = safeRingDepth * 0.46;
+
+    ringModulator.gain.setValueAtTime(1 - safeRingDepth * 0.12, start);
     ringOscillator.type = "sine";
     ringOscillator.frequency.setValueAtTime(event.ringModFreq, start);
-    ringGain.gain.setValueAtTime(peakGain * event.ringModDepth * 0.65, start);
-    ringOscillator.connect(ringGain);
-    ringGain.connect(eventGain.gain);
+    scheduleEnvelope(
+      ringDepth.gain,
+      start,
+      event.duration,
+      envelopeTimes.attack,
+      envelopeTimes.release,
+      modulationAmount,
+    );
+    ringOscillator.connect(ringDepth);
+    ringDepth.connect(ringModulator.gain);
+    vowelFilter.connect(ringModulator);
+    carrierOutput = ringModulator;
     ringOscillator.start(start);
     ringOscillator.stop(stop);
   }
+
+  carrierOutput.connect(eventGain);
+  eventGain.connect(panner);
+  panner.connect(destination);
 
   if (event.noiseAmount > 0.001) {
     const noiseSource = context.createBufferSource();
     const noiseGain = context.createGain();
     const noiseFilter = context.createBiquadFilter();
-    noiseSource.buffer = makeNoiseBuffer(context, event.duration + event.release + 0.04, event.noiseSeed);
+    const noiseTone = context.createBiquadFilter();
+    const noiseBrightness = clamp(event.filterFreq / 9000 + event.noiseAmount * 0.16, 0.06, 0.24);
+    noiseSource.buffer = makeNoiseBuffer(
+      context,
+      event.duration + envelopeTimes.release + 0.04,
+      event.noiseSeed,
+      noiseBrightness,
+    );
     noiseFilter.type = "bandpass";
-    noiseFilter.frequency.setValueAtTime(event.formantStart.f2 * 1.08, start);
+    noiseFilter.frequency.setValueAtTime(
+      clamp(event.formantStart.f2 * 0.92, 340, 2800),
+      start,
+    );
     noiseFilter.frequency.exponentialRampToValueAtTime(
-      event.formantEnd.f2 * 1.08,
+      clamp(event.formantEnd.f2 * 0.92, 340, 2800),
       start + event.duration,
     );
-    noiseFilter.Q.setValueAtTime(Math.max(0.8, params.filterQ * 0.65), start);
-    noiseGain.gain.setValueAtTime(0.0001, start);
+    noiseFilter.Q.setValueAtTime(clamp(params.filterQ * 0.32, 0.45, 3.2), start);
+    noiseTone.type = "lowpass";
+    noiseTone.frequency.setValueAtTime(
+      clamp(Math.min(event.filterFreq * 1.05, event.formantStart.f3 * 0.86), 850, 3800),
+      start,
+    );
+    noiseTone.frequency.exponentialRampToValueAtTime(
+      clamp(Math.min(event.filterFreq * 1.05, event.formantEnd.f3 * 0.86), 850, 3800),
+      start + event.duration,
+    );
+    noiseTone.Q.setValueAtTime(0.55, start);
+    noiseGain.gain.setValueAtTime(silenceGain, start);
     scheduleEnvelope(
       noiseGain.gain,
       start,
       event.duration,
-      event.attack,
-      event.release,
-      peakGain * event.noiseAmount * 0.72,
+      envelopeTimes.attack,
+      envelopeTimes.release,
+      peakGain * event.noiseAmount * 0.56,
     );
     noiseSource.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
+    noiseFilter.connect(noiseTone);
+    noiseTone.connect(noiseGain);
     noiseGain.connect(panner);
     noiseSource.start(start);
     noiseSource.stop(stop);
