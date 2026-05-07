@@ -7,6 +7,7 @@ type ParameterKey = Exclude<keyof MumbleParameters, "pitchFallAtEnd">;
 
 export interface UiCopy {
   appEyebrow: string;
+  heroCopy: string;
   uiLanguage: string;
   languageNames: Record<UiLanguage, string>;
   status: {
@@ -29,6 +30,8 @@ export interface UiCopy {
     parameters: string;
     presetJson: string;
     eventPreview: string;
+    chatter: string;
+    chatterHint: string;
   };
   buttons: {
     trigger: string;
@@ -37,12 +40,14 @@ export interface UiCopy {
     exportWav: string;
     rendering: string;
     exportJson: string;
+    playChatter: string;
   };
   fields: {
     emotion: string;
     style: string;
     intensity: string;
     pitchFallAtEnd: string;
+    chatterLine: string;
   };
   compare: {
     current: string;
@@ -89,6 +94,8 @@ export interface UiCopy {
 export const uiCopy: Record<UiLanguage, UiCopy> = {
   zh: {
     appEyebrow: "原型音频工具",
+    heroCopy:
+      "为游戏角色生成可爱的 mumble / gibberish 台词声音。输入一句话，选角色、调情绪，然后直接试听或导出。",
     uiLanguage: "界面语言",
     languageNames: {
       zh: "中文",
@@ -114,6 +121,8 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       parameters: "参数",
       presetJson: "Preset JSON",
       eventPreview: "事件预览",
+      chatter: "多人同时讲话",
+      chatterHint: "勾选角色，每行一句话，多句会依次播放，所有人一起开口",
     },
     buttons: {
       trigger: "播放台词",
@@ -122,12 +131,14 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       exportWav: "导出 WAV",
       rendering: "渲染中...",
       exportJson: "导出 JSON",
+      playChatter: "一起播放",
     },
     fields: {
       emotion: "情绪",
       style: "风格",
       intensity: "强度",
       pitchFallAtEnd: "句尾音高下降",
+      chatterLine: "想说的话（每行一句）",
     },
     compare: {
       current: "当前表达",
@@ -234,6 +245,8 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
   },
   en: {
     appEyebrow: "Prototype audio tool",
+    heroCopy:
+      "Design cute mumble and gibberish dialogue voices for game characters. Type a line, choose a character, shape the expression, then preview or export.",
     uiLanguage: "UI language",
     languageNames: {
       zh: "中文",
@@ -259,6 +272,8 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       parameters: "Parameters",
       presetJson: "Preset JSON",
       eventPreview: "Event Preview",
+      chatter: "Crowd Chatter",
+      chatterHint: "Pick characters, type lines one per row, and play them all together for a crowd-room feel",
     },
     buttons: {
       trigger: "Trigger Statement",
@@ -267,12 +282,14 @@ export const uiCopy: Record<UiLanguage, UiCopy> = {
       exportWav: "Export WAV",
       rendering: "Rendering...",
       exportJson: "Export JSON",
+      playChatter: "Play Together",
     },
     fields: {
       emotion: "Emotion",
       style: "Style",
       intensity: "Intensity",
       pitchFallAtEnd: "Pitch Fall At End",
+      chatterLine: "Their lines (one per row)",
     },
     compare: {
       current: "Current expression",
