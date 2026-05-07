@@ -16,7 +16,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "samples": "node scripts/generate-readme-samples.mjs",
+    "samples": "tsx scripts/generate-readme-samples.ts",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -30,6 +30,8 @@
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
+    "node-web-audio-api": "^1.0.9",
+    "tsx": "^4.21.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.0"
   }
