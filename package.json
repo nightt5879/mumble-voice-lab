@@ -1,10 +1,10 @@
 {
   "name": "mumble-voice-lab",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Browser-based character mumble and gibberish voice generator for games.",
   "author": "nightt5879",
   "license": "Apache-2.0",
-  "homepage": "https://nightt5879.github.io/mumble-voice-lab/?v=1.1.0-continuity-presets",
+  "homepage": "https://nightt5879.github.io/mumble-voice-lab/?v=1.2.0-cozy",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nightt5879/mumble-voice-lab.git"
