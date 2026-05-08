@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildSchedule } from "./audio/scheduler";
+import { createScheduleFile } from "./audio/scheduleFile";
 import type { SyllableEvent } from "./audio/types";
 import { playChatter, playMumbleEvents, stopMumblePlayback } from "./audio/synth";
 import { downloadBlob, renderEventsToWav } from "./audio/wav";
@@ -774,18 +775,12 @@ export default function App() {
   };
 
   const exportJson = () => {
-    const payload = {
-      version: "0.3.0",
+    const payload = createScheduleFile({
+      id: makeJsonFileName(selectedPresetId, params.seed).replace(/\.json$/, ""),
       text,
       preset: selectedPreset,
-      params,
-      expression: schedule.expression,
-      resolvedExpression: schedule.resolvedExpression,
-      resolvedParams: schedule.resolvedParams,
-      analysis: schedule.analysis,
-      events: schedule.events,
-      revealEvents: schedule.revealEvents,
-    };
+      schedule,
+    });
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json",
     });

@@ -1,0 +1,18 @@
+{
+  "name": "com.nightt5879.mumble-voice-lab",
+  "version": "0.1.0-alpha.1",
+  "displayName": "Mumble Voice Lab",
+  "description": "Unity editor tooling and runtime playback for Mumble Voice Lab generated dialogue clips.",
+  "unity": "2021.3",
+  "author": {
+    "name": "nightt5879"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "audio",
+    "dialogue",
+    "mumble",
+    "voice",
+    "editor"
+  ]
+}
