@@ -1,5 +1,35 @@
 # Changelog
 
+## v1.5.0 - Godot Store Ready
+
+V1.5.0 moves the Godot addon from preview to a Windows-first store-ready
+candidate. Unity remains alpha.
+
+### Added
+
+- Added a Windows no-Node renderer at
+  `integrations/godot/addons/mumble_voice_lab/bin/win-x64/mvl-renderer-win-x64.exe`.
+- Added `MumbleDialogueClip` Godot resources and `.tres` generation.
+- Added `build:renderer:win`, `test:renderer`, and `test:godot` scripts.
+- Added Godot Asset Library materials: addon-local `README.md`, `LICENSE`,
+  `THIRD_PARTY_NOTICES.md`, and `icon.png`.
+
+### Changed
+
+- Godot addon version is now `0.2.0`.
+- Godot dock defaults to Auto mode, using the bundled Windows renderer first.
+- Node CLI remains available as a developer fallback.
+- `MumbleVoicePlayer` now prefers `MumbleDialogueClip` while keeping
+  `audio_stream + schedule_path` compatibility.
+
+### Verified
+
+- Node CLI tests.
+- Web production build.
+- Windows renderer parity against Node CLI schedule output.
+- Godot 4.6.1 headless import, script parse, renderer generation, reveal signals,
+  and playback completion smoke test.
+
 ## v1.4.0 - Engine Integration Alpha
 
 V1.4.0 introduces the first game-engine integration workflow. The browser tool

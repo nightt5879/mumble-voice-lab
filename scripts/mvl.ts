@@ -1,9 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, isAbsolute, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Buffer } from "node:buffer";
 import { buildSchedule } from "../src/audio/scheduler";
 import { createScheduleFile } from "../src/audio/scheduleFile";
+import { renderEventsToPcmWav } from "../src/audio/pcmWav";
 import { renderEventsToWav } from "../src/audio/wav";
 import {
   defaultExpressionSettings,
@@ -14,10 +14,11 @@ import type { EmotionId, ExpressionSettings, SpeakingStyleId } from "../src/expr
 import { defaultPresets } from "../src/presets/defaultPresets";
 import type { MumbleParameters, MumblePreset } from "../src/presets/types";
 import type { LanguageTools } from "../src/utils/languageTools";
-import { installNodeWebAudio } from "./node-web-audio";
 import { makeNodeLanguageTools } from "./node-language-tools";
 
 type FlagValue = string | boolean;
+type AudioRenderer = "webaudio" | "pcm";
+type LanguageToolsMode = "auto" | "fallback";
 
 interface ParsedArgs {
   command?: string;
@@ -26,6 +27,7 @@ interface ParsedArgs {
 
 interface RendererContext {
   languageTools: LanguageTools;
+  audioRenderer: AudioRenderer;
 }
 
 interface BatchItem {
@@ -95,6 +97,18 @@ function getNumber(flags: Record<string, FlagValue>, key: string) {
     throw new Error(`--${key} must be a finite number`);
   }
   return parsed;
+}
+
+function getAudioRenderer(flags: Record<string, FlagValue>): AudioRenderer {
+  const value = getString(flags, "audio-renderer") ?? process.env.MVL_AUDIO_RENDERER ?? "webaudio";
+  if (value === "webaudio" || value === "pcm") return value;
+  throw new Error("--audio-renderer must be webaudio or pcm");
+}
+
+function getLanguageToolsMode(flags: Record<string, FlagValue>): LanguageToolsMode {
+  const value = getString(flags, "language-tools") ?? process.env.MVL_LANGUAGE_TOOLS ?? "auto";
+  if (value === "auto" || value === "fallback") return value;
+  throw new Error("--language-tools must be auto or fallback");
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -264,10 +278,20 @@ async function writeBlob(blob: Blob, path: string) {
   return bytes.length;
 }
 
-export async function createRendererContext(): Promise<RendererContext> {
-  installNodeWebAudio();
+export async function createRendererContext(args: {
+  audioRenderer?: AudioRenderer;
+  languageToolsMode?: LanguageToolsMode;
+} = {}): Promise<RendererContext> {
+  const audioRenderer = args.audioRenderer ?? "webaudio";
+  if (audioRenderer === "webaudio") {
+    const nodeWebAudioModule = "./node-web-audio";
+    const { installNodeWebAudio } = await import(nodeWebAudioModule);
+    installNodeWebAudio();
+  }
+
   return {
-    languageTools: await makeNodeLanguageTools(),
+    audioRenderer,
+    languageTools: await makeNodeLanguageTools(args.languageToolsMode),
   };
 }
 
@@ -288,7 +312,10 @@ export async function renderMumbleAsset(args: {
     args.context.languageTools,
     args.expression,
   );
-  const wav = await renderEventsToWav(schedule.events, schedule.resolvedParams, schedule.duration);
+  const wav =
+    args.context.audioRenderer === "pcm"
+      ? await renderEventsToPcmWav(schedule.events, schedule.resolvedParams, schedule.duration)
+      : await renderEventsToWav(schedule.events, schedule.resolvedParams, schedule.duration);
   const bytes = await writeBlob(wav, args.wavPath);
   const scheduleFile = createScheduleFile({
     id,
@@ -326,13 +353,15 @@ async function runRender(flags: Record<string, FlagValue>) {
     style: getString(flags, "style"),
     intensity: getString(flags, "intensity"),
   });
+  const audioRenderer = getAudioRenderer(flags);
+  const languageToolsMode = getLanguageToolsMode(flags);
   const id = getString(flags, "id") ?? getString(flags, "name") ?? `${preset.id}-${slugify(text)}-${preset.params.seed}`;
   const name = slugify(getString(flags, "name") ?? id);
   const wavPath = resolveMaybeRelative(getString(flags, "wav") ?? join(outDir, `${name}.wav`));
   const schedulePath = resolveMaybeRelative(
     getString(flags, "schedule") ?? join(outDir, `${name}.mumble.json`),
   );
-  const context = await createRendererContext();
+  const context = await createRendererContext({ audioRenderer, languageToolsMode });
   const result = await renderMumbleAsset({
     text,
     id,
@@ -462,8 +491,10 @@ async function runBatch(flags: Record<string, FlagValue>) {
   const outDir = resolveMaybeRelative(getString(flags, "out-dir") ?? "mvl-output");
   const defaultPreset = getString(flags, "preset");
   const defaultPresetFile = getString(flags, "preset-file");
+  const audioRenderer = getAudioRenderer(flags);
+  const languageToolsMode = getLanguageToolsMode(flags);
   const items = await loadBatchItems(fullInput);
-  const context = await createRendererContext();
+  const context = await createRendererContext({ audioRenderer, languageToolsMode });
   const results: RenderResult[] = [];
 
   for (const [index, item] of items.entries()) {
@@ -545,6 +576,8 @@ render options:
   --schedule <path>          Exact schedule JSON output path.
   --manifest <path>          Write a small render result JSON file.
   --json                     Print result JSON.
+  --audio-renderer <mode>    webaudio or pcm. Default: webaudio.
+  --language-tools <mode>    auto or fallback. Default: auto.
 
 batch input:
   JSON array/object with items, or CSV with headers:
@@ -571,8 +604,12 @@ export async function runMvl(argv = process.argv.slice(2)) {
   throw new Error(`Unknown command: ${command}`);
 }
 
-const thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && resolve(process.argv[1]) === resolve(thisFile)) {
+const directEntry = process.argv[1] ? resolve(process.argv[1]) : "";
+
+if (
+  process.env.MVL_DISABLE_AUTO_RUN !== "1" &&
+  /(^|[\\/])mvl\.(ts|js|cjs|mjs)$/.test(directEntry)
+) {
   runMvl().catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

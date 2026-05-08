@@ -1,10 +1,10 @@
 {
   "name": "mumble-voice-lab",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Browser-based character mumble and gibberish voice generator for games.",
   "author": "nightt5879",
   "license": "Apache-2.0",
-  "homepage": "https://nightt5879.github.io/mumble-voice-lab/?v=1.4.0-engine-alpha",
+  "homepage": "https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nightt5879/mumble-voice-lab.git"
@@ -16,8 +16,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:renderer:win": "tsx scripts/build-renderer.ts",
     "mvl": "tsx scripts/mvl.ts",
+    "package:godot": "tsx scripts/prepare-godot-assetlib.ts",
     "test:cli": "tsx scripts/test-cli.ts",
+    "test:renderer": "tsx scripts/test-renderer.ts",
+    "test:godot": "tsx scripts/test-godot-plugin.ts",
     "samples": "tsx scripts/generate-readme-samples.ts",
     "preview": "vite preview"
   },
@@ -32,6 +36,8 @@
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
+    "@yao-pkg/pkg": "^6.19.0",
+    "esbuild": "^0.28.0",
     "node-web-audio-api": "^1.0.9",
     "tsx": "^4.21.0",
     "typescript": "^5.4.5",

@@ -1,27 +1,21 @@
-import { pinyin } from "pinyin-pro";
-import { syllable } from "syllable";
-import type { LanguageTools } from "../src/utils/languageTools";
+import {
+  HAN_RUN_PATTERN,
+  countEnglishSyllables,
+  fallbackCutChinese,
+  getChineseTone,
+  type LanguageTools,
+} from "../src/utils/languageCore";
 
-const HAN_RUN_PATTERN = /^[\u3400-\u9fff]+$/;
+export async function makeNodeLanguageTools(mode = process.env.MVL_LANGUAGE_TOOLS): Promise<LanguageTools> {
+  if (mode === "fallback") {
+    return {
+      status: "fallback",
+      cutChinese: fallbackCutChinese,
+      countEnglishSyllables,
+      getChineseTone,
+    };
+  }
 
-function fallbackCutChinese(text: string) {
-  return Array.from(text);
-}
-
-function countEnglishSyllables(word: string) {
-  const cleaned = word.replace(/[^A-Za-z0-9']/g, "");
-  if (!cleaned) return 1;
-  return Math.max(1, Math.min(6, syllable(cleaned)));
-}
-
-function getChineseTone(char: string): 0 | 1 | 2 | 3 | 4 | undefined {
-  if (!HAN_RUN_PATTERN.test(char)) return undefined;
-  const [tone] = pinyin(char, { pattern: "num", toneSandhi: true, type: "array" });
-  const parsed = Number(tone);
-  return parsed >= 0 && parsed <= 4 ? (parsed as 0 | 1 | 2 | 3 | 4) : undefined;
-}
-
-export async function makeNodeLanguageTools(): Promise<LanguageTools> {
   try {
     const jieba = (await import("jieba-wasm")) as {
       cut?: (text: string, hmm: boolean) => string[];

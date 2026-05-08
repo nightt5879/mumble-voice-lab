@@ -9,7 +9,7 @@ import type {
   TextToken,
   TextUnit,
 } from "../audio/types";
-import { fallbackLanguageTools, type LanguageTools } from "./languageTools";
+import { fallbackLanguageTools, type LanguageTools } from "./languageCore";
 
 const TOKEN_PATTERN =
   /\s+|\.{3}|[A-Za-z0-9']+|[\u3400-\u9fff]+|[.,!?;:\u2026\u3002\uff01\uff1f\uff1b\uff1a\uff0c]+|[^\s]/g;

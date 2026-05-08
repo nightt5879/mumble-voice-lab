@@ -16,7 +16,7 @@ import type {
   TextRevealEvent,
   TextUnit,
 } from "./types";
-import { fallbackLanguageTools, type LanguageTools } from "../utils/languageTools";
+import { fallbackLanguageTools, type LanguageTools } from "../utils/languageCore";
 
 const FORMANTS: Record<string, FormantPoint> = {
   ah: { vowel: "ah", f1: 760, f2: 1220, f3: 2550 },

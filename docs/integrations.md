@@ -1,29 +1,29 @@
-# Engine Integration Alpha
+# Engine Integration
 
-Mumble Voice Lab V1.4.0 adds an editor-time asset pipeline for game engines. The
+Mumble Voice Lab V1.5.0 adds a Windows-first Godot store-ready candidate on top
+of the V1.4.0 engine alpha workflow. The
 shared contract is simple: the CLI renders a WAV file plus a schedule JSON file,
 and engine plugins import those generated files as normal project assets.
 
-This release is an alpha for engine workflows. It is appropriate for local game
-projects, internal tooling, and manual validation. It is not yet packaged as a
-Unity Asset Store or Godot Asset Library release.
+Unity remains a local UPM alpha. Godot is now prepared as a Windows-first Godot
+Asset Library submission candidate, pending official manual review.
 
 ## Status
 
 | Layer | Status | Notes |
 | --- | --- | --- |
 | Web tool | Stable | Existing browser studio, WAV export, preset JSON export/import. |
-| CLI renderer | Alpha | Requires local Node/npm and this repository checkout. |
+| CLI renderer | Alpha | Node/npm renderer remains available for development and Unity alpha workflows. |
 | Schedule schema | Stable alpha | `mumble-voice-lab/schedule` `1.0` is the engine interchange format. |
 | Unity package | Verified alpha | Local UPM package has been batchmode smoke-tested and manually checked in Play Mode. |
-| Godot addon | Experimental preview | Shares the CLI and runtime shape, but needs a Godot editor closed-loop test before "verified" wording. |
+| Godot addon | Store-ready candidate | Godot 4.6 Windows-first addon includes bundled renderer, `.tres` dialogue clips, and headless closed-loop tests. |
 
 ## Prerequisites
 
-- Node/npm installed locally.
-- From this repository root, run `npm install`.
-- Engine plugins need the repository root path as their **CLI root**.
-- Alpha packaging calls `npx tsx scripts/mvl.ts`; a no-Node renderer bundle is planned for a later release.
+- Node/npm is required for web development, CLI development, Unity alpha, and Godot Node CLI fallback.
+- From this repository root, run `npm install` before using the Node CLI path.
+- Godot Windows users can use the bundled renderer without Node/npm.
+- Unity alpha still needs the repository root path as its **CLI root**.
 
 ## CLI
 
@@ -73,7 +73,7 @@ Generated schedules use:
 {
   "schema": "mumble-voice-lab/schedule",
   "schemaVersion": "1.0",
-  "generatorVersion": "1.4.0",
+  "generatorVersion": "1.5.0",
   "id": "guard-warning",
   "text": "Gate opening in three seconds!",
   "preset": {
@@ -178,44 +178,57 @@ Addon path:
 integrations/godot/addons/mumble_voice_lab
 ```
 
-Preview setup:
+Windows-first setup:
 
-1. Copy `addons/mumble_voice_lab` into a Godot 4 project.
+1. Copy `addons/mumble_voice_lab` into a Godot 4.6 project.
 2. Enable **Mumble Voice Lab** in `Project > Project Settings > Plugins`.
-3. Set **CLI root** to this repository root.
-4. Run `npm install` in this repository.
-5. Generate WAV + schedule files into `res://mumble_voice_lab/generated`.
+3. Keep renderer mode on **Auto** to use the bundled Windows renderer.
+4. Generate WAV + schedule JSON + `MumbleDialogueClip` `.tres` files into `res://mumble_voice_lab/generated`.
+5. Use **Node CLI fallback** only for development or non-Windows testing.
 
 Runtime usage:
 
 1. Add `MumbleVoicePlayer` with an `AudioStreamPlayer`.
-2. Assign the generated WAV as `audio_stream`.
-3. Assign the generated schedule JSON path.
+2. Assign the generated `MumbleDialogueClip`.
 4. Call `play()`.
 5. Connect `text_changed`, `reveal_event`, and `playback_complete`.
 
-Godot remains preview for V1.4.0 unless a separate Godot 4 test project verifies:
+The previous preview fields, `audio_stream` and `schedule_path`, remain supported.
+
+Godot V1.5.0 verification uses an external disposable project at
+`C:\Users\14692\Documents\GodotProjects\MumbleVoiceLabGodotPluginTest` and Godot
+`D:\wanxiang\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe`.
+
+Verified:
 
 - addon enable/disable
-- dock loading
-- asset generation
-- runtime playback
+- dock loading and script parsing
+- bundled renderer asset generation
+- `MumbleDialogueClip` resource loading
 - reveal signals
-- exported project resource loading
+- playback complete signal
+
+Not yet verified:
+
+- exported Windows project resource loading, because export templates are not required for the editor store candidate
+- macOS/Linux bundled renderers
 
 ## Release QA Checklist
 
 - `npm run test:cli`
 - `npm run build`
+- `npm run build:renderer:win`
+- `npm run test:renderer`
+- `npm run test:godot`
 - `npm run mvl -- render --text "你好 adventurer，ready?" --preset cute-npc --out-dir tmp/release-smoke --json`
 - Unity batchmode smoke test in the disposable test project.
 - Unity manual Play Mode check: audible WAV playback plus reveal text.
-- Godot closed-loop test before changing the addon status from preview to verified.
+- Godot manual Play Mode check: audible WAV playback plus reveal text.
 
 ## Current Limits
 
-- Requires local Node/npm for alpha engine packages.
+- Unity still requires local Node/npm for the alpha package.
 - Generates editor-time assets; it does not synthesize arbitrary player-entered text at runtime.
 - Unity is verified as a local UPM alpha, not store packaged.
-- Godot is experimental preview until a Godot editor closed-loop test is completed.
-- No-Node renderer packaging, signed binaries, and store packaging are future work.
+- Godot bundled renderer is Windows-only in V1.5.0; macOS/Linux use Node CLI fallback.
+- Signed binaries, macOS/Linux renderers, and formal Asset Library review are future work.
