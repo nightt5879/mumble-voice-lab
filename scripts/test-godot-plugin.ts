@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { cp, mkdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -14,7 +14,11 @@ const projectPath =
   "C:\\Users\\14692\\Documents\\GodotProjects\\MumbleVoiceLabGodotPluginTest";
 const addonSource = resolve(root, "integrations/godot/addons/mumble_voice_lab");
 const addonTarget = resolve(projectPath, "addons/mumble_voice_lab");
+const projectFile = resolve(projectPath, "project.godot");
 const smokeScript = resolve(projectPath, "tests/mumble_voice_lab_smoke.gd");
+const manualScript = resolve(projectPath, "manual_test.gd");
+const manualScene = resolve(projectPath, "ManualTest.tscn");
+const manualClip = resolve(projectPath, "mumble_voice_lab/generated/godot-smoke.tres");
 
 async function runGodot(args: string[]) {
   const { stdout, stderr } = await execFileAsync(godotBin, args, {
@@ -25,16 +29,16 @@ async function runGodot(args: string[]) {
   if (output) console.log(output);
 }
 
+function projectConfig(includeMainScene: boolean) {
+  return `; Engine configuration file.\nconfig_version=5\n\n[application]\nconfig/name="MumbleVoiceLabGodotPluginTest"${includeMainScene ? '\nrun/main_scene="res://ManualTest.tscn"' : ""}\n\n[editor_plugins]\nenabled=PackedStringArray("res://addons/mumble_voice_lab/plugin.cfg")\n`;
+}
+
 async function prepareProject() {
   await rm(projectPath, { recursive: true, force: true });
   await mkdir(dirname(addonTarget), { recursive: true });
   await cp(addonSource, addonTarget, { recursive: true });
   await mkdir(dirname(smokeScript), { recursive: true });
-  await writeFile(
-    resolve(projectPath, "project.godot"),
-    `; Engine configuration file.\nconfig_version=5\n\n[application]\nconfig/name="MumbleVoiceLabGodotPluginTest"\n\n[editor_plugins]\nenabled=PackedStringArray("res://addons/mumble_voice_lab/plugin.cfg")\n`,
-    "utf8",
-  );
+  await writeFile(projectFile, projectConfig(false), "utf8");
   await writeFile(
     smokeScript,
     `extends SceneTree
@@ -153,6 +157,125 @@ func _run() -> int:
   );
 }
 
+async function prepareManualScene() {
+  const schedulePath = resolve(projectPath, "mumble_voice_lab/generated/godot-smoke.mumble.json");
+  const parsed = JSON.parse(await readFile(schedulePath, "utf8")) as { text?: string; duration?: number };
+  const text = parsed.text ?? "Godot smoke test ready!";
+  const duration = Number.isFinite(parsed.duration) ? parsed.duration : 0;
+
+  await writeFile(
+    manualScript,
+    `extends Node
+
+@onready var _voice_player: MumbleVoicePlayer = $MumbleVoicePlayer
+@onready var _reveal_label: Label = $CanvasLayer/Panel/Margin/VBox/RevealText
+@onready var _status_label: Label = $CanvasLayer/Panel/Margin/VBox/StatusText
+
+func _ready() -> void:
+\t_reveal_label.text = ""
+\t_status_label.text = "Preparing Mumble Voice Lab playback..."
+
+\tif _voice_player.dialogue_clip == null:
+\t\t_status_label.text = "No MumbleDialogueClip assigned."
+\t\treturn
+
+\tvar schedule_path := _voice_player.dialogue_clip.schedule_path
+\tif not FileAccess.file_exists(schedule_path):
+\t\t_status_label.text = "Missing schedule JSON: " + schedule_path
+\t\treturn
+
+\t_voice_player.text_changed.connect(_on_text_changed)
+\t_voice_player.reveal_event.connect(_on_reveal_event)
+\t_voice_player.playback_complete.connect(_on_playback_complete)
+
+\tawait get_tree().process_frame
+\t_status_label.text = "Playing generated WAV and reveal schedule..."
+\t_voice_player.play()
+
+
+func _on_text_changed(text: String) -> void:
+\t_reveal_label.text = text
+
+
+func _on_reveal_event(event: Dictionary) -> void:
+\t_status_label.text = "Reveal event at %.3fs" % float(event.get("time", 0.0))
+
+
+func _on_playback_complete() -> void:
+\t_status_label.text = "Playback complete."
+`,
+    "utf8",
+  );
+
+  await writeFile(
+    manualClip,
+    `[gd_resource type="Resource" script_class="MumbleDialogueClip" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://addons/mumble_voice_lab/runtime/mumble_dialogue_clip.gd" id="1_clip"]
+[ext_resource type="AudioStream" path="res://mumble_voice_lab/generated/godot-smoke.wav" id="2_audio"]
+
+[resource]
+script = ExtResource("1_clip")
+text = ${JSON.stringify(text)}
+duration = ${duration.toFixed(3)}
+audio_stream = ExtResource("2_audio")
+schedule_path = "res://mumble_voice_lab/generated/godot-smoke.mumble.json"
+`,
+    "utf8",
+  );
+
+  await writeFile(
+    manualScene,
+    `[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://manual_test.gd" id="1_manual"]
+[ext_resource type="Script" path="res://addons/mumble_voice_lab/runtime/mumble_voice_player.gd" id="2_player"]
+[ext_resource type="Resource" path="res://mumble_voice_lab/generated/godot-smoke.tres" id="3_clip"]
+
+[node name="ManualTest" type="Node"]
+script = ExtResource("1_manual")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="MumbleVoicePlayer" type="Node" parent="."]
+script = ExtResource("2_player")
+audio_player_path = NodePath("../AudioStreamPlayer")
+dialogue_clip = ExtResource("3_clip")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 928.0
+offset_bottom = 220.0
+
+[node name="Margin" type="MarginContainer" parent="CanvasLayer/Panel"]
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/Panel/Margin"]
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="CanvasLayer/Panel/Margin/VBox"]
+text = "Mumble Voice Lab Godot Manual Test"
+
+[node name="RevealText" type="Label" parent="CanvasLayer/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(820, 56)
+text = ""
+autowrap_mode = 3
+
+[node name="StatusText" type="Label" parent="CanvasLayer/Panel/Margin/VBox"]
+text = "Waiting..."
+`,
+    "utf8",
+  );
+
+  await writeFile(projectFile, projectConfig(true), "utf8");
+}
+
 async function main() {
   await prepareProject();
   await runGodot(["--headless", "--path", projectPath, "--import", "--quit"]);
@@ -166,6 +289,9 @@ async function main() {
     await runGodot(["--headless", "--path", projectPath, "--check-only", "--script", script]);
   }
   await runGodot(["--headless", "--path", projectPath, "--script", "res://tests/mumble_voice_lab_smoke.gd"]);
+  await prepareManualScene();
+  await runGodot(["--headless", "--path", projectPath, "--import", "--quit"]);
+  await runGodot(["--headless", "--path", projectPath, "--check-only", "--script", "res://manual_test.gd"]);
   console.log("[test-godot-plugin] passed");
 }
 
