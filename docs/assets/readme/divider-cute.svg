@@ -1,7 +1,18 @@
-﻿<svg width="960" height="42" viewBox="0 0 960 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M24 21H412" stroke="#5C3E2A" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 10"/>
-  <path d="M548 21H936" stroke="#5C3E2A" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 10"/>
-  <path d="M480 6l7.8 15.6L505 24l-12.5 12.1 3 17.1L480 45l-15.5 8.2 3-17.1L455 24l17.2-2.4L480 6z" transform="translate(0 -5)" fill="#F6CF73" stroke="#5C3E2A" stroke-width="3" stroke-linejoin="round"/>
-  <circle cx="438" cy="21" r="5" fill="#F58BAC" stroke="#5C3E2A" stroke-width="2"/>
-  <circle cx="522" cy="21" r="5" fill="#8FB7DF" stroke="#5C3E2A" stroke-width="2"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="960" height="46" viewBox="0 0 960 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
+    </filter>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
+    </pattern>
+  </defs>
+  <rect width="960" height="46" fill="none"/>
+<path d="M28 23H388" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 16"/>
+  <path d="M572 23H932" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 16"/>
+  <g transform="translate(428 9)">
+    <rect x="0" y="0" width="104" height="28" rx="14" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4"/>
+    <path d="M18 14C27 1 34 27 43 14C51 3 58 25 67 14C75 4 82 23 90 14" stroke="#F27DA5" stroke-width="5" stroke-linecap="round"/>
+  </g>
 </svg>
