@@ -67,7 +67,7 @@ V1.4.0 is the first engine-facing release. It is suitable for local project test
 - Unity verified alpha: add `integrations/unity/com.nightt5879.mumble-voice-lab` as a local UPM package, run `npm install`, open `Tools > Mumble Voice Lab`, set the CLI root to this repository, then generate single or batch dialogue assets.
 - Godot store-ready candidate: copy `integrations/godot/addons/mumble_voice_lab` into a Godot 4.6 project. On Windows it defaults to the bundled renderer and has a headless closed-loop test.
 - Runtime scope: generated assets are played back in-engine. `MumbleVoicePlayer` dispatches reveal events for subtitles/typewriter UI. Player runtime free-text synthesis is intentionally outside this alpha.
-- Packaging limit: the alpha requires local Node/npm. A no-Node renderer bundle is the next packaging milestone.
+- Packaging status: the Unity alpha still requires local Node/npm; Godot V1.5.0 Windows users default to the bundled renderer and do not need Node.
 
 Detailed engine setup, manual QA, and troubleshooting live in [docs/integrations.md](docs/integrations.md). Release notes live in [CHANGELOG.md](CHANGELOG.md).
 
@@ -79,6 +79,9 @@ V1.5.0 moves Godot from preview to a Windows-first store-ready candidate:
 - Windows users default to the bundled `mvl-renderer-win-x64.exe`; Node/npm is not required for normal use.
 - Generated outputs are `WAV + .mumble.json + MumbleDialogueClip .tres`.
 - `MumbleVoicePlayer` prefers `MumbleDialogueClip` and keeps the previous `audio_stream + schedule_path` fields for compatibility.
+- Usage: copy the addon, enable it, generate dialogue assets from the dock, then assign a generated `MumbleDialogueClip` to `MumbleVoicePlayer` and call `play()`.
+- Verified: Godot 4.6.1 on Windows with headless import, script parsing, bundled renderer generation, runtime reveal signals, and manual Play Mode playback with visible reveal text.
+- The `ManualTest.tscn` in `MumbleVoiceLabGodotPluginTest` auto-plays on scene entry only because it is a manual QA scene. Real projects do not play audio unless the developer calls playback or opts into auto-play behavior.
 - macOS/Linux do not include a bundled renderer yet; developers can switch to Node CLI fallback.
 
 ## Roadmap
@@ -127,7 +130,7 @@ npm run mvl -- render --text "Good morning, traveler! Ready?" --preset cute-npc 
 npm run mvl -- batch --input dialogue.csv --out-dir out
 ```
 
-Unity and Godot alpha integrations are documented in [docs/integrations.md](docs/integrations.md).
+Unity and Godot integrations are documented in [docs/integrations.md](docs/integrations.md).
 
 Regenerate online listening samples:
 

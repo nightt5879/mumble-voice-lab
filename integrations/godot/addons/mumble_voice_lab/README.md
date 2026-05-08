@@ -37,6 +37,21 @@ Signals:
 The previous preview fields, `audio_stream` and `schedule_path`, are still
 supported for compatibility.
 
+## Manual QA
+
+From the repository root, run:
+
+```bash
+npm run test:godot
+```
+
+This creates a disposable test project at
+`C:\Users\14692\Documents\GodotProjects\MumbleVoiceLabGodotPluginTest` with a
+`ManualTest.tscn` main scene. That scene auto-plays one generated clip when it
+enters the scene so the tester can confirm audible playback, reveal text, and
+the `playback_complete` signal. Normal projects do not auto-play unless the
+developer calls `play()` or enables their own auto-play behavior.
+
 ## Batch Input
 
 CSV:

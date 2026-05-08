@@ -190,8 +190,8 @@ Runtime usage:
 
 1. Add `MumbleVoicePlayer` with an `AudioStreamPlayer`.
 2. Assign the generated `MumbleDialogueClip`.
-4. Call `play()`.
-5. Connect `text_changed`, `reveal_event`, and `playback_complete`.
+3. Call `play()`, or enable `play_on_ready` only when automatic scene-entry playback is wanted.
+4. Connect `text_changed`, `reveal_event`, and `playback_complete`.
 
 The previous preview fields, `audio_stream` and `schedule_path`, remain supported.
 
@@ -207,6 +207,7 @@ Verified:
 - `MumbleDialogueClip` resource loading
 - reveal signals
 - playback complete signal
+- manual Play Mode playback in `ManualTest.tscn`, including audible WAV output and visible reveal text
 
 Not yet verified:
 

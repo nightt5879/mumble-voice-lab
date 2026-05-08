@@ -10,7 +10,7 @@ Use these values for the first Windows-first submission candidate.
 - Repository: `https://github.com/nightt5879/mumble-voice-lab`
 - Addon path: `addons/mumble_voice_lab`
 - Icon URL format:
-  `https://raw.githubusercontent.com/nightt5879/mumble-voice-lab/<branch>/integrations/godot/addons/mumble_voice_lab/icon.png`
+  `https://raw.githubusercontent.com/nightt5879/mumble-voice-lab/v1.5.0/integrations/godot/addons/mumble_voice_lab/icon.png`
 
 Suggested description:
 
@@ -27,5 +27,5 @@ Before submitting:
 1. Run `npm run build:renderer:win`.
 2. Run `npm run test:cli`, `npm run test:renderer`, `npm run test:godot`, and `npm run build`.
 3. Run `npm run package:godot` to prepare `dist-godot-assetlib/addons/mumble_voice_lab`.
-4. Create a submission branch or tag from that prepared folder.
+4. Confirm `MumbleVoiceLabGodotPluginTest/ManualTest.tscn` plays sound and reveals text in Godot Play Mode.
 5. Use a raw GitHub URL for `icon.png`.

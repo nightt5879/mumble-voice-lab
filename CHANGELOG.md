@@ -29,6 +29,16 @@ candidate. Unity remains alpha.
 - Windows renderer parity against Node CLI schedule output.
 - Godot 4.6.1 headless import, script parse, renderer generation, reveal signals,
   and playback completion smoke test.
+- Godot manual Play Mode QA with `ManualTest.tscn`: audible WAV playback, reveal
+  text display, and playback completion.
+
+### Limits
+
+- Windows-first only for the bundled Godot renderer. macOS/Linux users should use
+  Node CLI fallback for development.
+- Godot Asset Library publication still depends on official manual review.
+- Export-template validation for a built Windows Godot game is not included in
+  this release candidate.
 
 ## v1.4.0 - Engine Integration Alpha
 
