@@ -1,7 +1,7 @@
 # Mumble Voice Lab
 
 <p align="center">
-  <img src="docs/assets/readme/mvl-hero.png" width="920" alt="Mumble Voice Lab v1.5 hero">
+  <img src="docs/assets/readme/mvl-hero.svg" width="920" alt="Mumble Voice Lab v1.5 hero">
 </p>
 
 <p align="center">
@@ -39,19 +39,19 @@ It is built for cozy RPGs, indie games, visual novels, creature games, NPC dialo
 
 | | |
 |---|---|
-| <img src="docs/assets/readme/feature-not-tts.png" width="150" alt=""> <br> **Not TTS** <br> It does not pronounce real words. It uses text length, punctuation, Chinese/English rhythm, and sentence endings to create syllable-like blips. | <img src="docs/assets/readme/feature-wav-json.png" width="230" alt=""> <br> **WAV + schedule JSON** <br> Export game-ready audio plus timing data with `events` and `revealEvents`. |
-| <img src="docs/assets/readme/feature-seed.png" width="150" alt=""> <br> **Deterministic output** <br> Same text + preset + seed + expression produces the same schedule. | <img src="docs/assets/readme/feature-expression.png" width="150" alt=""> <br> **Preset + emotion + style** <br> Presets define the voice; emotion, style, and intensity shape the performance. |
-| <img src="docs/assets/readme/feature-reveal.png" width="150" alt=""> <br> **Reveal events** <br> Runtime players can dispatch timed text reveal events for subtitles and typewriter UI. | <img src="docs/assets/readme/feature-game-ready.png" width="180" alt=""> <br> **Game-ready assets** <br> Generate assets in the editor, then play WAV files and sync text at runtime. |
+| <img src="docs/assets/readme/feature-not-tts.svg" width="150" alt=""> <br> **Not TTS** <br> It does not pronounce real words. It uses text length, punctuation, Chinese/English rhythm, and sentence endings to create syllable-like blips. | <img src="docs/assets/readme/feature-wav-json.svg" width="230" alt=""> <br> **WAV + schedule JSON** <br> Export game-ready audio plus timing data with `events` and `revealEvents`. |
+| <img src="docs/assets/readme/feature-seed.svg" width="150" alt=""> <br> **Deterministic output** <br> Same text + preset + seed + expression produces the same schedule. | <img src="docs/assets/readme/feature-expression.svg" width="150" alt=""> <br> **Preset + emotion + style** <br> Presets define the voice; emotion, style, and intensity shape the performance. |
+| <img src="docs/assets/readme/feature-reveal.svg" width="150" alt=""> <br> **Reveal events** <br> Runtime players can dispatch timed text reveal events for subtitles and typewriter UI. | <img src="docs/assets/readme/feature-game-ready.svg" width="180" alt=""> <br> **Game-ready assets** <br> Generate assets in the editor, then play WAV files and sync text at runtime. |
 
 ## V1.5 Engine Integration
 
 <p align="center">
-  <img src="docs/assets/readme/engine-flow.png" width="620" alt="Editor to WAV and JSON to game flow">
+  <img src="docs/assets/readme/engine-flow.svg" width="620" alt="Editor to WAV and JSON to game flow">
 </p>
 
 | Unity alpha | Godot Windows-first | Generator dock |
 |---|---|---|
-| <img src="docs/assets/readme/engine-unity-window.png" width="245" alt=""> <br> Local UPM package. It still depends on local Node/npm and calls `npx tsx scripts/mvl.ts` to generate assets. | <img src="docs/assets/readme/engine-godot-window.png" width="245" alt=""> <br> Godot addon `0.2.0`. On Windows it defaults to the bundled `mvl-renderer-win-x64.exe`, so normal users do not need Node. | <img src="docs/assets/readme/engine-plugin-dock.png" width="170" alt=""> <br> Type dialogue, choose preset / emotion / style, then generate `WAV + .mumble.json + MumbleDialogueClip .tres`. |
+| <img src="docs/assets/readme/engine-unity-window.svg" width="245" alt=""> <br> Local UPM package. It still depends on local Node/npm and calls `npx tsx scripts/mvl.ts` to generate assets. | <img src="docs/assets/readme/engine-godot-window.svg" width="245" alt=""> <br> Godot addon `0.2.0`. On Windows it defaults to the bundled `mvl-renderer-win-x64.exe`, so normal users do not need Node. | <img src="docs/assets/readme/engine-plugin-dock.svg" width="170" alt=""> <br> Type dialogue, choose preset / emotion / style, then generate `WAV + .mumble.json + MumbleDialogueClip .tres`. |
 
 **The runtime boundary is intentional:** engines play generated assets. `MumbleVoicePlayer` syncs subtitles and typewriter UI from `revealEvents`. Player-entered free-text synthesis at runtime is not part of this release.
 
@@ -59,12 +59,12 @@ It is built for cozy RPGs, indie games, visual novels, creature games, NPC dialo
 
 | Step | What happens |
 |---|---|
-| <img src="docs/assets/readme/workflow-01-input.png" width="260" alt=""> | **1. Enter dialogue**: write one NPC line in Chinese, English, or mixed text. |
-| <img src="docs/assets/readme/workflow-02-analysis.png" width="260" alt=""> | **2. Analyze rhythm**: estimate pseudo-syllable events from text length, punctuation, phrases, and language features. |
-| <img src="docs/assets/readme/workflow-03-generate.png" width="260" alt=""> | **3. Generate mumble voice**: combine preset and expression settings into character-like blips. |
-| <img src="docs/assets/readme/workflow-04-export.png" width="260" alt=""> | **4. Export assets**: write WAV and schedule JSON; batch renders also produce a manifest. |
-| <img src="docs/assets/readme/workflow-05-sync.png" width="260" alt=""> | **5. Sync subtitles**: `revealEvents` provide exact timing for UI text reveal. |
-| <img src="docs/assets/readme/workflow-06-gameplay.png" width="260" alt=""> | **6. Play in game**: Unity / Godot runtime plays audio and dispatches reveal events. |
+| <img src="docs/assets/readme/workflow-01-input.svg" width="260" alt=""> | **1. Enter dialogue**: write one NPC line in Chinese, English, or mixed text. |
+| <img src="docs/assets/readme/workflow-02-analysis.svg" width="260" alt=""> | **2. Analyze rhythm**: estimate pseudo-syllable events from text length, punctuation, phrases, and language features. |
+| <img src="docs/assets/readme/workflow-03-generate.svg" width="260" alt=""> | **3. Generate mumble voice**: combine preset and expression settings into character-like blips. |
+| <img src="docs/assets/readme/workflow-04-export.svg" width="260" alt=""> | **4. Export assets**: write WAV and schedule JSON; batch renders also produce a manifest. |
+| <img src="docs/assets/readme/workflow-05-sync.svg" width="260" alt=""> | **5. Sync subtitles**: `revealEvents` provide exact timing for UI text reveal. |
+| <img src="docs/assets/readme/workflow-06-gameplay.svg" width="260" alt=""> | **6. Play in game**: Unity / Godot runtime plays audio and dispatches reveal events. |
 
 ## Quick Start
 
@@ -80,9 +80,9 @@ It is built for cozy RPGs, indie games, visual novels, creature games, NPC dialo
 
 | | |
 |---|---|
-| <img src="docs/assets/readme/ui-warning.png" width="86" alt=""> | **Windows-first Godot candidate**: bundled renderer, headless tests, and manual playback are verified on Godot 4.6.1 for Windows. macOS/Linux do not include a bundled renderer yet; use Node CLI fallback for development. |
-| <img src="docs/assets/readme/ui-issue.png" width="110" alt=""> | **Real project feedback is welcome**: the maintainer does not yet have broad Unity/Godot production project coverage. Complex projects may expose path, import, export, or runtime issues. Please open issues with repro steps. |
-| <img src="docs/assets/readme/ui-download.png" width="90" alt=""> | **Release positioning**: the web tool and export protocol are stable; Unity is alpha; Godot is a Windows-first store-ready candidate, and final Asset Library acceptance depends on official review. |
+| <img src="docs/assets/readme/ui-warning.svg" width="86" alt=""> | **Windows-first Godot candidate**: bundled renderer, headless tests, and manual playback are verified on Godot 4.6.1 for Windows. macOS/Linux do not include a bundled renderer yet; use Node CLI fallback for development. |
+| <img src="docs/assets/readme/ui-issue.svg" width="110" alt=""> | **Real project feedback is welcome**: the maintainer does not yet have broad Unity/Godot production project coverage. Complex projects may expose path, import, export, or runtime issues. Please open issues with repro steps. |
+| <img src="docs/assets/readme/ui-download.svg" width="90" alt=""> | **Release positioning**: the web tool and export protocol are stable; Unity is alpha; Godot is a Windows-first store-ready candidate, and final Asset Library acceptance depends on official review. |
 
 ## Version Trail
 

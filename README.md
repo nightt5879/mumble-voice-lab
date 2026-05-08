@@ -1,7 +1,7 @@
 # Mumble Voice Lab
 
 <p align="center">
-  <img src="docs/assets/readme/mvl-hero.png" width="920" alt="Mumble Voice Lab v1.5 hero">
+  <img src="docs/assets/readme/mvl-hero.svg" width="920" alt="Mumble Voice Lab v1.5 hero">
 </p>
 
 <p align="center">
@@ -39,19 +39,19 @@ Mumble Voice Lab 是一个面向游戏项目的浏览器角色碎碎念语音生
 
 | | |
 |---|---|
-| <img src="docs/assets/readme/feature-not-tts.png" width="150" alt=""> <br> **不是 TTS** <br> 不合成真实朗读，而是根据文本长度、标点、中英文节奏和句尾语气生成类音节 blip。 | <img src="docs/assets/readme/feature-wav-json.png" width="230" alt=""> <br> **WAV + schedule JSON** <br> 导出可直接进游戏项目的音频，以及包含 `events` / `revealEvents` 的时间轴文件。 |
-| <img src="docs/assets/readme/feature-seed.png" width="150" alt=""> <br> **可复现输出** <br> 同文本 + 同 preset + 同 seed + 同 expression 会生成相同 schedule。 | <img src="docs/assets/readme/feature-expression.png" width="150" alt=""> <br> **角色、情绪、风格叠加** <br> preset 负责音色，emotion / style / intensity 负责表演状态。 |
-| <img src="docs/assets/readme/feature-reveal.png" width="150" alt=""> <br> **字幕 reveal events** <br> 运行时可以按时间点派发字幕、打字机效果和对话 UI 更新。 | <img src="docs/assets/readme/feature-game-ready.png" width="180" alt=""> <br> **面向游戏资产** <br> 先在编辑器生成资产，游戏运行时只播放已生成 WAV 并同步文本。 |
+| <img src="docs/assets/readme/feature-not-tts.svg" width="150" alt=""> <br> **不是 TTS** <br> 不合成真实朗读，而是根据文本长度、标点、中英文节奏和句尾语气生成类音节 blip。 | <img src="docs/assets/readme/feature-wav-json.svg" width="230" alt=""> <br> **WAV + schedule JSON** <br> 导出可直接进游戏项目的音频，以及包含 `events` / `revealEvents` 的时间轴文件。 |
+| <img src="docs/assets/readme/feature-seed.svg" width="150" alt=""> <br> **可复现输出** <br> 同文本 + 同 preset + 同 seed + 同 expression 会生成相同 schedule。 | <img src="docs/assets/readme/feature-expression.svg" width="150" alt=""> <br> **角色、情绪、风格叠加** <br> preset 负责音色，emotion / style / intensity 负责表演状态。 |
+| <img src="docs/assets/readme/feature-reveal.svg" width="150" alt=""> <br> **字幕 reveal events** <br> 运行时可以按时间点派发字幕、打字机效果和对话 UI 更新。 | <img src="docs/assets/readme/feature-game-ready.svg" width="180" alt=""> <br> **面向游戏资产** <br> 先在编辑器生成资产，游戏运行时只播放已生成 WAV 并同步文本。 |
 
 ## V1.5 引擎接入
 
 <p align="center">
-  <img src="docs/assets/readme/engine-flow.png" width="620" alt="Editor to WAV and JSON to game flow">
+  <img src="docs/assets/readme/engine-flow.svg" width="620" alt="Editor to WAV and JSON to game flow">
 </p>
 
 | Unity alpha | Godot Windows-first | 生成面板 |
 |---|---|---|
-| <img src="docs/assets/readme/engine-unity-window.png" width="245" alt=""> <br> 本地 UPM package。当前仍依赖本机 Node/npm，通过 `npx tsx scripts/mvl.ts` 调 CLI 生成资产。 | <img src="docs/assets/readme/engine-godot-window.png" width="245" alt=""> <br> Godot addon `0.2.0`。Windows 默认使用内置 `mvl-renderer-win-x64.exe`，普通用户不需要安装 Node。 | <img src="docs/assets/readme/engine-plugin-dock.png" width="170" alt=""> <br> 在编辑器里输入文本、选择 preset / emotion / style，生成 `WAV + .mumble.json + MumbleDialogueClip .tres`。 |
+| <img src="docs/assets/readme/engine-unity-window.svg" width="245" alt=""> <br> 本地 UPM package。当前仍依赖本机 Node/npm，通过 `npx tsx scripts/mvl.ts` 调 CLI 生成资产。 | <img src="docs/assets/readme/engine-godot-window.svg" width="245" alt=""> <br> Godot addon `0.2.0`。Windows 默认使用内置 `mvl-renderer-win-x64.exe`，普通用户不需要安装 Node。 | <img src="docs/assets/readme/engine-plugin-dock.svg" width="170" alt=""> <br> 在编辑器里输入文本、选择 preset / emotion / style，生成 `WAV + .mumble.json + MumbleDialogueClip .tres`。 |
 
 **当前边界很明确：** 引擎运行时播放的是已生成资产；`MumbleVoicePlayer` 负责根据 `revealEvents` 同步字幕 / 打字机效果。玩家运行时输入任意文字并实时合成，不属于这版目标。
 
@@ -59,12 +59,12 @@ Mumble Voice Lab 是一个面向游戏项目的浏览器角色碎碎念语音生
 
 | 步骤 | 说明 |
 |---|---|
-| <img src="docs/assets/readme/workflow-01-input.png" width="260" alt=""> | **1. 输入台词**：写一句 NPC 台词，可以是中文、英文或中英混合。 |
-| <img src="docs/assets/readme/workflow-02-analysis.png" width="260" alt=""> | **2. 分析节奏**：根据文本长度、标点、短语和语言特征估算类音节事件。 |
-| <img src="docs/assets/readme/workflow-03-generate.png" width="260" alt=""> | **3. 生成 mumble 声音**：用 preset + expression 生成角色化 blip 序列。 |
-| <img src="docs/assets/readme/workflow-04-export.png" width="260" alt=""> | **4. 导出资产**：写出 WAV 和 schedule JSON，批量对白也会生成 manifest。 |
-| <img src="docs/assets/readme/workflow-05-sync.png" width="260" alt=""> | **5. 同步字幕**：`revealEvents` 给 UI 精确的 reveal 时间点。 |
-| <img src="docs/assets/readme/workflow-06-gameplay.png" width="260" alt=""> | **6. 游戏中播放**：Unity / Godot runtime 播放音频并派发 reveal 事件。 |
+| <img src="docs/assets/readme/workflow-01-input.svg" width="260" alt=""> | **1. 输入台词**：写一句 NPC 台词，可以是中文、英文或中英混合。 |
+| <img src="docs/assets/readme/workflow-02-analysis.svg" width="260" alt=""> | **2. 分析节奏**：根据文本长度、标点、短语和语言特征估算类音节事件。 |
+| <img src="docs/assets/readme/workflow-03-generate.svg" width="260" alt=""> | **3. 生成 mumble 声音**：用 preset + expression 生成角色化 blip 序列。 |
+| <img src="docs/assets/readme/workflow-04-export.svg" width="260" alt=""> | **4. 导出资产**：写出 WAV 和 schedule JSON，批量对白也会生成 manifest。 |
+| <img src="docs/assets/readme/workflow-05-sync.svg" width="260" alt=""> | **5. 同步字幕**：`revealEvents` 给 UI 精确的 reveal 时间点。 |
+| <img src="docs/assets/readme/workflow-06-gameplay.svg" width="260" alt=""> | **6. 游戏中播放**：Unity / Godot runtime 播放音频并派发 reveal 事件。 |
 
 ## 快速开始
 
@@ -80,9 +80,9 @@ Mumble Voice Lab 是一个面向游戏项目的浏览器角色碎碎念语音生
 
 | | |
 |---|---|
-| <img src="docs/assets/readme/ui-warning.png" width="86" alt=""> | **Windows-first Godot candidate**：Godot Windows 已验证 bundled renderer、headless 测试和人工播放测试；macOS/Linux 暂未内置 renderer，可用 Node CLI fallback 做开发测试。 |
-| <img src="docs/assets/readme/ui-issue.png" width="110" alt=""> | **欢迎真实项目反馈**：目前主包没有覆盖大量 Unity/Godot 生产项目。复杂工程里可能遇到路径、导入、导出或运行时问题，欢迎在 issue 区投喂复现步骤。 |
-| <img src="docs/assets/readme/ui-download.png" width="90" alt=""> | **发布口径**：Web 工具和导出协议稳定；Unity 是 alpha；Godot 是 Windows-first store-ready candidate，最终 Asset Library 是否通过仍取决于官方审核。 |
+| <img src="docs/assets/readme/ui-warning.svg" width="86" alt=""> | **Windows-first Godot candidate**：Godot Windows 已验证 bundled renderer、headless 测试和人工播放测试；macOS/Linux 暂未内置 renderer，可用 Node CLI fallback 做开发测试。 |
+| <img src="docs/assets/readme/ui-issue.svg" width="110" alt=""> | **欢迎真实项目反馈**：目前主包没有覆盖大量 Unity/Godot 生产项目。复杂工程里可能遇到路径、导入、导出或运行时问题，欢迎在 issue 区投喂复现步骤。 |
+| <img src="docs/assets/readme/ui-download.svg" width="90" alt=""> | **发布口径**：Web 工具和导出协议稳定；Unity 是 alpha；Godot 是 Windows-first store-ready candidate，最终 Asset Library 是否通过仍取决于官方审核。 |
 
 ## 版本轨迹
 

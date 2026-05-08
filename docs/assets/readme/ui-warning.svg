@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="140" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
+    </filter>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
+    </pattern>
+  </defs>
+  <rect width="180" height="140" fill="none"/>
+<rect x="16" y="16" width="148" height="100" rx="24" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" filter="url(#softShadow)"/>
+  <rect x="34" y="32" width="112" height="68" rx="20" fill="#FFF2C7" opacity="0.75"/>
+<path d="M90 38L129 94H51L90 38Z" fill="#F4C85D" stroke="#6E4D35" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M90 58V75" stroke="#6E4D35" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="90" cy="86" r="4.5" fill="#6E4D35"/>
+</svg>

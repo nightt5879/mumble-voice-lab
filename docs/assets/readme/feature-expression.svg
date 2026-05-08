@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="320" height="220" viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
+    </filter>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
+    </pattern>
+  </defs>
+  <rect width="320" height="220" fill="none"/>
+<rect x="18" y="18" width="284" height="184" rx="28" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" filter="url(#softShadow)"/>
+  <rect x="38" y="38" width="244" height="144" rx="24" fill="#EEE8FF" opacity="0.62"/>
+<g transform="translate(62 54)">
+    <circle cx="55" cy="72" r="44" fill="#FFF2C7" stroke="#6E4D35" stroke-width="4"/>
+    <circle cx="40" cy="61" r="6" fill="#4A3424"/>
+    <circle cx="70" cy="61" r="6" fill="#4A3424"/>
+    <path d="M38 82C48 94 65 94 75 82" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M132 32H224M132 72H224M132 112H224" stroke="#6E4D35" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="174" cy="32" r="13" fill="#F27DA5" stroke="#6E4D35" stroke-width="4"/>
+    <circle cx="204" cy="72" r="13" fill="#8CB9E5" stroke="#6E4D35" stroke-width="4"/>
+    <circle cx="154" cy="112" r="13" fill="#8FC9A2" stroke="#6E4D35" stroke-width="4"/>
+  </g>
+</svg>
