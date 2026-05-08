@@ -1,114 +1,100 @@
 # Mumble Voice Lab
 
-[中文](README.md) | **English**
+<p align="center">
+  <img src="docs/assets/readme/mvl-hero.png" width="920" alt="Mumble Voice Lab v1.5 hero">
+</p>
 
-Mumble Voice Lab is a browser-based character mumble / gibberish voice generator for games. Type a line, choose a character, tune emotion and speaking style, preview instantly, then export deterministic WAV + JSON schedules.
+<p align="center">
+  <b>Generate mumble / gibberish dialogue sounds for game characters.</b><br>
+  Not TTS. It turns dialogue rhythm into cute character blips, WAV files, and subtitle reveal timing.
+</p>
 
-**Live Demo:** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready)
+<p align="center">
+  <a href="https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready">Live Demo</a>
+  ·
+  <a href="https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.5.0-godot-store-ready">12-clip Showcase</a>
+  ·
+  <a href="https://github.com/nightt5879/mumble-voice-lab/releases/tag/v1.5.0">v1.5.0 Release</a>
+  ·
+  <a href="https://github.com/nightt5879/mumble-voice-lab/releases/download/v1.5.0/mumble-voice-lab-godot-0.2.0.zip">Godot addon zip</a>
+  ·
+  <a href="docs/integrations.md">Engine docs</a>
+</p>
 
-**GitHub Repository:** [github.com/nightt5879/mumble-voice-lab](https://github.com/nightt5879/mumble-voice-lab)
+<p align="center">
+  <a href="README.md">中文</a> | <b>English</b>
+</p>
 
-**Current version:** V1.5.0 Godot Store Ready, adding a Windows no-Node renderer, Godot 4.6 addon `0.2.0`, `MumbleDialogueClip` resources, and headless closed-loop Godot tests. The Unity local UPM package remains alpha.
+<p align="center">
+  <img src="docs/assets/readme/divider-cute.svg" width="760" alt="">
+</p>
 
-Mumble Voice Lab is **not TTS**. It does not pronounce real words. Instead, it borrows text length, punctuation, Chinese/English rhythm, phrase shape, and sentence endings to create short syllable-like blips that feel like a character is speaking in their own language.
+## What It Is
 
-It is designed for cozy RPGs, indie games, visual novels, creature games, NPC dialogue prototypes, and any project that needs expressive character dialogue sounds without real speech synthesis.
+Mumble Voice Lab is a browser-based character mumble / gibberish voice generator for games. Type a line, choose a character, tune emotion and speaking style, preview instantly, then export **deterministic WAV + `mumble-voice-lab/schedule` JSON**.
 
-## Listen Online
+It is built for cozy RPGs, indie games, visual novels, creature games, NPC dialogue prototypes, and any project that needs expressive character dialogue sounds without real speech synthesis.
 
-To quickly hear the range of character presets, emotions, speaking styles, Chinese, English, and mixed-language lines, open the online listening page:
+## Highlights
 
-**[Open the 12-clip listening showcase](https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.5.0-godot-store-ready)**
+| | |
+|---|---|
+| <img src="docs/assets/readme/feature-not-tts.png" width="150" alt=""> <br> **Not TTS** <br> It does not pronounce real words. It uses text length, punctuation, Chinese/English rhythm, and sentence endings to create syllable-like blips. | <img src="docs/assets/readme/feature-wav-json.png" width="230" alt=""> <br> **WAV + schedule JSON** <br> Export game-ready audio plus timing data with `events` and `revealEvents`. |
+| <img src="docs/assets/readme/feature-seed.png" width="150" alt=""> <br> **Deterministic output** <br> Same text + preset + seed + expression produces the same schedule. | <img src="docs/assets/readme/feature-expression.png" width="150" alt=""> <br> **Preset + emotion + style** <br> Presets define the voice; emotion, style, and intensity shape the performance. |
+| <img src="docs/assets/readme/feature-reveal.png" width="150" alt=""> <br> **Reveal events** <br> Runtime players can dispatch timed text reveal events for subtitles and typewriter UI. | <img src="docs/assets/readme/feature-game-ready.png" width="180" alt=""> <br> **Game-ready assets** <br> Generate assets in the editor, then play WAV files and sync text at runtime. |
 
-Each card on the showcase now leads with the matching V1.2.0 character avatar. The lineup includes Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster presets; the full tool also ships Soft Mascot, Talkative Merchant, Forest Spirit, and Deep Boss voice directions.
+## V1.5 Engine Integration
 
-## Features
+<p align="center">
+  <img src="docs/assets/readme/engine-flow.png" width="620" alt="Editor to WAV and JSON to game flow">
+</p>
 
-- Runs entirely in the browser, with no backend.
-- Generates game-like mumble voices with the Web Audio API.
-- Supports Chinese, English, and mixed lines such as `你好 adventurer，ready?`.
-- Chinese rhythm uses segmentation, subtle tone shaping, particles, and punctuation pauses.
-- English uses syllable counting to estimate pseudo-syllable events.
-- Character presets can be layered with emotion, speaking style, and intensity.
-- V1.5.0 Godot Store Ready: the Godot 4.6 addon includes a bundled Windows renderer and generates WAV + schedule JSON + `MumbleDialogueClip` `.tres` assets without requiring Node for normal users.
-- V1.4.0 Engine Integration Alpha: generate game-ready WAV + schedule JSON from the CLI, import the local Unity UPM package, and sync runtime text reveal events from generated assets.
-- V1.3.0 "My Presets" library: tune any voice and save it locally (localStorage) as a custom preset; export as a JSON config file to share or back up, and import others' configs back. Custom cards live next to the official presets, marked with a star badge.
-- V1.2.0 cozy sticker visual system: 2px ink outlines, hard-offset shadows, warm paper canvas, with one expressive SVG avatar per character preset.
-- V1.2.0 Crowd Chatter panel: pick any subset of the nine presets, write multiple lines per row, and play them all together for a tavern-room feel.
-- V1.1.0 smooths ring modulation, envelopes, and adjacent syllable timing to reduce pops and hard cuts in low/high presets.
-- Advanced parameters include short descriptions for pitch, rhythm, roughness, brightness, continuity, and level controls.
-- Deterministic output: same text + preset + seed + expression gives the same schedule.
-- Exports playable WAV files and reusable JSON schedules.
-- Bilingual UI: 中文 / English.
+| Unity alpha | Godot Windows-first | Generator dock |
+|---|---|---|
+| <img src="docs/assets/readme/engine-unity-window.png" width="245" alt=""> <br> Local UPM package. It still depends on local Node/npm and calls `npx tsx scripts/mvl.ts` to generate assets. | <img src="docs/assets/readme/engine-godot-window.png" width="245" alt=""> <br> Godot addon `0.2.0`. On Windows it defaults to the bundled `mvl-renderer-win-x64.exe`, so normal users do not need Node. | <img src="docs/assets/readme/engine-plugin-dock.png" width="170" alt=""> <br> Type dialogue, choose preset / emotion / style, then generate `WAV + .mumble.json + MumbleDialogueClip .tres`. |
 
-## Try These Lines
+**The runtime boundary is intentional:** engines play generated assets. `MumbleVoicePlayer` syncs subtitles and typewriter UI from `revealEvents`. Player-entered free-text synthesis at runtime is not part of this release.
 
-```text
-早上好，旅行者！准备出发了吗？
-```
+## Workflow
 
-```text
-等一下啊，我们真的要进去吗？
-```
+| Step | What happens |
+|---|---|
+| <img src="docs/assets/readme/workflow-01-input.png" width="260" alt=""> | **1. Enter dialogue**: write one NPC line in Chinese, English, or mixed text. |
+| <img src="docs/assets/readme/workflow-02-analysis.png" width="260" alt=""> | **2. Analyze rhythm**: estimate pseudo-syllable events from text length, punctuation, phrases, and language features. |
+| <img src="docs/assets/readme/workflow-03-generate.png" width="260" alt=""> | **3. Generate mumble voice**: combine preset and expression settings into character-like blips. |
+| <img src="docs/assets/readme/workflow-04-export.png" width="260" alt=""> | **4. Export assets**: write WAV and schedule JSON; batch renders also produce a manifest. |
+| <img src="docs/assets/readme/workflow-05-sync.png" width="260" alt=""> | **5. Sync subtitles**: `revealEvents` provide exact timing for UI text reveal. |
+| <img src="docs/assets/readme/workflow-06-gameplay.png" width="260" alt=""> | **6. Play in game**: Unity / Godot runtime plays audio and dispatches reveal events. |
 
-```text
-Good morning, traveler! Ready?
-```
+## Quick Start
 
-```text
-你好 adventurer，今天的 quest 准备好了吗？
-```
+| Scenario | Use it |
+|---|---|
+| Web tool | Open the [Live Demo](https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready), type a line, preview, and export. |
+| CLI | `npm run mvl -- render --text "Good morning, traveler! Ready?" --preset cute-npc --out-dir out` |
+| Batch | `npm run mvl -- batch --input dialogue.csv --out-dir out` |
+| Unity alpha | Add `integrations/unity/com.nightt5879.mumble-voice-lab` as a local UPM package, run `npm install`, then open `Tools > Mumble Voice Lab`. |
+| Godot 0.2.0 | Download the Godot zip from the release, or copy `integrations/godot/addons/mumble_voice_lab` into a Godot 4.6 project and enable the plugin. |
 
-## Game Engine Integration Alpha
+## Current Limits & Feedback
 
-V1.4.0 is the first engine-facing release. It is suitable for local project testing and internal pipeline validation, but it is not yet a Unity Asset Store or Godot Asset Library style package.
+| | |
+|---|---|
+| <img src="docs/assets/readme/ui-warning.png" width="86" alt=""> | **Windows-first Godot candidate**: bundled renderer, headless tests, and manual playback are verified on Godot 4.6.1 for Windows. macOS/Linux do not include a bundled renderer yet; use Node CLI fallback for development. |
+| <img src="docs/assets/readme/ui-issue.png" width="110" alt=""> | **Real project feedback is welcome**: the maintainer does not yet have broad Unity/Godot production project coverage. Complex projects may expose path, import, export, or runtime issues. Please open issues with repro steps. |
+| <img src="docs/assets/readme/ui-download.png" width="90" alt=""> | **Release positioning**: the web tool and export protocol are stable; Unity is alpha; Godot is a Windows-first store-ready candidate, and final Asset Library acceptance depends on official review. |
 
-- CLI renderer: `npm run mvl -- render --text "Good morning!" --preset cute-npc --out-dir out` creates a WAV file and a `mumble-voice-lab/schedule` 1.0 JSON file.
-- Unity verified alpha: add `integrations/unity/com.nightt5879.mumble-voice-lab` as a local UPM package, run `npm install`, open `Tools > Mumble Voice Lab`, set the CLI root to this repository, then generate single or batch dialogue assets.
-- Godot store-ready candidate: copy `integrations/godot/addons/mumble_voice_lab` into a Godot 4.6 project. On Windows it defaults to the bundled renderer and has a headless closed-loop test.
-- Runtime scope: generated assets are played back in-engine. `MumbleVoicePlayer` dispatches reveal events for subtitles/typewriter UI. Player runtime free-text synthesis is intentionally outside this alpha.
-- Packaging status: the Unity alpha still requires local Node/npm; Godot V1.5.0 Windows users default to the bundled renderer and do not need Node.
+## Version Trail
 
-Detailed engine setup, manual QA, and troubleshooting live in [docs/integrations.md](docs/integrations.md). Release notes live in [CHANGELOG.md](CHANGELOG.md).
+| Version | Focus |
+|---|---|
+| V1.1.0 | Smoother blip transitions, envelopes, fades, and connected playback. |
+| V1.2.0 | Cozy sticker visual system, character avatars, and crowd chatter. |
+| V1.3.0 | "My Presets" custom voice saving, export, and import. |
+| V1.4.0 | CLI renderer, `schedule` JSON 1.0, Unity local UPM alpha, and Godot preview. |
+| V1.5.0 | Godot 0.2.0 Windows-first: bundled renderer, `.tres` dialogue resources, headless tests, and Asset Library materials. |
 
-## Godot Store Ready
-
-V1.5.0 moves Godot from preview to a Windows-first store-ready candidate:
-
-- Godot addon version is `0.2.0` at `integrations/godot/addons/mumble_voice_lab`.
-- Windows users default to the bundled `mvl-renderer-win-x64.exe`; Node/npm is not required for normal use.
-- Generated outputs are `WAV + .mumble.json + MumbleDialogueClip .tres`.
-- `MumbleVoicePlayer` prefers `MumbleDialogueClip` and keeps the previous `audio_stream + schedule_path` fields for compatibility.
-- Usage: copy the addon, enable it, generate dialogue assets from the dock, then assign a generated `MumbleDialogueClip` to `MumbleVoicePlayer` and call `play()`.
-- Verified: Godot 4.6.1 on Windows with headless import, script parsing, bundled renderer generation, runtime reveal signals, and manual Play Mode playback with visible reveal text.
-- The `ManualTest.tscn` in `MumbleVoiceLabGodotPluginTest` auto-plays on scene entry only because it is a manual QA scene. Real projects do not play audio unless the developer calls playback or opts into auto-play behavior.
-- macOS/Linux do not include a bundled renderer yet; developers can switch to Node CLI fallback.
-
-## Roadmap
-
-### 1. Improve playback continuity (shipped in V1.1.0)
-
-V1.1.0 improves transitions, envelopes, fades, and adjacent syllable timing. Low monster voices, high tiny voices, and modulated robot voices should produce fewer clicks, pops, and hard cuts during connected playback.
-
-### 2. Add more voice colors (shipped in V1.1.0)
-
-The project includes basic presets such as Cute NPC, Robot Guard, Tiny Creature, Tired Villager, and Monster. V1.1.0 added a smaller set of higher-quality presets: Soft Mascot, Talkative Merchant, Forest Spirit, and Deep Boss.
-
-### 3. Full UI overhaul + crowd scenes (shipped in V1.2.0)
-
-V1.2.0 rebuilt the whole studio: a cozy sticker-style visual system, nine distinct SVG character avatars, and a single-screen compact layout. A new Crowd Chatter panel lets you pick any subset of presets, type multiple lines per row, and fire them all on the same tick — speakers are deterministically staggered by 0–0.18s to avoid hard sync, and the mix is auto-attenuated to keep the limiter quiet. The 12 showcase samples are also regenerated through the real v1.1 audio pipeline so what you hear is what the live demo produces.
-
-### 4. My Presets: save, share, restore (shipped in V1.3.0)
-
-V1.3.0 turns the demo into something you can actually keep. After tuning a voice you can save it as a "My Preset" — persisted to localStorage so it survives reloads — and any preset (official or custom) can be exported as a `mumble-voice-lab/preset` 1.0 JSON file for sharing or backup. The same file format imports back into the library. Custom cards sit next to the official lineup with a star badge and reveal hover-only export / delete actions.
-
-### 5. Engine integration alpha (shipped in V1.4.0)
-
-V1.4.0 ships the first practical workflow from browser tool to game engine: CLI rendering, `mumble-voice-lab/schedule` 1.0 files, a local Unity UPM package alpha, runtime reveal-event playback, and a Godot addon preview. Godot no-Node renderer packaging and closed-loop verification continue in V1.5.0.
-
-### 6. Godot store-ready candidate (shipped in V1.5.0)
-
-V1.5.0 completes the Godot 4.6 Windows-first loop: bundled Windows renderer, generated `.tres` dialogue resources, runtime signal testing, and Asset Library packaging materials including README, LICENSE, icon, and third-party notices. Next work is macOS/Linux renderers, Unity no-Node renderer packaging, and formal Godot Asset Library submission.
+Release notes live in [CHANGELOG.md](CHANGELOG.md). Engine setup and QA steps live in [docs/integrations.md](docs/integrations.md).
 
 ## Local Development
 
@@ -122,15 +108,6 @@ Build:
 ```bash
 npm run build
 ```
-
-Generate game-ready WAV + schedule JSON from the CLI:
-
-```bash
-npm run mvl -- render --text "Good morning, traveler! Ready?" --preset cute-npc --out-dir out
-npm run mvl -- batch --input dialogue.csv --out-dir out
-```
-
-Unity and Godot integrations are documented in [docs/integrations.md](docs/integrations.md).
 
 Regenerate online listening samples:
 

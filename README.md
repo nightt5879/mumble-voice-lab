@@ -1,114 +1,100 @@
 # Mumble Voice Lab
 
-**中文** | [English](README.en.md)
+<p align="center">
+  <img src="docs/assets/readme/mvl-hero.png" width="920" alt="Mumble Voice Lab v1.5 hero">
+</p>
 
-面向游戏项目的浏览器角色碎碎念 / gibberish 语音生成器。输入一句台词，选择角色、情绪和说话风格，即可实时试听，并导出 deterministic WAV + JSON schedule。
+<p align="center">
+  <b>给游戏角色生成 mumble / gibberish 碎碎念音效。</b><br>
+  不是 TTS，不朗读真实文字，而是把台词节奏变成可爱的角色语音、WAV 和字幕 reveal 时间轴。
+</p>
 
-**在线体验：** [nightt5879.github.io/mumble-voice-lab](https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready)
+<p align="center">
+  <a href="https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready">在线体验</a>
+  ·
+  <a href="https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.5.0-godot-store-ready">12 条试听样例</a>
+  ·
+  <a href="https://github.com/nightt5879/mumble-voice-lab/releases/tag/v1.5.0">v1.5.0 Release</a>
+  ·
+  <a href="https://github.com/nightt5879/mumble-voice-lab/releases/download/v1.5.0/mumble-voice-lab-godot-0.2.0.zip">Godot 插件 zip</a>
+  ·
+  <a href="docs/integrations.md">引擎接入文档</a>
+</p>
 
-**GitHub 仓库：** [github.com/nightt5879/mumble-voice-lab](https://github.com/nightt5879/mumble-voice-lab)
+<p align="center">
+  <b>中文</b> | <a href="README.en.md">English</a>
+</p>
 
-**当前版本：** V1.5.0 Godot Store Ready，新增 Windows 免 Node renderer、Godot 4.6 插件 `0.2.0`、`MumbleDialogueClip` 资源和 headless 闭环测试；Unity 本地 UPM 插件仍保持 alpha。
+<p align="center">
+  <img src="docs/assets/readme/divider-cute.svg" width="760" alt="">
+</p>
 
-Mumble Voice Lab **不是 TTS**，不会真正朗读文字内容。它只借用文字长度、标点、中英文节奏、短语结构和句尾语调，生成短促的类音节 blip，让角色听起来像正在用自己的语言说话。
+## 这是什么？
 
-适合 cozy RPG、独立游戏、视觉小说、怪物 / 生物游戏、NPC 对话系统原型，以及任何需要“角色在说话，但不是现实语言朗读”的项目。
+Mumble Voice Lab 是一个面向游戏项目的浏览器角色碎碎念语音生成器。输入一句台词，选择角色、情绪和说话风格，就能实时试听并导出 **deterministic WAV + `mumble-voice-lab/schedule` JSON**。
 
-## 在线试听
-
-想快速感受不同角色、情绪、说话风格、中文、英文和中英混合效果，可以直接打开在线试听页：
-
-**[打开 12 条样例试听页](https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.5.0-godot-store-ready)**
-
-试听页里包含 Cute NPC、Robot Guard、Tiny Creature、Tired Villager、Monster 等角色，每张卡片配上 V1.2.0 引入的角色虚拟形象；工具内还有 Soft Mascot、Talkative Merchant、Forest Spirit、Deep Boss 等音色方向。
+它适合 cozy RPG、独立游戏、视觉小说、怪物 / 生物游戏、NPC 对话系统原型，以及任何需要“角色像在说话，但不是现实语言朗读”的项目。
 
 ## 功能亮点
 
-- 纯浏览器运行，无后端。
-- 使用 Web Audio API 实时生成角色 mumble / gibberish 语音。
-- 支持中文、英文和中英混写，例如 `你好 adventurer，ready?`。
-- 中文支持分词、声调微韵律、语气词和标点节奏。
-- 英文使用 syllable count 估算类音节数量。
-- 角色 preset、情绪、说话风格和强度可叠加。
-- V1.5.0 Godot Store Ready：Godot 4.6 插件内置 Windows renderer，可生成 WAV + schedule JSON + `MumbleDialogueClip` `.tres`，无需普通用户安装 Node。
-- V1.4.0 Engine Integration Alpha：通过 CLI 生成可进游戏项目的 WAV + schedule JSON，Unity 本地 UPM 插件可导入并用 reveal events 同步字幕 / 打字机效果。
-- V1.3.0 新增"我的角色"自定义库：调好参数一键保存到本地（localStorage），下次打开还在；可导出为 JSON 配置文件分享 / 备份，也可从文件导入别人的调音。
-- V1.2.0 全新 cozy 贴纸视觉系统：2px 墨线 + 硬偏移阴影 + 暖纸底色，9 个角色配独特 SVG 虚拟形象。
-- V1.2.0 新增"多人同时讲话"面板：勾选多个角色、每行一句台词，一键全员同时开口，制造人声鼎沸场景。
-- V1.1.0 优化了 ring modulation、包络和连续音节衔接，降低低频/高频 preset 的爆音和硬切感。
-- 高级参数附带简短说明，便于判断会影响音高、节奏、粗糙度、亮度、连续性还是音量。
-- 同文本 + 同 preset + 同 seed + 同 expression 会生成相同 schedule。
-- 支持导出 WAV 和 JSON，方便游戏项目复用。
-- UI 支持中文 / English 切换。
+| | |
+|---|---|
+| <img src="docs/assets/readme/feature-not-tts.png" width="150" alt=""> <br> **不是 TTS** <br> 不合成真实朗读，而是根据文本长度、标点、中英文节奏和句尾语气生成类音节 blip。 | <img src="docs/assets/readme/feature-wav-json.png" width="230" alt=""> <br> **WAV + schedule JSON** <br> 导出可直接进游戏项目的音频，以及包含 `events` / `revealEvents` 的时间轴文件。 |
+| <img src="docs/assets/readme/feature-seed.png" width="150" alt=""> <br> **可复现输出** <br> 同文本 + 同 preset + 同 seed + 同 expression 会生成相同 schedule。 | <img src="docs/assets/readme/feature-expression.png" width="150" alt=""> <br> **角色、情绪、风格叠加** <br> preset 负责音色，emotion / style / intensity 负责表演状态。 |
+| <img src="docs/assets/readme/feature-reveal.png" width="150" alt=""> <br> **字幕 reveal events** <br> 运行时可以按时间点派发字幕、打字机效果和对话 UI 更新。 | <img src="docs/assets/readme/feature-game-ready.png" width="180" alt=""> <br> **面向游戏资产** <br> 先在编辑器生成资产，游戏运行时只播放已生成 WAV 并同步文本。 |
 
-## 可以复制测试的台词
+## V1.5 引擎接入
 
-```text
-早上好，旅行者！准备出发了吗？
-```
+<p align="center">
+  <img src="docs/assets/readme/engine-flow.png" width="620" alt="Editor to WAV and JSON to game flow">
+</p>
 
-```text
-等一下啊，我们真的要进去吗？
-```
+| Unity alpha | Godot Windows-first | 生成面板 |
+|---|---|---|
+| <img src="docs/assets/readme/engine-unity-window.png" width="245" alt=""> <br> 本地 UPM package。当前仍依赖本机 Node/npm，通过 `npx tsx scripts/mvl.ts` 调 CLI 生成资产。 | <img src="docs/assets/readme/engine-godot-window.png" width="245" alt=""> <br> Godot addon `0.2.0`。Windows 默认使用内置 `mvl-renderer-win-x64.exe`，普通用户不需要安装 Node。 | <img src="docs/assets/readme/engine-plugin-dock.png" width="170" alt=""> <br> 在编辑器里输入文本、选择 preset / emotion / style，生成 `WAV + .mumble.json + MumbleDialogueClip .tres`。 |
 
-```text
-Good morning, traveler! Ready?
-```
+**当前边界很明确：** 引擎运行时播放的是已生成资产；`MumbleVoicePlayer` 负责根据 `revealEvents` 同步字幕 / 打字机效果。玩家运行时输入任意文字并实时合成，不属于这版目标。
 
-```text
-你好 adventurer，今天的 quest 准备好了吗？
-```
+## 工作流程
 
-## 游戏引擎接入 Alpha
+| 步骤 | 说明 |
+|---|---|
+| <img src="docs/assets/readme/workflow-01-input.png" width="260" alt=""> | **1. 输入台词**：写一句 NPC 台词，可以是中文、英文或中英混合。 |
+| <img src="docs/assets/readme/workflow-02-analysis.png" width="260" alt=""> | **2. 分析节奏**：根据文本长度、标点、短语和语言特征估算类音节事件。 |
+| <img src="docs/assets/readme/workflow-03-generate.png" width="260" alt=""> | **3. 生成 mumble 声音**：用 preset + expression 生成角色化 blip 序列。 |
+| <img src="docs/assets/readme/workflow-04-export.png" width="260" alt=""> | **4. 导出资产**：写出 WAV 和 schedule JSON，批量对白也会生成 manifest。 |
+| <img src="docs/assets/readme/workflow-05-sync.png" width="260" alt=""> | **5. 同步字幕**：`revealEvents` 给 UI 精确的 reveal 时间点。 |
+| <img src="docs/assets/readme/workflow-06-gameplay.png" width="260" alt=""> | **6. 游戏中播放**：Unity / Godot runtime 播放音频并派发 reveal 事件。 |
 
-V1.4.0 是第一版面向引擎的发布。它适合本地项目测试和内部管线验证，但还不是 Unity Asset Store / Godot Asset Library 级别的商店稳定包。
+## 快速开始
 
-- CLI renderer：`npm run mvl -- render --text "Good morning!" --preset cute-npc --out-dir out` 会生成 WAV 和 `mumble-voice-lab/schedule` 1.0 JSON。
-- Unity verified alpha：把 `integrations/unity/com.nightt5879.mumble-voice-lab` 作为本地 UPM package 加进 Unity，先在仓库根目录执行 `npm install`，再打开 `Tools > Mumble Voice Lab`，设置 CLI root 为本仓库路径，即可单条或批量生成对白资产。
-- Godot store-ready candidate：把 `integrations/godot/addons/mumble_voice_lab` 复制到 Godot 4.6 项目即可启用；Windows 下默认使用内置 renderer，已完成 headless 闭环测试。
-- 运行时范围：引擎里播放的是已生成资产，`MumbleVoicePlayer` 负责派发 reveal events 给字幕 / 打字机 UI。玩家运行时输入任意文字并实时合成不属于这版 alpha。
-- 打包状态：Unity alpha 仍依赖本机 Node/npm；Godot V1.5.0 Windows 用户默认使用内置 renderer，不需要安装 Node。
+| 场景 | 用法 |
+|---|---|
+| Web 工具 | 打开 [在线体验](https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready)，输入台词后直接试听和导出。 |
+| CLI | `npm run mvl -- render --text "Good morning, traveler! Ready?" --preset cute-npc --out-dir out` |
+| 批量生成 | `npm run mvl -- batch --input dialogue.csv --out-dir out` |
+| Unity alpha | 把 `integrations/unity/com.nightt5879.mumble-voice-lab` 作为本地 UPM package 加进 Unity，运行 `npm install`，再打开 `Tools > Mumble Voice Lab`。 |
+| Godot 0.2.0 | 下载 release 里的 Godot zip，或复制 `integrations/godot/addons/mumble_voice_lab` 到 Godot 4.6 项目，在插件面板启用。 |
 
-详细接入、人工 QA 和常见问题见 [docs/integrations.md](docs/integrations.md)。发布记录见 [CHANGELOG.md](CHANGELOG.md)。
+## 当前限制与反馈
 
-## Godot Store Ready
+| | |
+|---|---|
+| <img src="docs/assets/readme/ui-warning.png" width="86" alt=""> | **Windows-first Godot candidate**：Godot Windows 已验证 bundled renderer、headless 测试和人工播放测试；macOS/Linux 暂未内置 renderer，可用 Node CLI fallback 做开发测试。 |
+| <img src="docs/assets/readme/ui-issue.png" width="110" alt=""> | **欢迎真实项目反馈**：目前主包没有覆盖大量 Unity/Godot 生产项目。复杂工程里可能遇到路径、导入、导出或运行时问题，欢迎在 issue 区投喂复现步骤。 |
+| <img src="docs/assets/readme/ui-download.png" width="90" alt=""> | **发布口径**：Web 工具和导出协议稳定；Unity 是 alpha；Godot 是 Windows-first store-ready candidate，最终 Asset Library 是否通过仍取决于官方审核。 |
 
-V1.5.0 把 Godot 从 preview 推到 Windows-first store-ready candidate：
+## 版本轨迹
 
-- Godot addon 版本为 `0.2.0`，路径仍是 `integrations/godot/addons/mumble_voice_lab`。
-- Windows 用户默认使用内置 `mvl-renderer-win-x64.exe`，不需要安装 Node/npm。
-- 生成结果为 `WAV + .mumble.json + MumbleDialogueClip .tres`。
-- `MumbleVoicePlayer` 优先接受 `MumbleDialogueClip`，并保留旧的 `audio_stream + schedule_path` 字段兼容。
-- 使用方式：复制 addon、启用插件、在 dock 中生成对白资源；运行时把生成的 `MumbleDialogueClip` 赋给 `MumbleVoicePlayer` 并调用 `play()`。
-- 已验证：Godot 4.6.1 Windows headless 导入、脚本解析、bundled renderer 生成资源、runtime reveal signals、人工 Play Mode 听到声音并显示 reveal 文本。
-- 测试工程 `MumbleVoiceLabGodotPluginTest` 里的 `ManualTest.tscn` 会进场景自动播放，这是人工 QA 场景行为；实际项目不会自动发声，除非开发者在场景或代码里调用播放。
-- macOS/Linux 暂未内置 renderer；开发者可切到 Node CLI fallback。
+| 版本 | 重点 |
+|---|---|
+| V1.1.0 | 优化 blip 之间的衔接、包络、淡入淡出和整体流畅度。 |
+| V1.2.0 | 引入 cozy 贴纸视觉系统、角色头像和多人同时讲话面板。 |
+| V1.3.0 | 新增“我的角色”自定义 preset 保存、导出和导入。 |
+| V1.4.0 | 新增 CLI renderer、`schedule` JSON 1.0、Unity 本地 UPM 插件 alpha 和 Godot preview。 |
+| V1.5.0 | Godot 0.2.0 Windows-first：内置 renderer、`.tres` 对白资源、headless 闭环测试和 Asset Library 材料。 |
 
-## Roadmap
-
-### 1. 优化发声连贯性（V1.1.0 完成）
-
-V1.1.0 已优化 blip 之间的衔接、包络、淡入淡出和整体流畅度。低频怪物、高频小生物、机器人调制音色在连续播放时会更少出现“啪”“咔”和硬切感。
-
-### 2. 支持更多音色（V1.1.0 完成）
-
-目前已有可爱 NPC、机器人守卫、小生物、疲惫村民、怪物等基础角色音色。V1.1.0 新增软萌吉祥物、话多商人、森林精灵、低沉 Boss 等少量高质量 preset，覆盖更多常用游戏角色方向。
-
-### 3. 完整 UI 升级与多人场景（V1.2.0 完成）
-
-V1.2.0 重做了整套界面：cozy 贴纸视觉系统、9 个角色独立 SVG 虚拟形象、单屏紧凑布局。新增"多人同时讲话"面板，可勾选任意角色组合 + 每人多句台词，一键全员开口，起声 0–0.18s 错开避免硬同步，混音自动减幅防削峰。试听页样例也用真实 v1.1 音频管线重新生成，所听即所得。
-
-### 4. 我的角色：自定义保存与配置分享（V1.3.0 完成）
-
-V1.3.0 让 demo 变成"真正可用的工具"。在高级面板调好参数后可一键保存为"我的角色"，自动持久化到 localStorage，下次打开还在；任意角色（包括官方 preset）可导出为 `mumble-voice-lab/preset` 1.0 schema 的 JSON 文件，方便分享、备份和跨设备同步；同样的文件支持点"导入配置"加回库。已保存的卡片接在官方 preset 之后，带星形角标 + hover 浮现导出 / 删除按钮。
-
-### 5. 游戏引擎接入 alpha（V1.4.0 完成）
-
-V1.4.0 已交付第一版“从网页工具到游戏引擎”的实际工作流：CLI renderer、`mumble-voice-lab/schedule` 1.0 文件、Unity 本地 UPM 插件 alpha、运行时 reveal-event 播放，以及 Godot addon preview。Godot 的免 Node renderer 和闭环验证已在 V1.5.0 继续推进。
-
-### 6. Godot 商店可提交候选（V1.5.0 完成）
-
-V1.5.0 已完成 Godot 4.6 Windows-first 闭环：插件内置 Windows renderer、支持生成 `.tres` 对白资源、运行时信号测试通过，并补齐 Asset Library 所需的 README、LICENSE、icon 和第三方说明。下一步是 macOS/Linux renderer、Unity 免 Node renderer，以及正式提交 Godot Asset Library 审核。
+详细发布记录见 [CHANGELOG.md](CHANGELOG.md)，引擎接入和 QA 步骤见 [docs/integrations.md](docs/integrations.md)。
 
 ## 本地开发
 
@@ -122,15 +108,6 @@ npm run dev
 ```bash
 npm run build
 ```
-
-用 CLI 生成可进游戏项目的 WAV + schedule JSON：
-
-```bash
-npm run mvl -- render --text "Good morning, traveler! Ready?" --preset cute-npc --out-dir out
-npm run mvl -- batch --input dialogue.csv --out-dir out
-```
-
-Unity / Godot 接入文档见 [docs/integrations.md](docs/integrations.md)。
 
 重新生成在线试听页样例：
 
