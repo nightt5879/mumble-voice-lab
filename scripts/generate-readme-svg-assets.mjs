@@ -153,11 +153,6 @@ const assets = {
     <circle cx="23" cy="66" r="6" fill="${colors.pink}" stroke="${colors.line}" stroke-width="3"/>
     <circle cx="71" cy="66" r="6" fill="${colors.yellow}" stroke="${colors.line}" stroke-width="3"/>
   </g>
-  <g transform="translate(407 292)">
-    <rect x="0" y="0" width="238" height="48" rx="24" fill="${colors.yellowSoft}" stroke="${colors.line}" stroke-width="4"/>
-    <circle cx="34" cy="24" r="11" fill="${colors.mint}" stroke="${colors.line}" stroke-width="3"/>
-    <text x="58" y="31" font-size="20" font-weight="800" ${textStyle}>deterministic audio assets</text>
-  </g>
   ${sparkle(1088, 114, 1.1)}
   ${sparkle(342, 396, 0.75, colors.blue)}`
   ),

@@ -66,11 +66,6 @@
     <circle cx="23" cy="66" r="6" fill="#F27DA5" stroke="#6E4D35" stroke-width="3"/>
     <circle cx="71" cy="66" r="6" fill="#F4C85D" stroke="#6E4D35" stroke-width="3"/>
   </g>
-  <g transform="translate(407 292)">
-    <rect x="0" y="0" width="238" height="48" rx="24" fill="#FFF2C7" stroke="#6E4D35" stroke-width="4"/>
-    <circle cx="34" cy="24" r="11" fill="#8FC9A2" stroke="#6E4D35" stroke-width="3"/>
-    <text x="58" y="31" font-size="20" font-weight="800" font-family="Inter, Avenir, Helvetica, Arial, sans-serif" fill="#4A3424">deterministic audio assets</text>
-  </g>
   
   <path d="M1088 100.8L1092.4 109.6L1101.2 114L1092.4 118.4L1088 127.2L1083.6 118.4L1074.8 114L1083.6 109.6Z" fill="#F4C85D" stroke="#6E4D35" stroke-width="3.3000000000000003" stroke-linejoin="round"/>
   
