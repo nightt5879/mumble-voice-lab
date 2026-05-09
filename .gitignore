@@ -4,3 +4,4 @@ dist-renderer/
 dist-godot-assetlib/
 *.log
 *.tsbuildinfo
+/README_USE

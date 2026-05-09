@@ -1,18 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="960" height="46" viewBox="0 0 960 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
-    </filter>
-    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
-      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
-    </pattern>
-  </defs>
-  <rect width="960" height="46" fill="none"/>
-<path d="M28 23H388" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 16"/>
-  <path d="M572 23H932" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 16"/>
-  <g transform="translate(428 9)">
-    <rect x="0" y="0" width="104" height="28" rx="14" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4"/>
-    <path d="M18 14C27 1 34 27 43 14C51 3 58 25 67 14C75 4 82 23 90 14" stroke="#F27DA5" stroke-width="5" stroke-linecap="round"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 60" width="760" height="60">
+
+  <line x1="20" y1="30" x2="200" y2="30" stroke="#e6d3b3" stroke-width="2" stroke-dasharray="2 6"></line>
+  <line x1="560" y1="30" x2="740" y2="30" stroke="#e6d3b3" stroke-width="2" stroke-dasharray="2 6"></line>
+
+
+  <path d="M210 30 Q230 10 250 30 Q270 50 290 30 Q310 12 330 30 Q350 48 370 30 Q380 22 384 26 Q390 30 396 28 Q416 8 436 30 Q456 52 476 30 Q496 12 516 30 Q536 48 550 30" stroke="#2a1f17" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+
+
+  <circle cx="380" cy="14" r="5" fill="#2a1f17"></circle>
+  <circle cx="378" cy="12" r="5" fill="#f472b6" stroke="#2a1f17" stroke-width="2"></circle>
+  <circle cx="396" cy="14" r="5" fill="#2a1f17"></circle>
+  <circle cx="394" cy="12" r="5" fill="#fde68a" stroke="#2a1f17" stroke-width="2"></circle>
+
+
+  <circle cx="170" cy="30" r="4" fill="#f472b6" stroke="#2a1f17" stroke-width="1.5"></circle>
+  <circle cx="590" cy="30" r="4" fill="#38bdf8" stroke="#2a1f17" stroke-width="1.5"></circle>
 </svg>

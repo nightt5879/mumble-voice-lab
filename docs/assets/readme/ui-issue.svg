@@ -2,15 +2,15 @@
 <svg width="180" height="140" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"></feDropShadow>
     </filter>
     <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
-      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
+      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"></circle>
     </pattern>
   </defs>
-  <rect width="180" height="140" fill="none"/>
-<rect x="16" y="16" width="148" height="100" rx="24" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" filter="url(#softShadow)"/>
-  <rect x="34" y="32" width="112" height="68" rx="20" fill="#E5F2FF" opacity="0.75"/>
-<path d="M50 52H130C138 52 144 58 144 66V92C144 100 138 106 130 106H86L68 122V106H50C42 106 36 100 36 92V66C36 58 42 52 50 52Z" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4"/>
-  <path d="M64 74H116M64 90H98" stroke="#8CB9E5" stroke-width="6" stroke-linecap="round"/>
+  <rect width="180" height="140" fill="none"></rect>
+<rect x="16" y="16" width="148" height="100" rx="24" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" filter="url(#softShadow)"></rect>
+  <rect x="34" y="32" width="112" height="68" rx="20" fill="#E5F2FF" opacity="0.75"></rect>
+<path d="M50 52H130C138 52 144 58 144 66V92C144 100 138 106 130 106H86L68 122V106H50C42 106 36 100 36 92V66C36 58 42 52 50 52Z" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4"></path>
+  <path d="M64 74H116M64 90H98" stroke="#8CB9E5" stroke-width="6" stroke-linecap="round"></path>
 </svg>

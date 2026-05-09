@@ -1,19 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="440" height="262" viewBox="0 0 440 262" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
-    </filter>
-    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
-      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
-    </pattern>
-  </defs>
-  <rect width="440" height="262" fill="none"/>
-<rect x="18" y="18" width="404" height="216" rx="30" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" filter="url(#softShadow)"/>
-  <circle cx="56" cy="56" r="22" fill="#FFE0EA" stroke="#6E4D35" stroke-width="4"/>
-  <text x="56" y="64" text-anchor="middle" font-size="20" font-weight="900" font-family="Inter, Avenir, Helvetica, Arial, sans-serif" fill="#4A3424">1</text>
-<rect x="96" y="72" width="252" height="104" rx="22" fill="#FFF7E9" stroke="#6E4D35" stroke-width="4"/>
-  <path d="M124 106H310M124 136H258" stroke="#6E4D35" stroke-width="8" stroke-linecap="round" opacity="0.45"/>
-  <path d="M326 72L366 50V104Z" fill="#FFE0EA" stroke="#6E4D35" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M130 174L112 204L154 180" fill="#FFF7E9" stroke="#6E4D35" stroke-width="4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" width="280" height="80" font-family="Nunito, sans-serif">
+
+  <rect x="6" y="6" width="268" height="68" rx="14" fill="#2a1f17"></rect>
+  <rect x="2" y="2" width="268" height="68" rx="14" fill="#fff8e7" stroke="#2a1f17" stroke-width="2"></rect>
+
+
+  <g transform="translate(14,18)">
+    <rect x="4" y="4" width="44" height="44" rx="10" fill="#2a1f17"></rect>
+    <rect x="0" y="0" width="44" height="44" rx="10" fill="#fbcfe8" stroke="#2a1f17" stroke-width="2"></rect>
+    <text x="22" y="30" text-anchor="middle" font-size="20" font-weight="900" fill="#2a1f17">01</text>
+  </g>
+
+
+  <g transform="translate(80,16)">
+    <rect x="2" y="2" width="180" height="44" rx="6" fill="#fff" stroke="#2a1f17" stroke-width="2"></rect>
+    <rect x="2" y="2" width="180" height="6" fill="#fbeed3"></rect>
+    <text x="14" y="26" font-size="11" font-weight="700" fill="#2a1f17">Good morning, traveler!</text>
+    <rect x="14" y="34" width="3" height="9" fill="#f472b6"></rect>
+  </g>
+
+
+  <text x="80" y="62" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#6b5849">type a line · 中英混合 ok</text>
 </svg>

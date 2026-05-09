@@ -1,73 +1,125 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1200" height="520" viewBox="0 0 1200 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 300" width="920" height="300" font-family="Nunito, -apple-system, system-ui, sans-serif">
   <defs>
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
-    </filter>
-    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
-      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
-    </pattern>
+    <radialGradient id="washA" cx="14%" cy="22%" r="42%"><stop offset="0" stop-color="#f472b6" stop-opacity=".14"></stop><stop offset="1" stop-color="#f472b6" stop-opacity="0"></stop></radialGradient>
+    <radialGradient id="washB" cx="86%" cy="78%" r="44%"><stop offset="0" stop-color="#38bdf8" stop-opacity=".14"></stop><stop offset="1" stop-color="#38bdf8" stop-opacity="0"></stop></radialGradient>
+    <radialGradient id="washC" cx="60%" cy="8%" r="36%"><stop offset="0" stop-color="#7c3aed" stop-opacity=".08"></stop><stop offset="1" stop-color="#7c3aed" stop-opacity="0"></stop></radialGradient>
   </defs>
-  <rect width="1200" height="520" fill="none"/>
-<rect x="24" y="24" width="1152" height="472" rx="44" fill="#FFF7E9" stroke="#6E4D35" stroke-width="6"/>
-  <rect x="24" y="24" width="1152" height="472" rx="44" fill="url(#dots)" opacity="0.7"/>
-  <g transform="translate(104 112)">
-    <path d="M126 38C172 46 206 88 210 146C215 219 172 282 105 282C38 282 -4 225 2 154C8 82 63 27 126 38Z" fill="#FFE0EA" stroke="#6E4D35" stroke-width="6" stroke-linejoin="round"/>
-    <circle cx="77" cy="117" r="10" fill="#4A3424"/>
-    <circle cx="142" cy="117" r="10" fill="#4A3424"/>
-    <circle cx="57" cy="150" r="12" fill="#F27DA5" opacity="0.45"/>
-    <circle cx="162" cy="150" r="12" fill="#F27DA5" opacity="0.45"/>
-    <path d="M85 155C101 174 124 175 143 155" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M99 165C109 171 120 171 130 165" stroke="#F27DA5" stroke-width="4" stroke-linecap="round"/>
-    <g transform="translate(146 166) rotate(-15)">
-      <rect x="0" y="0" width="54" height="82" rx="24" fill="#4A3424"/>
-      <rect x="9" y="8" width="36" height="50" rx="17" fill="#F5DFC2" stroke="#6E4D35" stroke-width="4"/>
-      <path d="M27 58V101" stroke="#6E4D35" stroke-width="6" stroke-linecap="round"/>
-      <path d="M8 102H47" stroke="#6E4D35" stroke-width="6" stroke-linecap="round"/>
-      <path d="M16 22H38M14 34H40M16 46H38" stroke="#6E4D35" stroke-width="3" stroke-linecap="round"/>
+
+
+  <rect x="8" y="8" width="906" height="288" rx="22" fill="#2a1f17"></rect>
+  <rect x="2" y="2" width="906" height="288" rx="22" fill="#fdf6ec" stroke="#2a1f17" stroke-width="2"></rect>
+  <rect x="2" y="2" width="906" height="288" rx="22" fill="url(#washA)"></rect>
+  <rect x="2" y="2" width="906" height="288" rx="22" fill="url(#washB)"></rect>
+  <rect x="2" y="2" width="906" height="288" rx="22" fill="url(#washC)"></rect>
+
+
+  <g transform="translate(48,42)">
+    <rect x="0" y="0" width="218" height="28" rx="14" fill="#2a1f17"></rect>
+    <circle cx="16" cy="14" r="4.5" fill="#f472b6"></circle>
+    <circle cx="16" cy="14" r="6.5" fill="none" stroke="#fde68a" stroke-width="2"></circle>
+    <text x="32" y="19" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" font-weight="700" letter-spacing="1.2" fill="#fde68a">PROTOTYPE  AUDIO  TOOL</text>
+  </g>
+
+
+  <g transform="translate(740,38)">
+    <rect x="6" y="6" width="138" height="44" rx="22" fill="#2a1f17"></rect>
+    <rect x="0" y="0" width="138" height="44" rx="22" fill="#fde68a" stroke="#2a1f17" stroke-width="2"></rect>
+    <text x="69" y="29" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" font-size="13" font-weight="700" fill="#2a1f17">V1.5.0</text>
+  </g>
+
+
+  <text x="48" y="148" font-size="68" font-weight="900" letter-spacing="-2" fill="#2a1f17">
+    <tspan fill="#f472b6">Mumble</tspan> Voice Lab
+  </text>
+
+
+  <text x="48" y="186" font-size="17" font-weight="700" fill="#6b5849">
+    cozy character mumble for games · WAV + schedule JSON · deterministic
+  </text>
+
+
+  <g transform="translate(560,140)" stroke="#2a1f17" stroke-width="2.5" stroke-linecap="round" fill="none">
+    <path d="M0 24 Q10 4 20 24 Q30 44 40 24 Q50 8 60 24 Q70 40 80 24 Q92 18 96 22 Q104 6 116 24 Q128 42 140 24 Q152 8 164 24 Q176 40 188 24 Q200 12 212 24 Q220 30 228 24 Q240 8 252 24 Q264 40 276 24 Q288 14 300 24 Q310 32 320 24" stroke="#f472b6"></path>
+  </g>
+
+
+  <g transform="translate(48,224)">
+
+    <g transform="translate(0,0)">
+      <circle cx="24" cy="26" r="22" fill="#2a1f17"></circle>
+      <circle cx="22" cy="22" r="22" fill="#f472b6" stroke="#2a1f17" stroke-width="2"></circle>
+      <circle cx="15" cy="20" r="2.5" fill="#2a1f17"></circle><circle cx="29" cy="20" r="2.5" fill="#2a1f17"></circle>
+      <path d="M16 28 Q22 32 28 28" stroke="#2a1f17" stroke-width="2" fill="none" stroke-linecap="round"></path>
     </g>
+
+    <g transform="translate(58,0)">
+      <rect x="2" y="6" width="44" height="40" rx="6" fill="#2a1f17"></rect>
+      <rect x="0" y="2" width="44" height="40" rx="6" fill="#22c55e" stroke="#2a1f17" stroke-width="2"></rect>
+      <line x1="22" y1="-4" x2="22" y2="2" stroke="#2a1f17" stroke-width="2"></line>
+      <circle cx="22" cy="-5" r="2.5" fill="#22c55e" stroke="#2a1f17" stroke-width="1.5"></circle>
+      <rect x="9" y="14" width="8" height="6" fill="#2a1f17"></rect><rect x="27" y="14" width="8" height="6" fill="#2a1f17"></rect>
+      <rect x="14" y="28" width="16" height="3" fill="#2a1f17"></rect>
+    </g>
+
+    <g transform="translate(116,0)">
+      <circle cx="24" cy="26" r="22" fill="#2a1f17"></circle>
+      <circle cx="22" cy="22" r="22" fill="#fb7185" stroke="#2a1f17" stroke-width="2"></circle>
+      <ellipse cx="15" cy="20" rx="2.5" ry="3" fill="#2a1f17"></ellipse><ellipse cx="29" cy="20" rx="2.5" ry="3" fill="#2a1f17"></ellipse>
+      <ellipse cx="11" cy="28" rx="3" ry="2" fill="#2a1f17" opacity=".25"></ellipse><ellipse cx="33" cy="28" rx="3" ry="2" fill="#2a1f17" opacity=".25"></ellipse>
+      <path d="M17 28 Q22 32 27 28" stroke="#2a1f17" stroke-width="2" fill="none" stroke-linecap="round"></path>
+    </g>
+
+    <g transform="translate(174,0)">
+      <circle cx="24" cy="26" r="22" fill="#2a1f17"></circle>
+      <circle cx="22" cy="22" r="22" fill="#eab308" stroke="#2a1f17" stroke-width="2"></circle>
+      <path d="M11 18 Q14 16 17 18" stroke="#2a1f17" stroke-width="2.2" fill="none" stroke-linecap="round"></path>
+      <circle cx="29" cy="20" r="2.5" fill="#2a1f17"></circle>
+      <ellipse cx="22" cy="30" rx="4" ry="2.5" fill="#2a1f17"></ellipse>
+    </g>
+
+    <g transform="translate(232,0)">
+      <circle cx="24" cy="26" r="22" fill="#2a1f17"></circle>
+      <circle cx="22" cy="22" r="22" fill="#38bdf8" stroke="#2a1f17" stroke-width="2"></circle>
+      <circle cx="16" cy="22" r="2" fill="#2a1f17"></circle><circle cx="28" cy="22" r="2" fill="#2a1f17"></circle>
+      <path d="M18 28 Q22 32 26 28 L26 31 Q22 33 18 31 Z" fill="#fb7185" stroke="#2a1f17" stroke-width="1.5"></path>
+    </g>
+
+    <g transform="translate(290,0)">
+      <circle cx="24" cy="26" r="22" fill="#2a1f17"></circle>
+      <circle cx="22" cy="22" r="22" fill="#14b8a6" stroke="#2a1f17" stroke-width="2"></circle>
+      <path d="M22 -2 Q28 0 26 8 Q22 6 22 -2 Z" fill="#14b8a6" stroke="#2a1f17" stroke-width="2"></path>
+      <path d="M12 18 Q14 16 17 18" stroke="#2a1f17" stroke-width="2" fill="none" stroke-linecap="round"></path>
+      <path d="M27 18 Q29 16 32 18" stroke="#2a1f17" stroke-width="2" fill="none" stroke-linecap="round"></path>
+      <path d="M17 28 Q22 31 27 28" stroke="#2a1f17" stroke-width="2" fill="none" stroke-linecap="round"></path>
+    </g>
+
+    <g transform="translate(348,0)">
+      <circle cx="24" cy="26" r="22" fill="#2a1f17"></circle>
+      <circle cx="22" cy="22" r="22" fill="#f59e0b" stroke="#2a1f17" stroke-width="2"></circle>
+      <path d="M11 18 Q15 22 19 18" stroke="#2a1f17" stroke-width="2.2" fill="none" stroke-linecap="round"></path>
+      <path d="M25 18 Q29 22 33 18" stroke="#2a1f17" stroke-width="2.2" fill="none" stroke-linecap="round"></path>
+      <path d="M17 30 Q22 27 27 30" stroke="#2a1f17" stroke-width="2" fill="none" stroke-linecap="round"></path>
+    </g>
+
+    <g transform="translate(406,0)">
+      <path d="M2 28 L8 6 L14 18 L20 4 L26 18 L32 4 L38 18 L44 6 L44 38 L2 38 Z" fill="#ef4444" stroke="#2a1f17" stroke-width="2" stroke-linejoin="round"></path>
+      <line x1="10" y1="14" x2="18" y2="20" stroke="#2a1f17" stroke-width="2.2" stroke-linecap="round"></line>
+      <line x1="36" y1="14" x2="28" y2="20" stroke="#2a1f17" stroke-width="2.2" stroke-linecap="round"></line>
+      <circle cx="14" cy="22" r="2" fill="#2a1f17"></circle><circle cx="32" cy="22" r="2" fill="#2a1f17"></circle>
+      <path d="M12 30 L16 34 L20 30 L24 34 L28 30 L32 34 L36 30" fill="none" stroke="#2a1f17" stroke-width="2"></path>
+    </g>
+
+    <g transform="translate(464,0)">
+      <path d="M4 4 L8 12 L14 0 L22 10 L28 0 L36 12 L40 4 L40 14 L4 14 Z" fill="#fde68a" stroke="#2a1f17" stroke-width="2" stroke-linejoin="round"></path>
+      <circle cx="14" cy="6" r="1.4" fill="#ef4444"></circle><circle cx="22" cy="4" r="1.4" fill="#7c3aed"></circle><circle cx="28" cy="6" r="1.4" fill="#22c55e"></circle>
+      <circle cx="22" cy="30" r="16" fill="#7c3aed" stroke="#2a1f17" stroke-width="2"></circle>
+      <ellipse cx="16" cy="28" rx="3" ry="2.5" fill="#fde68a" stroke="#2a1f17" stroke-width="1.6"></ellipse>
+      <ellipse cx="28" cy="28" rx="3" ry="2.5" fill="#fde68a" stroke="#2a1f17" stroke-width="1.6"></ellipse>
+      <circle cx="16" cy="28" r="1" fill="#2a1f17"></circle><circle cx="28" cy="28" r="1" fill="#2a1f17"></circle>
+      <path d="M16 36 Q22 38 28 36" stroke="#2a1f17" stroke-width="2" fill="none" stroke-linecap="round"></path>
+    </g>
+
+
+    <text x="538" y="32" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" font-weight="700" fill="#6b5849">9 character cast · seedable · WAV + JSON</text>
   </g>
-  <g transform="translate(380 94)">
-    <rect x="0" y="0" width="664" height="154" rx="30" fill="#FFFCF5" stroke="#6E4D35" stroke-width="5" filter="url(#softShadow)"/>
-    <text x="46" y="68" font-size="56" font-weight="900" letter-spacing="0" font-family="Inter, Avenir, Helvetica, Arial, sans-serif" fill="#4A3424">Mumble Voice Lab</text>
-    <text x="48" y="112" font-size="26" font-weight="750" fill="#F27DA5" font-family="Inter, Avenir, Helvetica, Arial, sans-serif">game-ready mumble / gibberish voices</text>
-  </g>
-  <g transform="translate(454 340) scale(1.15)">
-    <rect x="0" y="-10" width="8" height="20" rx="4" fill="#F27DA5"/>
-<rect x="18" y="-24" width="8" height="48" rx="4" fill="#F27DA5"/>
-<rect x="36" y="-38" width="8" height="76" rx="4" fill="#F27DA5"/>
-<rect x="54" y="-21" width="8" height="42" rx="4" fill="#F27DA5"/>
-<rect x="72" y="-48" width="8" height="96" rx="4" fill="#F27DA5"/>
-<rect x="90" y="-31" width="8" height="62" rx="4" fill="#F27DA5"/>
-<rect x="108" y="-58" width="8" height="116" rx="4" fill="#F27DA5"/>
-<rect x="126" y="-35" width="8" height="70" rx="4" fill="#F27DA5"/>
-<rect x="144" y="-20" width="8" height="40" rx="4" fill="#F27DA5"/>
-<rect x="162" y="-45" width="8" height="90" rx="4" fill="#F27DA5"/>
-<rect x="180" y="-26" width="8" height="52" rx="4" fill="#F27DA5"/>
-<rect x="198" y="-12" width="8" height="24" rx="4" fill="#F27DA5"/>
-  </g>
-  
-  <g transform="translate(770 292)">
-    <path d="M8 0H60L80 28V98C80 104 74 108 68 108H8C2 108 0 104 0 98V8C0 2 2 0 8 0Z" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M60 0V28H80" fill="#F5DFC2" stroke="#6E4D35" stroke-width="4" stroke-linejoin="round"/>
-    <rect x="13" y="65" width="62" height="28" rx="10" fill="#F27DA5" stroke="#6E4D35" stroke-width="4"/>
-    <text x="44" y="85" text-anchor="middle" font-size="18" font-weight="800" font-family="Inter, Avenir, Helvetica, Arial, sans-serif" fill="#4A3424">WAV</text>
-  </g>
-  
-  <g transform="translate(884 292)">
-    <path d="M8 0H60L80 28V98C80 104 74 108 68 108H8C2 108 0 104 0 98V8C0 2 2 0 8 0Z" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M60 0V28H80" fill="#F5DFC2" stroke="#6E4D35" stroke-width="4" stroke-linejoin="round"/>
-    <rect x="13" y="65" width="62" height="28" rx="10" fill="#8FC9A2" stroke="#6E4D35" stroke-width="4"/>
-    <text x="44" y="85" text-anchor="middle" font-size="18" font-weight="800" font-family="Inter, Avenir, Helvetica, Arial, sans-serif" fill="#4A3424">JSON</text>
-  </g>
-  <g transform="translate(1016 305)">
-    <rect x="0" y="0" width="94" height="86" rx="24" fill="#E5F2FF" stroke="#6E4D35" stroke-width="4"/>
-    <path d="M25 45H69M47 23V67" stroke="#8CB9E5" stroke-width="8" stroke-linecap="round"/>
-    <circle cx="23" cy="66" r="6" fill="#F27DA5" stroke="#6E4D35" stroke-width="3"/>
-    <circle cx="71" cy="66" r="6" fill="#F4C85D" stroke="#6E4D35" stroke-width="3"/>
-  </g>
-  
-  <path d="M1088 100.8L1092.4 109.6L1101.2 114L1092.4 118.4L1088 127.2L1083.6 118.4L1074.8 114L1083.6 109.6Z" fill="#F4C85D" stroke="#6E4D35" stroke-width="3.3000000000000003" stroke-linejoin="round"/>
-  
-  <path d="M342 387L345 393L351 396L345 399L342 405L339 399L333 396L339 393Z" fill="#8CB9E5" stroke="#6E4D35" stroke-width="2.25" stroke-linejoin="round"/>
 </svg>

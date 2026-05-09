@@ -2,38 +2,38 @@
 <svg width="440" height="262" viewBox="0 0 440 262" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="0" flood-color="#E8D3B7" flood-opacity="1"></feDropShadow>
     </filter>
     <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
-      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"/>
+      <circle cx="3" cy="3" r="1.2" fill="#F5DFC2" opacity="0.65"></circle>
     </pattern>
   </defs>
-  <rect width="440" height="262" fill="none"/>
-<rect x="18" y="18" width="404" height="216" rx="30" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" filter="url(#softShadow)"/>
-  <circle cx="56" cy="56" r="22" fill="#EEE8FF" stroke="#6E4D35" stroke-width="4"/>
+  <rect width="440" height="262" fill="none"></rect>
+<rect x="18" y="18" width="404" height="216" rx="30" fill="#FFFCF5" stroke="#6E4D35" stroke-width="4" filter="url(#softShadow)"></rect>
+  <circle cx="56" cy="56" r="22" fill="#EEE8FF" stroke="#6E4D35" stroke-width="4"></circle>
   <text x="56" y="64" text-anchor="middle" font-size="20" font-weight="900" font-family="Inter, Avenir, Helvetica, Arial, sans-serif" fill="#4A3424">3</text>
 <g transform="translate(110 74)">
-    <circle cx="84" cy="74" r="58" fill="#FFE0EA" stroke="#6E4D35" stroke-width="4"/>
-    <circle cx="64" cy="63" r="7" fill="#4A3424"/>
-    <circle cx="105" cy="63" r="7" fill="#4A3424"/>
-    <path d="M66 89C80 101 98 101 111 89" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="84" cy="74" r="58" fill="#FFE0EA" stroke="#6E4D35" stroke-width="4"></circle>
+    <circle cx="64" cy="63" r="7" fill="#4A3424"></circle>
+    <circle cx="105" cy="63" r="7" fill="#4A3424"></circle>
+    <path d="M66 89C80 101 98 101 111 89" stroke="#6E4D35" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
     <g transform="translate(150 74) scale(0.52)">
-    <rect x="0" y="-10" width="8" height="20" rx="4" fill="#F27DA5"/>
-<rect x="18" y="-24" width="8" height="48" rx="4" fill="#F27DA5"/>
-<rect x="36" y="-38" width="8" height="76" rx="4" fill="#F27DA5"/>
-<rect x="54" y="-21" width="8" height="42" rx="4" fill="#F27DA5"/>
-<rect x="72" y="-48" width="8" height="96" rx="4" fill="#F27DA5"/>
-<rect x="90" y="-31" width="8" height="62" rx="4" fill="#F27DA5"/>
-<rect x="108" y="-58" width="8" height="116" rx="4" fill="#F27DA5"/>
-<rect x="126" y="-35" width="8" height="70" rx="4" fill="#F27DA5"/>
-<rect x="144" y="-20" width="8" height="40" rx="4" fill="#F27DA5"/>
-<rect x="162" y="-45" width="8" height="90" rx="4" fill="#F27DA5"/>
-<rect x="180" y="-26" width="8" height="52" rx="4" fill="#F27DA5"/>
-<rect x="198" y="-12" width="8" height="24" rx="4" fill="#F27DA5"/>
+    <rect x="0" y="-10" width="8" height="20" rx="4" fill="#F27DA5"></rect>
+<rect x="18" y="-24" width="8" height="48" rx="4" fill="#F27DA5"></rect>
+<rect x="36" y="-38" width="8" height="76" rx="4" fill="#F27DA5"></rect>
+<rect x="54" y="-21" width="8" height="42" rx="4" fill="#F27DA5"></rect>
+<rect x="72" y="-48" width="8" height="96" rx="4" fill="#F27DA5"></rect>
+<rect x="90" y="-31" width="8" height="62" rx="4" fill="#F27DA5"></rect>
+<rect x="108" y="-58" width="8" height="116" rx="4" fill="#F27DA5"></rect>
+<rect x="126" y="-35" width="8" height="70" rx="4" fill="#F27DA5"></rect>
+<rect x="144" y="-20" width="8" height="40" rx="4" fill="#F27DA5"></rect>
+<rect x="162" y="-45" width="8" height="90" rx="4" fill="#F27DA5"></rect>
+<rect x="180" y="-26" width="8" height="52" rx="4" fill="#F27DA5"></rect>
+<rect x="198" y="-12" width="8" height="24" rx="4" fill="#F27DA5"></rect>
   </g>
   </g>
-  
-  <path d="M342 62.4L345.2 68.8L351.6 72L345.2 75.2L342 81.6L338.8 75.2L332.4 72L338.8 68.8Z" fill="#F4C85D" stroke="#6E4D35" stroke-width="2.4000000000000004" stroke-linejoin="round"/>
-  
-  <path d="M94 176.8L96.4 181.6L101.2 184L96.4 186.4L94 191.2L91.6 186.4L86.8 184L91.6 181.6Z" fill="#8CB9E5" stroke="#6E4D35" stroke-width="1.7999999999999998" stroke-linejoin="round"/>
+
+  <path d="M342 62.4L345.2 68.8L351.6 72L345.2 75.2L342 81.6L338.8 75.2L332.4 72L338.8 68.8Z" fill="#F4C85D" stroke="#6E4D35" stroke-width="2.4000000000000004" stroke-linejoin="round"></path>
+
+  <path d="M94 176.8L96.4 181.6L101.2 184L96.4 186.4L94 191.2L91.6 186.4L86.8 184L91.6 181.6Z" fill="#8CB9E5" stroke="#6E4D35" stroke-width="1.7999999999999998" stroke-linejoin="round"></path>
 </svg>
