@@ -65,6 +65,11 @@ const sliderDefinitions: SliderDefinition[] = [
 const githubRepositoryUrl = "https://github.com/nightt5879/mumble-voice-lab";
 const themeStorageKey = "mumble-voice-lab-theme";
 
+const defaultDemoTexts: Record<UiLanguage, string> = {
+  zh: "你好呀！这里是 super Mumble Voice Lab 的 demo 界面，欢迎大家多多支持与使用哦！",
+  en: "Hi there! This is the super Mumble Voice Lab demo interface. Thanks for your support, and please enjoy using it!",
+};
+
 interface ChatterRow {
   presetId: string;
   text: string;
@@ -341,15 +346,13 @@ function wait(ms: number) {
 }
 
 export default function App() {
-  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("zh");
+  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
   const ui = uiCopy[uiLanguage];
   const [themeChoice, setThemeChoice] = useState<ThemeChoice>(getStoredThemeChoice);
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
     resolveThemeChoice(getStoredThemeChoice()),
   );
-  const [text, setText] = useState(
-    "你好呀！这里是 super Mumble Voice Lab 的 demo 界面，欢迎大家多多支持与使用哦！",
-  );
+  const [text, setText] = useState(defaultDemoTexts.en);
   const [selectedPresetId, setSelectedPresetId] = useState(defaultPresets[0].id);
   const [params, setParams] = useState<MumbleParameters>(
     defaultPresets[0].params,
@@ -496,6 +499,13 @@ export default function App() {
     setParams({ ...preset.params });
     setStatus({ type: "presetLoaded", presetId: preset.id });
   };
+
+  const selectUiLanguage = useCallback((language: UiLanguage) => {
+    setText((current) =>
+      current === defaultDemoTexts[uiLanguage] ? defaultDemoTexts[language] : current,
+    );
+    setUiLanguage(language);
+  }, [uiLanguage]);
 
   const triggerPlayback = useCallback(async () => {
     try {
@@ -954,7 +964,7 @@ export default function App() {
                 <button
                   className={language === uiLanguage ? "is-active" : ""}
                   key={language}
-                  onClick={() => setUiLanguage(language)}
+                  onClick={() => selectUiLanguage(language)}
                   type="button"
                 >
                   {ui.languageNames[language]}
