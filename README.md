@@ -5,224 +5,224 @@
 </p>
 
 <p align="center">
-  <b>给游戏角色生成 mumble / gibberish 碎碎念音效。</b><br>
-  不是 TTS，不朗读真实文字，而是把台词节奏变成可爱的角色语音、WAV 和字幕 reveal 时间轴。
+  <b>Generate mumble / gibberish dialogue sounds for game characters.</b><br>
+  Not TTS. It turns dialogue rhythm into cute character blips, WAV files, and subtitle reveal timing.
 </p>
 
 <p align="center">
   <a href="https://github.com/nightt5879/mumble-voice-lab/releases/tag/v1.5.0"><img alt="Release" src="https://img.shields.io/badge/release-v1.5.0_godot_store--ready-f472b6?style=for-the-badge&labelColor=2a1f17"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache_2.0-fde68a?style=for-the-badge&labelColor=2a1f17"></a>
-  <a href="#状态--反馈"><img alt="Godot" src="https://img.shields.io/badge/godot-windows--first-38bdf8?style=for-the-badge&labelColor=2a1f17"></a>
-  <a href="#状态--反馈"><img alt="Unity" src="https://img.shields.io/badge/unity-alpha-f59e0b?style=for-the-badge&labelColor=2a1f17"></a>
+  <a href="#current-limits--feedback"><img alt="Status" src="https://img.shields.io/badge/godot-windows--first-38bdf8?style=for-the-badge&labelColor=2a1f17"></a>
+  <a href="#current-limits--feedback"><img alt="Unity" src="https://img.shields.io/badge/unity-alpha-f59e0b?style=for-the-badge&labelColor=2a1f17"></a>
 </p>
 
 <p align="center">
-  <a href="https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready"><b>▶ 在线体验</b></a>
+  <a href="https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready"><b>▶ Live Demo</b></a>
   &nbsp;·&nbsp;
-  <a href="https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.5.0-godot-store-ready">♪ 12 条试听样例</a>
+  <a href="https://nightt5879.github.io/mumble-voice-lab/showcase.html?v=1.5.0-godot-store-ready">♪ 12-clip Showcase</a>
   &nbsp;·&nbsp;
   <a href="https://github.com/nightt5879/mumble-voice-lab/releases/tag/v1.5.0">v1.5.0 Release</a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/nightt5879/mumble-voice-lab/releases/download/v1.5.0/mumble-voice-lab-godot-0.2.0.zip">⤓ Godot 插件 zip</a>
+  <a href="https://github.com/nightt5879/mumble-voice-lab/releases/download/v1.5.0/mumble-voice-lab-godot-0.2.0.zip">⤓ Godot addon zip</a>
   &nbsp;·&nbsp;
-  <a href="docs/integrations.md">§ 引擎接入文档</a>
+  <a href="docs/integrations.md">§ Engine docs</a>
 </p>
 
 <p align="center">
-  <b>中文</b> · <a href="README.en.md">English</a>
+  <a href="README.zh.md">中文</a> · <b>English</b>
 </p>
 
 <p align="center">
   <img src="docs/assets/readme/divider-cute.svg" width="760" alt="">
 </p>
 
-## Studio 一览
+## Studio at a glance
 
 <p align="center">
-  <img src="docs/assets/readme/studio-screenshot.png" width="920" alt="Studio 界面：composer + 角色 preset + 实时预览">
+  <img src="docs/assets/readme/studio-screenshot.png" width="920" alt="Studio interface: composer + character presets + live preview">
 </p>
 
 <p align="center">
-  <sub>左侧 Composer 输入台词、调情绪/风格/强度；右侧实时预览 blip 时间轴和分析数据；下方是 9 个角色 preset，再下面是 Sound Lab 高级参数抽屉。</sub>
+  <sub>Composer on the left for typing the line and tweaking emotion / style / intensity. Live preview on the right with the blip timeline and analysis grid. Nine character presets sit below, with the Sound Lab advanced drawer underneath.</sub>
 </p>
 
 ---
 
-## 这是什么？
+## What it is
 
-**Mumble Voice Lab** 是一个面向游戏项目的浏览器角色碎碎念语音生成器。输入一句台词，选择角色、情绪和说话风格，就能实时试听并导出 **deterministic WAV + `mumble-voice-lab/schedule` JSON**。
+**Mumble Voice Lab** is a browser-based character mumble / gibberish voice generator for games. Type a line, choose a character, tune emotion and speaking style, preview instantly, then export **deterministic WAV + `mumble-voice-lab/schedule` JSON**.
 
-它适合 cozy RPG、独立游戏、视觉小说、怪物 / 生物游戏、NPC 对话系统原型，以及任何需要"角色像在说话，但不是现实语言朗读"的项目。
+It is built for cozy RPGs, indie games, visual novels, creature games, NPC dialogue prototypes, and any project that needs expressive character dialogue sounds without real speech synthesis.
 
 > [!TIP]
-> 占位台词可以中英混合，比如 `你好 adventurer，今天的 quest 准备好了吗？` —— 引擎会按字符密度和标点节奏生成 blip。
+> Placeholder lines can mix languages, e.g. `你好 adventurer, ready for today's quest?` — the engine times blips from character density and punctuation.
 
 ---
 
-## 功能亮点
+## Highlights
 
 <table>
   <tr>
     <td width="50%" valign="top">
       <p><img src="docs/assets/readme/feature-not-tts.svg" width="150" alt=""></p>
-      <p><b>不是 TTS</b><br>不合成真实朗读，而是根据文本长度、标点、中英文节奏和句尾语气生成类音节 blip。</p>
+      <p><b>Not TTS</b><br>It does not pronounce real words. It uses text length, punctuation, Chinese/English rhythm, and sentence endings to create syllable-like blips.</p>
     </td>
     <td width="50%" valign="top">
       <p><img src="docs/assets/readme/feature-wav-json.svg" width="230" alt=""></p>
-      <p><b>WAV + schedule JSON</b><br>导出可直接进游戏项目的音频，以及包含 <code>events</code> / <code>revealEvents</code> 的时间轴文件。</p>
+      <p><b>WAV + schedule JSON</b><br>Export game-ready audio plus timing data with <code>events</code> and <code>revealEvents</code>.</p>
     </td>
   </tr>
   <tr>
     <td valign="top">
       <p><img src="docs/assets/readme/feature-seed.svg" width="150" alt=""></p>
-      <p><b>可复现输出</b><br>同文本 + 同 preset + 同 seed + 同 expression 会生成相同 schedule。</p>
+      <p><b>Deterministic output</b><br>Same text + preset + seed + expression produces the same schedule.</p>
     </td>
     <td valign="top">
       <p><img src="docs/assets/readme/feature-expression.svg" width="150" alt=""></p>
-      <p><b>角色、情绪、风格叠加</b><br>preset 负责音色，emotion / style / intensity 负责表演状态。</p>
+      <p><b>Preset + emotion + style</b><br>Presets define the voice; emotion, style, and intensity shape the performance.</p>
     </td>
   </tr>
   <tr>
     <td valign="top">
       <p><img src="docs/assets/readme/feature-reveal.svg" width="150" alt=""></p>
-      <p><b>字幕 reveal events</b><br>运行时可以按时间点派发字幕、打字机效果和对话 UI 更新。</p>
+      <p><b>Reveal events</b><br>Runtime players can dispatch timed text reveal events for subtitles and typewriter UI.</p>
     </td>
     <td valign="top">
       <p><img src="docs/assets/readme/feature-game-ready.svg" width="180" alt=""></p>
-      <p><b>面向游戏资产</b><br>先在编辑器生成资产，游戏运行时只播放已生成 WAV 并同步文本。</p>
+      <p><b>Game-ready assets</b><br>Generate assets in the editor, then play WAV files and sync text at runtime.</p>
     </td>
   </tr>
 </table>
 
 ---
 
-## V1.5 引擎接入
+## V1.5 engine integration
 
 <p align="center">
   <img src="docs/assets/readme/engine-flow.svg" width="620" alt="Editor → WAV / JSON → game flow">
 </p>
 
-| Unity alpha | Godot Windows-first | 编辑器生成面板 |
+| Unity alpha | Godot Windows-first | Generator dock |
 |---|---|---|
-| <img src="docs/assets/readme/engine-unity-window.svg" width="245" alt=""><br>本地 UPM package。当前仍依赖本机 Node/npm，通过 `npx tsx scripts/mvl.ts` 调 CLI 生成资产。 | <img src="docs/assets/readme/engine-godot-window.svg" width="245" alt=""><br>Godot addon `0.2.0`。Windows 默认使用内置 `mvl-renderer-win-x64.exe`，普通用户不需要安装 Node。 | <img src="docs/assets/readme/engine-plugin-dock.svg" width="170" alt=""><br>在编辑器里输入文本、选择 preset / emotion / style，生成 `WAV + .mumble.json + MumbleDialogueClip .tres`。 |
+| <img src="docs/assets/readme/engine-unity-window.svg" width="245" alt=""><br>Local UPM package. It still depends on local Node/npm and calls `npx tsx scripts/mvl.ts` to generate assets. | <img src="docs/assets/readme/engine-godot-window.svg" width="245" alt=""><br>Godot addon `0.2.0`. On Windows it defaults to the bundled `mvl-renderer-win-x64.exe`, so normal users do not need Node. | <img src="docs/assets/readme/engine-plugin-dock.svg" width="170" alt=""><br>Type dialogue, choose preset / emotion / style, then generate `WAV + .mumble.json + MumbleDialogueClip .tres`. |
 
 > [!NOTE]
-> **当前边界很明确：** 引擎运行时播放的是已生成资产；`MumbleVoicePlayer` 负责根据 `revealEvents` 同步字幕 / 打字机效果。玩家运行时输入任意文字并实时合成，不属于这版目标。
+> **The runtime boundary is intentional:** engines play generated assets. `MumbleVoicePlayer` syncs subtitles and typewriter UI from `revealEvents`. Player-entered free-text synthesis at runtime is not part of this release.
 
 ---
 
-## 工作流程
+## Workflow
 
 <table>
   <tr>
     <td width="33%" valign="top" align="center">
       <img src="docs/assets/readme/workflow-01-input.svg" width="260" alt=""><br>
-      <b>1. 输入台词</b><br>
-      <sub>写一句 NPC 台词，可以是中文、英文或中英混合。</sub>
+      <b>1. Enter dialogue</b><br>
+      <sub>Write one NPC line in Chinese, English, or mixed text.</sub>
     </td>
     <td width="33%" valign="top" align="center">
       <img src="docs/assets/readme/workflow-02-analysis.svg" width="260" alt=""><br>
-      <b>2. 分析节奏</b><br>
-      <sub>根据文本长度、标点、短语和语言特征估算类音节事件。</sub>
+      <b>2. Analyze rhythm</b><br>
+      <sub>Estimate pseudo-syllable events from text length, punctuation, phrases, and language features.</sub>
     </td>
     <td width="33%" valign="top" align="center">
       <img src="docs/assets/readme/workflow-03-generate.svg" width="260" alt=""><br>
-      <b>3. 生成 mumble 声音</b><br>
-      <sub>用 preset + expression 生成角色化 blip 序列。</sub>
+      <b>3. Generate mumble voice</b><br>
+      <sub>Combine preset and expression settings into character-like blips.</sub>
     </td>
   </tr>
   <tr>
     <td valign="top" align="center">
       <img src="docs/assets/readme/workflow-04-export.svg" width="260" alt=""><br>
-      <b>4. 导出资产</b><br>
-      <sub>写出 WAV 和 schedule JSON，批量对白也会生成 manifest。</sub>
+      <b>4. Export assets</b><br>
+      <sub>Write WAV and schedule JSON; batch renders also produce a manifest.</sub>
     </td>
     <td valign="top" align="center">
       <img src="docs/assets/readme/workflow-05-sync.svg" width="260" alt=""><br>
-      <b>5. 同步字幕</b><br>
-      <sub><code>revealEvents</code> 给 UI 精确的 reveal 时间点。</sub>
+      <b>5. Sync subtitles</b><br>
+      <sub><code>revealEvents</code> provide exact timing for UI text reveal.</sub>
     </td>
     <td valign="top" align="center">
       <img src="docs/assets/readme/workflow-06-gameplay.svg" width="260" alt=""><br>
-      <b>6. 游戏中播放</b><br>
-      <sub>Unity / Godot runtime 播放音频并派发 reveal 事件。</sub>
+      <b>6. Play in game</b><br>
+      <sub>Unity / Godot runtime plays audio and dispatches reveal events.</sub>
     </td>
   </tr>
 </table>
 
 ---
 
-## 快速开始
+## Quick start
 
-| 场景 | 用法 |
+| Scenario | Use it |
 |---|---|
-| **Web 工具** | 打开 [在线体验](https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready)，输入台词后直接试听和导出。 |
+| **Web tool** | Open the [Live Demo](https://nightt5879.github.io/mumble-voice-lab/?v=1.5.0-godot-store-ready), type a line, preview, and export. |
 | **CLI** | `npm run mvl -- render --text "Good morning, traveler! Ready?" --preset cute-npc --out-dir out` |
-| **批量生成** | `npm run mvl -- batch --input dialogue.csv --out-dir out` |
-| **Unity alpha** | 把 `integrations/unity/com.nightt5879.mumble-voice-lab` 作为本地 UPM package 加进 Unity，运行 `npm install`，再打开 `Tools > Mumble Voice Lab`。 |
-| **Godot 0.2.0** | 下载 release 里的 Godot zip，或复制 `integrations/godot/addons/mumble_voice_lab` 到 Godot 4.6 项目，在插件面板启用。 |
+| **Batch** | `npm run mvl -- batch --input dialogue.csv --out-dir out` |
+| **Unity alpha** | Add `integrations/unity/com.nightt5879.mumble-voice-lab` as a local UPM package, run `npm install`, then open `Tools > Mumble Voice Lab`. |
+| **Godot 0.2.0** | Download the Godot zip from the release, or copy `integrations/godot/addons/mumble_voice_lab` into a Godot 4.6 project and enable the plugin. |
 
 <details>
-<summary><b>Sound Lab · 高级参数（点开查看）</b></summary>
+<summary><b>Sound Lab · advanced parameters (click to expand)</b></summary>
 
-应用内的 Sound Lab 抽屉暴露 6 组可调参数（pitch · rhythm · roughness · brightness · continuity · level），以及 `pitchFallAtEnd` 这类全局开关。导出的 schedule JSON 会保留所有覆写值，所以同一段台词可以反复 reload 出完全相同的输出。
+The in-app Sound Lab drawer exposes 6 parameter groups (pitch · rhythm · roughness · brightness · continuity · level) plus global toggles like `pitchFallAtEnd`. Every override is preserved in the exported schedule JSON, so the same line reloads to identical output.
 
-完整参数表见 [`docs/integrations.md`](docs/integrations.md#sound-lab-parameters)。
+Full parameter table lives in [`docs/integrations.md`](docs/integrations.md#sound-lab-parameters).
 
 </details>
 
 ---
 
-## 状态 & 反馈
+## Status & feedback
 
 | <img src="docs/assets/readme/ui-warning.svg" width="40" align="center"> | <img src="docs/assets/readme/ui-issue.svg" width="40" align="center"> | <img src="docs/assets/readme/ui-download.svg" width="40" align="center"> |
 |---|---|---|
-| **平台覆盖** | **反馈渠道** | **发布口径** |
-| Godot Windows 已验证内置 renderer、headless 测试和人工播放；macOS / Linux 暂未内置 renderer，可用 Node CLI fallback 做开发测试。 | 复杂的 Unity / Godot 工程里可能遇到路径、导入、导出或运行时问题，欢迎在 [issue 区](https://github.com/nightt5879/mumble-voice-lab/issues) 提交复现步骤。 | Web 工具和导出协议稳定 · Unity `alpha` · Godot `windows-first store-ready candidate`，最终 Asset Library 审核以官方为准。 |
+| **Platform coverage** | **Feedback channel** | **Release positioning** |
+| Godot Windows verifies bundled renderer, headless tests, and manual playback. macOS / Linux do not include a bundled renderer yet; use the Node CLI fallback for development. | Complex Unity / Godot projects may expose path, import, export, or runtime issues. Please open [issues](https://github.com/nightt5879/mumble-voice-lab/issues) with repro steps. | Web tool and export protocol stable · Unity `alpha` · Godot `windows-first store-ready candidate`. Final Asset Library acceptance depends on official review. |
 
 ---
 
-## 版本轨迹
+## Version trail
 
-| 版本 | 重点 |
+| Version | Focus |
 |---|---|
-| `V1.1.0` | 优化 blip 之间的衔接、包络、淡入淡出和整体流畅度。 |
-| `V1.2.0` | 引入 cozy 贴纸视觉系统、角色头像和多人同时讲话面板。 |
-| `V1.3.0` | 新增"我的角色"自定义 preset 保存、导出和导入。 |
-| `V1.4.0` | 新增 CLI renderer、`schedule` JSON 1.0、Unity 本地 UPM 插件 alpha 和 Godot preview。 |
-| **`V1.5.0`** ← 当前 | Godot 0.2.0 Windows-first：内置 renderer、`.tres` 对白资源、headless 闭环测试和 Asset Library 材料。 |
+| `V1.1.0` | Smoother blip transitions, envelopes, fades, and connected playback. |
+| `V1.2.0` | Cozy sticker visual system, character avatars, and crowd chatter. |
+| `V1.3.0` | "My Presets" custom voice saving, export, and import. |
+| `V1.4.0` | CLI renderer, `schedule` JSON 1.0, Unity local UPM alpha, and Godot preview. |
+| **`V1.5.0`** ← current | Godot 0.2.0 Windows-first: bundled renderer, `.tres` dialogue resources, headless tests, and Asset Library materials. |
 
-详细发布记录见 [CHANGELOG.md](CHANGELOG.md)，引擎接入和 QA 步骤见 [docs/integrations.md](docs/integrations.md)。
+Release notes live in [CHANGELOG.md](CHANGELOG.md). Engine setup and QA steps live in [docs/integrations.md](docs/integrations.md).
 
 ---
 
-## 本地开发
+## Local development
 
 ```bash
-# 安装依赖并启动 Vite
+# install deps and start Vite
 npm install
 npm run dev
 ```
 
 ```bash
-# 生产构建（输出到 dist/）
+# production build (outputs to dist/)
 npm run build
 ```
 
 ```bash
-# 重新生成在线试听页样例（12 条）
+# regenerate the 12 listening samples for the showcase page
 npm run samples
 ```
 
 ---
 
-## 开源协议
+## License
 
 Copyright 2026 nightt5879.
 
-代码使用 [Apache License 2.0](LICENSE) 开源。
+Code is released under the [Apache License 2.0](LICENSE).
 
-使用 Mumble Voice Lab 生成的音频、JSON schedule 和其他输出内容，可以自由用于个人、商业和开源游戏项目。
+Audio files, JSON schedules, and other outputs generated with Mumble Voice Lab may be used freely in personal, commercial, and open-source game projects.
 
 <p align="center">
   <img src="docs/assets/readme/divider-cute.svg" width="600" alt="">
